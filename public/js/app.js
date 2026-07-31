@@ -5,25 +5,17 @@
 let currentAkadType = "Murabahah";
 let currentValidationResult = null;
 let currentDraftText = "";
+let createdContracts = [];
 
 // Initialize App
 document.addEventListener("DOMContentLoaded", () => {
-  // Load API Key to Settings Form
-  const savedKey = DeepSeekService.getApiKey();
-  if (savedKey) {
-    document.getElementById("api-key-input").value = savedKey;
-    document.getElementById("stat-ai-status").innerText = "DeepSeek API (Connected)";
-  } else {
-    document.getElementById("stat-ai-status").innerText = "AI Simulator (Ready)";
-  }
-
-  // Trigger initial validation
-  triggerValidation();
+  onAkadTypeChange("Murabahah");
+  updateDashboardStats();
 });
 
 // Tab Switcher
 function switchTab(tabId) {
-  const tabs = ['dashboard', 'generator', 'document', 'verification', 'audit', 'settings'];
+  const tabs = ['dashboard', 'generator', 'document', 'verification', 'audit'];
   tabs.forEach(t => {
     const viewEl = document.getElementById(`view-${t}`);
     const navEl = document.getElementById(`nav-${t}`);
@@ -35,12 +27,11 @@ function switchTab(tabId) {
   });
 
   const titles = {
-    'dashboard': 'Dashboard Overview',
+    'dashboard': 'Dashboard Utama',
     'generator': 'Form Penyusunan Akad Syariah Dinamis',
     'document': 'Pratinjau & Cetak Dokumen Akad Syariah',
     'verification': 'Verifikasi Legal Officer & Dewan Pengawas Syariah',
-    'audit': 'Immutable Audit Trail & Blockchain Status',
-    'settings': 'Pengaturan DeepSeek AI API'
+    'audit': 'Audit Trail & Log Status System'
   };
   document.getElementById('page-title').innerText = titles[tabId] || 'Akad Syariah System';
 }
@@ -66,53 +57,53 @@ function onAkadTypeChange(type) {
     container.innerHTML = `
       <div class="form-group">
         <label>Nama Barang / Aset Objek Jual Beli</label>
-        <input type="text" id="namaBarang" class="form-control" value="Laptop Kerja HP Pavilion" oninput="triggerValidation()">
+        <input type="text" id="namaBarang" class="form-control" placeholder="Contoh: Sepeda Motor Honda Vario 160" required oninput="triggerValidation()">
       </div>
       <div class="form-group">
         <label>Harga Pokok Pembelian (Rp)</label>
-        <input type="number" id="hargaBeli" class="form-control" value="10000000" oninput="triggerValidation()">
+        <input type="number" id="hargaBeli" class="form-control" placeholder="0" required oninput="triggerValidation()">
       </div>
       <div class="form-group">
         <label>Margin Keuntungan Koperasi (Rp)</label>
-        <input type="number" id="margin" class="form-control" value="1500000" oninput="triggerValidation()">
+        <input type="number" id="margin" class="form-control" placeholder="0" required oninput="triggerValidation()">
       </div>
       <div class="form-group">
         <label>Tenor / Jangka Waktu (Bulan)</label>
-        <input type="number" id="tenor" class="form-control" value="12" oninput="triggerValidation()">
+        <input type="number" id="tenor" class="form-control" placeholder="12" required oninput="triggerValidation()">
       </div>
     `;
   } else if (type === 'Qardh') {
     container.innerHTML = `
       <div class="form-group">
         <label>Jumlah Pinjaman Pokok (Rp)</label>
-        <input type="number" id="jumlahPinjaman" class="form-control" value="2000000" oninput="triggerValidation()">
+        <input type="number" id="jumlahPinjaman" class="form-control" placeholder="0" required oninput="triggerValidation()">
       </div>
       <div class="form-group">
         <label>Biaya Administrasi Riil / Cetak Dokumen (Rp)</label>
-        <input type="number" id="biayaAdmin" class="form-control" value="25000" oninput="triggerValidation()">
+        <input type="number" id="biayaAdmin" class="form-control" placeholder="0" required oninput="triggerValidation()">
       </div>
       <div class="form-group">
         <label>Jatuh Tempo Pengembalian</label>
-        <input type="text" id="jatuhTempo" class="form-control" value="6 Bulan" oninput="triggerValidation()">
+        <input type="text" id="jatuhTempo" class="form-control" placeholder="Contoh: 6 Bulan" required oninput="triggerValidation()">
       </div>
     `;
   } else if (type === 'Mudharabah') {
     container.innerHTML = `
       <div class="form-group">
         <label>Sektor / Bidang Usaha Mudharabah</label>
-        <input type="text" id="bidangUsaha" class="form-control" value="Usaha Kuliner / Restoran Syariah" oninput="triggerValidation()">
+        <input type="text" id="bidangUsaha" class="form-control" placeholder="Contoh: Usaha Perdagangan / Kuliner" required oninput="triggerValidation()">
       </div>
       <div class="form-group">
         <label>Jumlah Modal Disetor Shahibul Maal (Rp)</label>
-        <input type="number" id="jumlahModal" class="form-control" value="50000000" oninput="triggerValidation()">
+        <input type="number" id="jumlahModal" class="form-control" placeholder="0" required oninput="triggerValidation()">
       </div>
       <div class="form-group">
         <label>Nisbah Bagi Hasil Pengelola / Mudharib (%)</label>
-        <input type="number" id="nisbahPengelola" class="form-control" value="60" oninput="triggerValidation()">
+        <input type="number" id="nisbahPengelola" class="form-control" placeholder="60" required oninput="triggerValidation()">
       </div>
       <div class="form-group">
         <label>Nisbah Bagi Hasil Pemodal / Koperasi (%)</label>
-        <input type="number" id="nisbahPemodal" class="form-control" value="40" oninput="triggerValidation()">
+        <input type="number" id="nisbahPemodal" class="form-control" placeholder="40" required oninput="triggerValidation()">
       </div>
     `;
   }
@@ -196,22 +187,46 @@ function renderValidationPanel(result) {
   checklistContainer.innerHTML = html;
 }
 
-// Submit Form - Generate Redaksi Akad via DeepSeek AI Service
+// Submit Form - Generate Redaksi Akad via Backend DeepSeek API
 async function handleFormSubmit(e) {
   e.preventDefault();
   const formData = getFormData();
 
-  // Call DeepSeek AI Service
-  alert("Mengisi redaksi akad syariah berbasis AI DeepSeek & Rule Engine...");
-  currentDraftText = await DeepSeekService.generateAkadClause(formData, currentValidationResult);
+  const btnSubmit = document.getElementById('btn-submit-ai');
+  btnSubmit.disabled = true;
+  btnSubmit.innerHTML = "⏳ Menghubungi DeepSeek AI Server...";
+
+  const textResult = await DeepSeekService.generateAkadClause(formData, currentValidationResult);
   
-  viewGeneratedDocument();
+  btnSubmit.disabled = false;
+  btnSubmit.innerHTML = "⚡ Susun Akad dengan DeepSeek AI";
+
+  if (textResult) {
+    currentDraftText = textResult;
+    
+    // Save to active contract list
+    const newContract = {
+      id: `AKD/${currentAkadType.substring(0,3).toUpperCase()}/${Math.floor(100000 + Math.random() * 900000)}`,
+      type: currentAkadType,
+      pihakKedua: formData.pihakKedua,
+      date: new Date().toLocaleDateString('id-ID'),
+      score: currentValidationResult.score,
+      content: currentDraftText,
+      status: 'DRAFT'
+    };
+
+    createdContracts.unshift(newContract);
+    updateDashboardStats();
+    addAuditLog(`Contract Generated: ${newContract.id} (${newContract.type}) - Score: ${newContract.score}%`);
+    viewGeneratedDocument();
+  }
 }
 
 // Display Generated Document
 function viewGeneratedDocument() {
   if (!currentDraftText) {
-    currentDraftText = DeepSeekService.generateSmartMockDraft(getFormData());
+    alert("Belum ada draft akad yang dihasilkan. Silakan isi form dan klik 'Susun Akad dengan DeepSeek AI'.");
+    return;
   }
 
   const formData = getFormData();
@@ -234,16 +249,84 @@ function viewGeneratedDocument() {
 
 // Approve Document
 function approveContract() {
-  document.getElementById('approval-stamp').innerHTML = "✅ DISETUJUI DPS & LEGAL KOPI";
+  document.getElementById('approval-stamp').innerHTML = "✅ DISETUJUI DPS & LEGAL KOPERASI";
   document.getElementById('approval-stamp').style.borderColor = "var(--success)";
   document.getElementById('approval-stamp').style.color = "var(--success)";
+  
+  if (createdContracts.length > 0) {
+    createdContracts[0].status = 'APPROVED';
+    addAuditLog(`Contract Approved: ${createdContracts[0].id} by Legal Officer & DPS`);
+    updateDashboardStats();
+  }
+  
   alert("Dokumen Akad Syariah berhasil disetujui, diberi stempel legalitas, dan dicatat ke Audit Trail!");
 }
 
-// Settings Action
-function saveSettings() {
-  const key = document.getElementById('api-key-input').value;
-  DeepSeekService.setApiKey(key);
-  alert("API Key DeepSeek berhasil disimpan!");
-  document.getElementById("stat-ai-status").innerText = key ? "DeepSeek API (Connected)" : "AI Simulator (Ready)";
+// Dashboard Update
+function updateDashboardStats() {
+  document.getElementById('stat-total-akad').innerText = createdContracts.length;
+  
+  if (createdContracts.length > 0) {
+    const avgScore = (createdContracts.reduce((acc, curr) => acc + curr.score, 0) / createdContracts.length).toFixed(1);
+    document.getElementById('stat-syariah-score').innerText = `${avgScore}%`;
+  } else {
+    document.getElementById('stat-syariah-score').innerText = `-`;
+  }
+
+  // Render Dashboard Table
+  const tbody = document.getElementById('dashboard-table-body');
+  if (createdContracts.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+          Belum ada akad yang dibuat. Klik tombol di samping untuk membuat akad baru.
+        </td>
+      </tr>`;
+  } else {
+    tbody.innerHTML = createdContracts.map(c => `
+      <tr>
+        <td><strong>${c.type} (${c.id})</strong></td>
+        <td>${c.pihakKedua}</td>
+        <td><span class="badge badge-success">${c.score}% Patuh (${c.status})</span></td>
+      </tr>
+    `).join('');
+  }
+
+  // Render Verification Table
+  const vbody = document.getElementById('verification-table-body');
+  if (createdContracts.length === 0) {
+    vbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+          Belum ada akad aktif yang dibuat.
+        </td>
+      </tr>`;
+  } else {
+    vbody.innerHTML = createdContracts.map(c => `
+      <tr>
+        <td>${c.id}</td>
+        <td>${c.type}</td>
+        <td>${c.pihakKedua}</td>
+        <td>${c.date}</td>
+        <td><span class="badge badge-success">${c.score}% Valid</span></td>
+        <td>
+          <button class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="viewContractById('${c.id}')">Review & Approve</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+}
+
+function viewContractById(id) {
+  const contract = createdContracts.find(c => c.id === id);
+  if (contract) {
+    currentDraftText = contract.content;
+    viewGeneratedDocument();
+  }
+}
+
+function addAuditLog(message) {
+  const container = document.getElementById('audit-log-container');
+  const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
+  container.innerHTML += `<p>[${timestamp}] ${message}</p>`;
 }
