@@ -10,8 +10,37 @@ let createdContracts = [];
 // Initialize App
 document.addEventListener("DOMContentLoaded", () => {
   onAkadTypeChange("Murabahah");
-  updateDashboardStats();
+  fetchContractsFromBackend();
 });
+
+// Fetch persistent contracts from backend /data storage
+async function fetchContractsFromBackend() {
+  try {
+    const response = await fetch('/api/contracts');
+    if (response.ok) {
+      const data = await response.json();
+      if (Array.isArray(data.contracts)) {
+        createdContracts = data.contracts;
+      }
+    }
+  } catch (err) {
+    console.error("Gagal memuat data akad dari backend:", err);
+  }
+  updateDashboardStats();
+}
+
+// Sync contract to backend persistent volume /data
+async function syncContractToBackend(contract) {
+  try {
+    await fetch('/api/contracts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contract })
+    });
+  } catch (err) {
+    console.error("Gagal menyinkronkan data akad ke backend:", err);
+  }
+}
 
 // Tab Switcher
 function switchTab(tabId) {
@@ -271,6 +300,7 @@ async function handleFormSubmit(e) {
       };
 
       createdContracts.unshift(newContract);
+      syncContractToBackend(newContract);
       updateDashboardStats();
       addAuditLog(`Contract Generated via Template: ${newContract.id} (${newContract.type}) - Score: ${newContract.score}%`);
       viewGeneratedDocument();
@@ -405,6 +435,7 @@ function approveContract() {
   
   if (createdContracts.length > 0) {
     createdContracts[0].status = 'APPROVED';
+    syncContractToBackend(createdContracts[0]);
     addAuditLog(`Contract Approved: ${createdContracts[0].id} oleh Pengurus Koperasi`);
     updateDashboardStats();
   }

@@ -206,10 +206,74 @@ Saat diminta menganalisis suatu skema pembiayaan atau transaksi:
   }
 });
 
+// Tentukan direktori penyimpanan data terpasang (Volume Railway di /data)
+const primaryDataDir = '/data';
+const fallbackDataDir = path.join(__dirname, 'data');
+const dataDir = fs.existsSync(primaryDataDir) ? primaryDataDir : fallbackDataDir;
+
+if (!fs.existsSync(dataDir)) {
+  try {
+    fs.mkdirSync(dataDir, { recursive: true });
+  } catch (e) {
+    console.error('Gagal membuat direktori data:', e);
+  }
+}
+
+const contractsFilePath = path.join(dataDir, 'contracts.json');
+
+// Helper fungsi membaca daftar akad dari berkas permanen
+function loadContracts() {
+  if (fs.existsSync(contractsFilePath)) {
+    try {
+      const fileData = fs.readFileSync(contractsFilePath, 'utf-8');
+      return JSON.parse(fileData);
+    } catch (e) {
+      console.error('Gagal membaca berkas contracts.json:', e);
+      return [];
+    }
+  }
+  return [];
+}
+
+// Helper fungsi menyimpan daftar akad ke berkas permanen
+function saveContracts(contracts) {
+  try {
+    fs.writeFileSync(contractsFilePath, JSON.stringify(contracts, null, 2), 'utf-8');
+  } catch (e) {
+    console.error('Gagal menyimpan berkas contracts.json:', e);
+  }
+}
+
+// API Endpoint untuk mengambil seluruh data akad terpanen
+app.get('/api/contracts', (req, res) => {
+  const contracts = loadContracts();
+  res.json({ contracts });
+});
+
+// API Endpoint untuk menyimpan data akad baru atau memperbarui status akad secara permanen
+app.post('/api/contracts', (req, res) => {
+  const { contract } = req.body;
+  if (!contract || !contract.id) {
+    return res.status(400).json({ error: 'Data akad tidak valid.' });
+  }
+
+  const contracts = loadContracts();
+  const existingIndex = contracts.findIndex(c => c.id === contract.id);
+
+  if (existingIndex >= 0) {
+    contracts[existingIndex] = contract;
+  } else {
+    contracts.unshift(contract);
+  }
+
+  saveContracts(contracts);
+  res.json({ success: true, contracts });
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
-  console.log(`Server Akad Syariah berjalan di port ${PORT}`);
+  console.log(`Server Akad Syariah (AKADIN) berjalan di port ${PORT}. Menyimpan data di ${dataDir}`);
 });
