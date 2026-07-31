@@ -45,12 +45,13 @@ body {
 
 .sidebar {
   width: 280px;
-  background-color: var(--primary-dark);
+  background-color: #0f172a; /* Warna Gelap Dark Slate modern */
   color: #ffffff;
   display: flex;
   flex-direction: column;
   padding: 1.5rem 1rem;
   flex-shrink: 0;
+  border-right: 1px solid #1e293b;
 }
 
 .sidebar-header {
