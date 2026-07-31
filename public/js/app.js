@@ -545,9 +545,17 @@ function appendChatMessage(role, text) {
   const bgStyle = isUser ? 'background: var(--primary-subtle); color: var(--primary-dark); border-radius: var(--radius-md) 0 var(--radius-md) var(--radius-md);' : 'background: white; border: 1px solid var(--border-color); border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);';
   const alignSelf = isUser ? 'flex-direction: row-reverse;' : 'flex-direction: row;';
 
-  // Format line breaks and bold/bullets text nicely
-  let formattedText = text.replace(/\n/g, '<br>');
-  formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  // Clean any markdown symbols (*, **, ###, ---, etc.)
+  let cleanText = text;
+  cleanText = cleanText.replace(/###\s*/g, '');
+  cleanText = cleanText.replace(/##\s*/g, '');
+  cleanText = cleanText.replace(/#\s*/g, '');
+  cleanText = cleanText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  cleanText = cleanText.replace(/\*(.*?)\*/g, '$1');
+  cleanText = cleanText.replace(/---/g, '');
+  cleanText = cleanText.replace(/--/g, '-');
+
+  let formattedText = cleanText.replace(/\n/g, '<br>');
 
   const html = `
     <div style="display: flex; gap: 0.75rem; align-items: flex-start; ${alignSelf}">
