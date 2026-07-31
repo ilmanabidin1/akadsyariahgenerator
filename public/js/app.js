@@ -254,7 +254,7 @@ async function handleFormSubmit(e) {
 
     setTimeout(() => {
       btnSubmit.disabled = false;
-      btnSubmit.innerHTML = "⚡ Susun Akad dengan DeepSeek AI";
+      btnSubmit.innerHTML = "⚡ Susun Akad dengan AI";
       progressContainer.style.display = "none";
       
       currentDraftText = textResult;
@@ -277,7 +277,7 @@ async function handleFormSubmit(e) {
     }, 600);
   } else {
     btnSubmit.disabled = false;
-    btnSubmit.innerHTML = "⚡ Susun Akad dengan DeepSeek AI";
+    btnSubmit.innerHTML = "⚡ Susun Akad dengan AI";
     progressContainer.style.display = "none";
   }
 }
@@ -285,7 +285,7 @@ async function handleFormSubmit(e) {
 // Display Generated Document
 function viewGeneratedDocument() {
   if (!currentDraftText) {
-    alert("Belum ada draft akad yang dihasilkan. Silakan isi form dan klik 'Susun Akad dengan DeepSeek AI'.");
+    alert("Belum ada draft akad yang dihasilkan. Silakan isi form dan klik 'Susun Akad dengan AI'.");
     return;
   }
 
@@ -327,6 +327,74 @@ function viewGeneratedDocument() {
 
   document.getElementById('document-content-area').innerHTML = formattedHtml;
   switchTab('document');
+}
+
+// Function to Export Document to Microsoft Word (.docx)
+function exportToWordDocx() {
+  if (!currentDraftText) {
+    alert("Belum ada dokumen akad untuk diexport. Silakan susun dokumen terlebih dahulu.");
+    return;
+  }
+
+  const contentHtml = document.getElementById('document-content-area').innerHTML;
+  const headerHtml = `
+    <div style="text-align:center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+      <h2 style="margin:0; text-transform:uppercase;">KOPERASI KONSUMEN AL FIRDAUS</h2>
+      <p style="margin:5px 0 0 0; font-size: 12px;">Jalan Raya Syariah No. 45 Bandung - Jawa Barat</p>
+    </div>
+  `;
+  const formData = getFormData();
+  const footerHtml = `
+    <br><br>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 30px;">
+      <tr>
+        <td style="text-align: center; width: 50%;">
+          <p>PIHAK PERTAMA (Penjual/Koperasi)</p>
+          <br><br><br><br>
+          <p><strong>( ______________________ )</strong></p>
+        </td>
+        <td style="text-align: center; width: 50%;">
+          <p>PIHAK KEDUA (Pemohon/Anggota)</p>
+          <br><br><br><br>
+          <p><strong>( ${formData.pihakKedua || '______________________'} )</strong></p>
+        </td>
+      </tr>
+    </table>
+  `;
+
+  const fullHtml = `
+    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+    <head>
+      <meta charset='utf-8'>
+      <title>Dokumen Akad Syariah</title>
+      <style>
+        body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; margin: 1in; }
+        h3 { text-align: center; font-size: 14pt; text-transform: uppercase; margin-top: 15px; }
+        h4 { text-align: center; font-size: 13pt; text-transform: uppercase; margin-top: 20px; }
+        p { margin-bottom: 10px; text-align: justify; }
+      </style>
+    </head>
+    <body>
+      ${headerHtml}
+      ${contentHtml}
+      ${footerHtml}
+    </body>
+    </html>
+  `;
+
+  const blob = new Blob(['\ufeff' + fullHtml], {
+    type: 'application/msword'
+  });
+
+  const url = URL.createObjectURL(blob);
+  const downloadLink = document.createElement('a');
+  downloadLink.href = url;
+  const fileName = `Dokumen_Akad_${currentAkadType}_${(formData.pihakKedua || 'Anggota').replace(/\s+/g, '_')}.docx`;
+  downloadLink.download = fileName;
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+  URL.revokeObjectURL(url);
 }
 
 // Approve Document

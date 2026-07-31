@@ -33,10 +33,9 @@ app.post('/api/generate-akad', async (req, res) => {
 Tugas Anda adalah mengisi dan mengganti seluruh variabel/placeholder identitas (Nama, NIK, Alamat, Pekerjaan/Jabatan), Objek Barang, Harga Pokok, Margin, Uang Muka, Angsuran, Jangka Waktu, Saksi-Saksi, dan Tanggal pada TEMPLATE BAKU AKAD MURABAHAH resmi berikut berdasarkan DATA INPUT TRANSAKSI yang diberikan.
 
 PENTING DAN WAJIB DIPATUHI:
-1. JANGAN MENGGUNAKAN SIMBOL MARKDOWN SAMA SEKALI (seperti **, *, __, #, dll). Tuliskan dokumen dalam teks biasa (plain text) yang bersih, tanpa tanda bintang atau cetak tebal markdown.
-2. Pertahankan struktur kalimat baku hukum, pasal-pasal, ayat-ayat, dalil Al-Qur'an/Hadits, dan format resmi dokumen.
-3. Ganti identitas Pihak Pertama, Pihak Kedua, Objek Barang, Rincian Nilai Finansial, dan Nama Saksi sesuai Data Transaksi.
-4. Jangan menambahkan karakter aneh di tengah kalimat. Hasilkan output teks dokumen akad utuh yang rapi dan siap dicetak.
+1. SAMAKAN FORMAT DAN STRUKTUR TEPAT 100% SAMA PERSIS DENGAN TEMPLATE BAKU (Susunan judul, paragraf pembuka, kalimat hukum, urutan pasal, ayat, dalil Al-Qur'an/Hadits, rincian hitungan, dan penutup). Jangan menambah atau mengurangi struktur kalimat hukum baku.
+2. JANGAN MENGGUNAKAN SIMBOL MARKDOWN SAMA SEKALI (seperti **, *, __, #, dll). Tuliskan dokumen dalam TEKS POLOS (plain text) yang bersih.
+3. Ganti seluruh nilai variabel/identitas Pihak Pertama, Pihak Kedua, Objek Barang, Nilai Finansial, Saksi-Saksi, dan Tanggal secara akurat sesuai Data Input Transaksi Baru.
 
 === TEMPLATE BAKU AKAD ===
 ${templateMurabahah}

@@ -31,7 +31,7 @@ const DeepSeekService = {
       }
     } catch (err) {
       console.error("Gagal terhubung ke backend API:", err);
-      alert("Gagal menghubungkan ke backend server. Pastikan DEEPSEEK_API_KEY sudah terpasang di Railway.");
+      alert("Gagal menghubungkan ke backend server. Pastikan API Key AI Backend sudah terpasang di Railway.");
       return null;
     }
   }

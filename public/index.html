@@ -85,8 +85,8 @@
             <div class="card stat-card">
               <div class="stat-icon icon-blue">🤖</div>
               <div>
-                <div class="stat-val" id="stat-ai-status">DeepSeek Backend</div>
-                <div class="stat-lbl">Engine AI Redaksi</div>
+                <div class="stat-val" id="stat-ai-status">AI Generator</div>
+                <div class="stat-lbl">Engine Penyusun Redaksi</div>
               </div>
             </div>
           </div>
@@ -163,7 +163,7 @@
 
                 <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
                   <button type="submit" id="btn-submit-ai" class="btn btn-primary" style="flex: 1;">
-                    ⚡ Susun Akad dengan DeepSeek AI
+                    ⚡ Susun Akad dengan AI
                   </button>
 
                   <!-- Progress Bar Container -->
@@ -175,7 +175,7 @@
                     <div style="width: 100%; background: #e2e8f0; height: 10px; border-radius: 5px; overflow: hidden; position: relative;">
                       <div id="progress-bar-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light)); transition: width 0.3s ease; border-radius: 5px;"></div>
                     </div>
-                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; text-align: center;">Harap tunggu, DeepSeek AI sedang memproses & menyelaraskan pasal-pasal akad syariah...</p>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; text-align: center;">Harap tunggu, Sistem AI sedang memproses & menyelaraskan pasal-pasal akad syariah...</p>
                   </div>
                 </div>
               </form>
@@ -215,9 +215,10 @@
         <section id="view-document" style="display: none;">
           <div class="no-print" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
             <button class="btn btn-outline" onclick="switchTab('generator')">⬅️ Kembali ke Form</button>
-            <div style="display: flex; gap: 1rem;">
+            <div style="display: flex; gap: 0.75rem;">
+              <button class="btn btn-outline" onclick="exportToWordDocx()" style="border-color: #0284c7; color: #0284c7; font-weight: 600;">📝 Export Word (.docx)</button>
               <button class="btn btn-primary" onclick="window.print()">🖨️ Cetak / Download PDF</button>
-              <button class="btn btn-gold" onclick="approveContract()">✅ Setujui & Tambah Stempel Legal</button>
+              <button class="btn btn-gold" onclick="approveContract()">✅ Sahkan Dokumen</button>
             </div>
           </div>
 
