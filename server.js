@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,10 +10,16 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// API Endpoint proxy untuk DeepSeek AI menggunakan Environment Variable DEEPSEEK_API_KEY dari Railway
+// Load template Murabahah dari file extracted_template.txt (atau fallback jika belum di-extract)
+let templateMurabahah = "";
+const templatePath = path.join(__dirname, 'extracted_template.txt');
+if (fs.existsSync(templatePath)) {
+  templateMurabahah = fs.readFileSync(templatePath, 'utf-8');
+}
+
+// API Endpoint proxy untuk DeepSeek AI mengisi template baku akad
 app.post('/api/generate-akad', async (req, res) => {
   const apiKey = process.env.DEEPSEEK_API_KEY;
-
   const { akadData, validationResult } = req.body;
 
   if (!apiKey) {
@@ -22,6 +29,31 @@ app.post('/api/generate-akad', async (req, res) => {
   }
 
   try {
+    const prompt = `Anda adalah Notaris Hukum Syariah dan Asisten AI Koperasi. 
+Tugas Anda adalah mengisi dan mengganti seluruh variabel/placeholder identitas (Nama, NIK, Alamat, Pekerjaan/Jabatan), Objek Barang, Harga Pokok, Margin, Uang Muka, Angsuran, Jangka Waktu, Saksi-Saksi, dan Tanggal pada TEMPLATE BAKU AKAD MURABAHAH resmi berikut berdasarkan DATA INPUT TRANSAKSI yang diberikan.
+
+PENTING:
+1. Pertahankan struktur kalimat baku hukum, pasal-pasal, ayat-ayat, dalil Al-Qur'an/Hadits, dan format resmi dokumen.
+2. Ganti identitas Pihak Pertama, Pihak Kedua, Objek Barang, Rincian Nilai Finansial, dan Nama Saksi sesuai Data Transaksi.
+3. Hasilkan output teks dokumen akad utuh yang siap dicetak.
+
+=== TEMPLATE BAKU AKAD ===
+${templateMurabahah}
+
+=== DATA INPUT TRANSAKSI BARU ===
+Jenis Akad: ${akadData.tipeAkad}
+Pihak Pertama (Penjual/Koperasi): ${akadData.pihakPertama} (Jabatan: ${akadData.jabatanPihakPertama || 'Pengurus'}, Alamat: ${akadData.alamatPihakPertama || 'Kantor Koperasi'})
+Pihak Kedua (Pembeli/Anggota): ${akadData.pihakKedua} (NIK: ${akadData.nikPihakKedua || '-'}, Pekerjaan: ${akadData.pekerjaanPihakKedua || '-'}, Alamat: ${akadData.alamatPihakKedua || '-'})
+Objek Barang: ${akadData.namaBarang} (Spesifikasi: ${akadData.spesifikasi || '-'})
+Harga Pokok: Rp ${parseFloat(akadData.hargaBeli || 0).toLocaleString('id-ID')}
+Margin Keuntungan: Rp ${parseFloat(akadData.margin || 0).toLocaleString('id-ID')}
+Uang Muka: Rp ${parseFloat(akadData.uangMuka || 0).toLocaleString('id-ID')}
+Tenor: ${akadData.tenor || 12} Bulan
+Saksi 1: ${akadData.saksi1 || 'Saksi I Koperasi'}
+Saksi 2: ${akadData.saksi2 || 'Saksi II Koperasi'}
+Tanggal Akad: ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+`;
+
     const response = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
       headers: {
@@ -31,19 +63,10 @@ app.post('/api/generate-akad', async (req, res) => {
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: [
-          {
-            role: 'system',
-            content: `Anda adalah pakar Hukum Ekonomi Syariah dan Notaris Kontrak Syariah Koperasi. 
-Tugas Anda adalah membuat klausul akad syariah yang baku, elegan, legal, dan sesuai Fatwa DSN-MUI berdasarkan data input dan hasil validasi rukun/syarat.`
-          },
-          {
-            role: 'user',
-            content: `Buatkan redaksi klausul ijab qabul dan pasal-pasal kesepakatan untuk akad ${akadData.tipeAkad} berikut:
-Data Transaksi: ${JSON.stringify(akadData)}
-Hasil Audit Syariah: ${JSON.stringify(validationResult)}`
-          }
+          { role: 'system', content: 'Anda adalah Notaris Kontrak Syariah Koperasi yang memproses template akad hukum baku.' },
+          { role: 'user', content: prompt }
         ],
-        temperature: 0.3
+        temperature: 0.2
       })
     });
 
@@ -62,7 +85,6 @@ Hasil Audit Syariah: ${JSON.stringify(validationResult)}`
   }
 });
 
-// Fallback route untuk SPA
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

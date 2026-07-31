@@ -56,20 +56,35 @@ function onAkadTypeChange(type) {
   if (type === 'Murabahah') {
     container.innerHTML = `
       <div class="form-group">
-        <label>Nama Barang / Aset Objek Jual Beli</label>
-        <input type="text" id="namaBarang" class="form-control" placeholder="Contoh: Sepeda Motor Honda Vario 160" required oninput="triggerValidation()">
+        <label>Nama Barang / Objek Jual Beli</label>
+        <input type="text" id="namaBarang" class="form-control" placeholder="Contoh: Truk Mitsubishi Canter Tangki Air" required oninput="triggerValidation()">
+      </div>
+      <div class="form-group">
+        <label>Spesifikasi Barang</label>
+        <input type="text" id="spesifikasi" class="form-control" placeholder="Contoh: Warna Putih Tahun 2020 On The Road" oninput="triggerValidation()">
       </div>
       <div class="form-group">
         <label>Harga Pokok Pembelian (Rp)</label>
-        <input type="number" id="hargaBeli" class="form-control" placeholder="0" required oninput="triggerValidation()">
+        <input type="number" id="hargaBeli" class="form-control" placeholder="Contoh: 270000000" required oninput="triggerValidation()">
       </div>
       <div class="form-group">
         <label>Margin Keuntungan Koperasi (Rp)</label>
-        <input type="number" id="margin" class="form-control" placeholder="0" required oninput="triggerValidation()">
+        <input type="number" id="margin" class="form-control" placeholder="Contoh: 37000000" required oninput="triggerValidation()">
+      </div>
+      <div class="form-group">
+        <label>Uang Muka / DP (Rp)</label>
+        <input type="number" id="uangMuka" class="form-control" placeholder="Contoh: 50000000" oninput="triggerValidation()">
       </div>
       <div class="form-group">
         <label>Tenor / Jangka Waktu (Bulan)</label>
-        <input type="number" id="tenor" class="form-control" placeholder="12" required oninput="triggerValidation()">
+        <input type="number" id="tenor" class="form-control" placeholder="Contoh: 23" required oninput="triggerValidation()">
+      </div>
+      <div class="form-group">
+        <label>Identitas Saksi 1 & Saksi 2</label>
+        <div style="display: flex; gap: 0.5rem;">
+          <input type="text" id="saksi1" class="form-control" placeholder="Nama Saksi 1">
+          <input type="text" id="saksi2" class="form-control" placeholder="Nama Saksi 2">
+        </div>
       </div>
     `;
   } else if (type === 'Qardh') {
@@ -138,9 +153,13 @@ function getFormData() {
 
   if (currentAkadType === 'Murabahah') {
     data.namaBarang = document.getElementById('namaBarang')?.value || '';
+    data.spesifikasi = document.getElementById('spesifikasi')?.value || '';
     data.hargaBeli = document.getElementById('hargaBeli')?.value || 0;
     data.margin = document.getElementById('margin')?.value || 0;
+    data.uangMuka = document.getElementById('uangMuka')?.value || 0;
     data.tenor = document.getElementById('tenor')?.value || 1;
+    data.saksi1 = document.getElementById('saksi1')?.value || '';
+    data.saksi2 = document.getElementById('saksi2')?.value || '';
   } else if (currentAkadType === 'Qardh') {
     data.jumlahPinjaman = document.getElementById('jumlahPinjaman')?.value || 0;
     data.biayaAdmin = document.getElementById('biayaAdmin')?.value || 0;
@@ -217,7 +236,7 @@ async function handleFormSubmit(e) {
 
     createdContracts.unshift(newContract);
     updateDashboardStats();
-    addAuditLog(`Contract Generated: ${newContract.id} (${newContract.type}) - Score: ${newContract.score}%`);
+    addAuditLog(`Contract Generated via Template: ${newContract.id} (${newContract.type}) - Score: ${newContract.score}%`);
     viewGeneratedDocument();
   }
 }
