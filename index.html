@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Penyusunan Akad Syariah Dinamis - Koperasi Al Firdaus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">🌿</div>
+        <div class="logo-text">
+          <h2>Akad Syariah AI</h2>
+          <p>Koperasi Al Firdaus</p>
+        </div>
+      </div>
+
+      <ul class="nav-list">
+        <li class="nav-item">
+          <button id="nav-dashboard" class="active" onclick="switchTab('dashboard')">
+            <span>📊</span> Dashboard Overview
+          </button>
+        </li>
+        <li class="nav-item">
+          <button id="nav-generator" onclick="switchTab('generator')">
+            <span>✍️</span> Buat Akad Dinamis
+          </button>
+        </li>
+        <li class="nav-item">
+          <button id="nav-verification" onclick="switchTab('verification')">
+            <span>⚖️</span> Verifikasi Legal & DPS
+          </button>
+        </li>
+        <li class="nav-item">
+          <button id="nav-audit" onclick="switchTab('audit')">
+            <span>🔗</span> Audit Trail & Blockchain
+          </button>
+        </li>
+        <li class="nav-item">
+          <button id="nav-settings" onclick="switchTab('settings')">
+            <span>⚙️</span> Pengaturan API AI
+          </button>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="role-badge">
+          <label>Mode Akses Pengguna:</label>
+          <select id="user-role-select" class="role-select" onchange="changeUserRole(this.value)">
+            <option value="Legal Officer">Legal Officer / Admin</option>
+            <option value="Dewan Pengawas Syariah">Dewan Pengawas Syariah (DPS)</option>
+            <option value="Nasabah">Nasabah / Pemohon</option>
+          </select>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Application View -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <h1 id="page-title">Dashboard Overview</h1>
+        <div class="user-info">
+          <div class="status-indicator">
+            <span class="dot-online"></span>
+            <span>Rules Engine AI Active (DSN-MUI)</span>
+          </div>
+          <div class="status-indicator" style="background: var(--accent-gold-light); color: var(--accent-gold); font-weight: 600;">
+            <span id="current-role-display">Role: Legal Officer</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Area Body -->
+      <div class="content-body">
+        
+        <!-- VIEW 1: DASHBOARD OVERVIEW -->
+        <section id="view-dashboard">
+          <div class="grid-cols-3">
+            <div class="card stat-card">
+              <div class="stat-icon icon-green">📜</div>
+              <div>
+                <div class="stat-val" id="stat-total-akad">28</div>
+                <div class="stat-lbl">Dokumen Akad Terbit</div>
+              </div>
+            </div>
+            <div class="card stat-card">
+              <div class="stat-icon icon-gold">🛡️</div>
+              <div>
+                <div class="stat-val">98.4%</div>
+                <div class="stat-lbl">Skor Kepatuhan Syariah</div>
+              </div>
+            </div>
+            <div class="card stat-card">
+              <div class="stat-icon icon-blue">🤖</div>
+              <div>
+                <div class="stat-val" id="stat-ai-status">DeepSeek API</div>
+                <div class="stat-lbl">Engine AI Redaksi</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-cols-2" style="margin-top: 1rem;">
+            <div class="card">
+              <h3>Ringkasan Distribusi Akad Syariah</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Statistik akad dinamis yang disusun oleh Koperasi Al Firdaus</p>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Jenis Akad</th>
+                    <th>Jumlah Akad</th>
+                    <th>Status Syariah</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Murabahah (Jual Beli)</strong></td>
+                    <td>16 Transaksi</td>
+                    <td><span class="badge badge-success">100% Patuh Fatwa DSN No.04</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Qardh (Pinjaman Kebajikan)</strong></td>
+                    <td>8 Transaksi</td>
+                    <td><span class="badge badge-success">Bebas Riba / Admin Riil</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Mudharabah (Bagi Hasil)</strong></td>
+                    <td>4 Transaksi</td>
+                    <td><span class="badge badge-success">Nisbah Nisbi Disepakati</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="card">
+              <h3>Tindakan Cepat</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Pilih aksi untuk penyusunan dokumen hukum syariah</p>
+              <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <button class="btn btn-primary" onclick="startAkad('Murabahah')">
+                  ➕ Buat Akad Murabahah Dinamis
+                </button>
+                <button class="btn btn-gold" onclick="startAkad('Qardh')">
+                  ➕ Buat Akad Pinjaman Qardh
+                </button>
+                <button class="btn btn-outline" onclick="startAkad('Mudharabah')">
+                  ➕ Buat Akad Mudharabah (Bagi Hasil)
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 2: GENERATOR AKAD DINAMIS -->
+        <section id="view-generator" style="display: none;">
+          <div class="grid-cols-2">
+            <!-- Form Input Parameters -->
+            <div class="card">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                <h3>Form Parameter Akad Syariah</h3>
+                <select id="form-akad-type" class="form-control" style="width: auto;" onchange="onAkadTypeChange(this.value)">
+                  <option value="Murabahah">Akad Murabahah (Jual Beli)</option>
+                  <option value="Qardh">Akad Qardh (Pinjaman Kebajikan)</option>
+                  <option value="Mudharabah">Akad Mudharabah (Bagi Hasil)</option>
+                </select>
+              </div>
+
+              <form id="akad-form" onsubmit="handleFormSubmit(event)">
+                <!-- Common Subjek Akad -->
+                <div class="form-group">
+                  <label>Nama Pihak Pertama (Penjual / Koperasi)</label>
+                  <input type="text" id="pihakPertama" class="form-control" value="Pengurus Koperasi Al Firdaus" required oninput="triggerValidation()">
+                </div>
+                <div class="form-group">
+                  <label>Nama Pihak Kedua (Anggota / Pemohon)</label>
+                  <input type="text" id="pihakKedua" class="form-control" placeholder="Contoh: Ahmad Hidayat" required oninput="triggerValidation()">
+                </div>
+
+                <!-- Dynamic Inputs depending on Akad Type -->
+                <div id="dynamic-fields">
+                  <!-- Default Murabahah fields -->
+                  <div class="form-group">
+                    <label>Nama Barang / Aset Objek Jual Beli</label>
+                    <input type="text" id="namaBarang" class="form-control" placeholder="Contoh: Sepeda Motor Honda Vario 160" value="Laptop Kerja HP Pavilion" oninput="triggerValidation()">
+                  </div>
+                  <div class="form-group">
+                    <label>Harga Pokok Pembelian (Rp)</label>
+                    <input type="number" id="hargaBeli" class="form-control" value="10000000" oninput="triggerValidation()">
+                  </div>
+                  <div class="form-group">
+                    <label>Margin Keuntungan Koperasi (Rp)</label>
+                    <input type="number" id="margin" class="form-control" value="1500000" oninput="triggerValidation()">
+                  </div>
+                  <div class="form-group">
+                    <label>Tenor / Jangka Waktu (Bulan)</label>
+                    <input type="number" id="tenor" class="form-control" value="12" oninput="triggerValidation()">
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                  <button type="submit" class="btn btn-primary" style="flex: 1;">
+                    ⚡ Susun Akad AI (DeepSeek)
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Syariah Rules Validation Panel -->
+            <div>
+              <div class="syariah-checker-panel">
+                <div class="checker-header">
+                  <div>
+                    <h3 style="font-size: 1.05rem; color: var(--primary-dark);">Validasi Rukun & Syarat Syariah</h3>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);">Real-time Rule Engine Fatwa DSN-MUI</p>
+                  </div>
+                  <div id="score-badge-container">
+                    <span class="score-badge score-high">100% Patuh</span>
+                  </div>
+                </div>
+
+                <div id="validation-checklist">
+                  <!-- Dynamic Checklist Output -->
+                </div>
+              </div>
+
+              <!-- Action button for Document Generation -->
+              <div class="card" style="margin-top: 1.5rem; text-align: center;">
+                <h4>Pratinjau Hasil Redaksi AI</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Dokumen yang disusun akan tervalidasi secara hukum & fatwa DSN-MUI</p>
+                <button class="btn btn-gold" onclick="viewGeneratedDocument()">
+                  👁️ Buka Pratinjau Dokumen Akad PDF
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 3: DOCUMENT PREVIEW & PRINT -->
+        <section id="view-document" style="display: none;">
+          <div class="no-print" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+            <button class="btn btn-outline" onclick="switchTab('generator')">⬅️ Kembali ke Form Form</button>
+            <div style="display: flex; gap: 1rem;">
+              <button class="btn btn-primary" onclick="window.print()">🖨️ Cetak / Download PDF</button>
+              <button class="btn btn-gold" onclick="approveContract()">✅ Setujui & Tambah Stempel Legal</button>
+            </div>
+          </div>
+
+          <div class="document-paper">
+            <div class="doc-header">
+              <h2>KOPERASI KONSUMEN AL FIRDAUS</h2>
+              <p style="font-size: 0.9rem;">Jalan Raya Syariah No. 45 Bandung - Jawa Barat</p>
+              <div class="doc-stamp" id="approval-stamp">DRAFT - DALAM VALIDASI DPS</div>
+            </div>
+
+            <div id="document-content-area">
+              <!-- Render Teks Akad dari DeepSeek / Rules Engine -->
+            </div>
+
+            <div style="margin-top: 4rem; display: flex; justify-content: space-between; font-family: sans-serif; font-size: 0.9rem;">
+              <div style="text-align: center;">
+                <p>PIHAK PERTAMA (Penjual/Koperasi)</p>
+                <br><br><br>
+                <p><strong>( ______________________ )</strong></p>
+              </div>
+              <div style="text-align: center;">
+                <p>Mengetahui Dewan Pengawas Syariah</p>
+                <br><br><br>
+                <p><strong>( ______________________ )</strong></p>
+              </div>
+              <div style="text-align: center;">
+                <p>PIHAK KEDUA (Pemohon/Anggota)</p>
+                <br><br><br>
+                <p><strong>( <span id="doc-pihakkedua-sign">Ahmad Hidayat</span> )</strong></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 4: VERIFIKASI & APPROVAL -->
+        <section id="view-verification" style="display: none;">
+          <div class="card">
+            <h3>Daftar Dokumen Akad Menunggu Persetujuan Legal & DPS</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Daftar akad yang telah divalidasi oleh AI Rules Engine dan siap ditinjau.</p>
+            
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>No. Akad</th>
+                  <th>Jenis Akad</th>
+                  <th>Anggota / Pihak II</th>
+                  <th>Nilai Transaksi</th>
+                  <th>Skor Syariah</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>AKD/MRB/928312</td>
+                  <td>Murabahah</td>
+                  <td>Ahmad Hidayat</td>
+                  <td>Rp 11.500.000</td>
+                  <td><span class="badge badge-success">100% Valid</span></td>
+                  <td>
+                    <button class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="viewDemoDocument('MRB')">Review & Approve</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>AKD/QRD/102932</td>
+                  <td>Qardh</td>
+                  <td>Siti Nurhaliza</td>
+                  <td>Rp 2.000.000</td>
+                  <td><span class="badge badge-success">100% Valid</span></td>
+                  <td>
+                    <button class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="viewDemoDocument('QRD')">Review & Approve</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- VIEW 5: AUDIT TRAIL & BLOCKCHAIN LOG -->
+        <section id="view-audit" style="display: none;">
+          <div class="card">
+            <h3>Immutable Audit Trail (Log Kepatuhan Syariah)</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Pencatatan transparan untuk pengawasan regulator OJK & DSN-MUI</p>
+            
+            <div style="font-family: monospace; font-size: 0.85rem; background: #0f172a; color: #38bdf8; padding: 1.5rem; border-radius: var(--radius-md); overflow-x: auto;">
+              <p>[LOG-SYS 2026-07-31 13:12] Init Syariah Engine v2.4 (DSN-MUI Rulebook Active)...</p>
+              <p>[BLOCK #10294] Hash: 0x9f8b2a...7c1a | Contract: Murabahah AKD/MRB/928312 | Status: VERIFIED</p>
+              <p>[AUDIT-PASSED] Check Subjek: PASS | Check Maqud Alaih: PASS | Check Riba: ZERO_VIOLATION</p>
+              <p>[BLOCK #10295] Hash: 0x3e1d90...4f88 | Contract: Qardh AKD/QRD/102932 | Status: VERIFIED</p>
+              <p style="color: #4ade80;">[SYSTEM OK] All active contracts compliant with Fatwa DSN-MUI & OJK Regulation.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 6: SETTINGS API -->
+        <section id="view-settings" style="display: none;">
+          <div class="card" style="max-width: 650px;">
+            <h3>Pengaturan Integrasi AI (DeepSeek API)</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Konfigurasikan DeepSeek API Key Anda untuk penyusunan klausul redaksi hukum syariah otomatis.</p>
+            
+            <div class="form-group">
+              <label>DeepSeek API Key</label>
+              <input type="password" id="api-key-input" class="form-control" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxx">
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;">API Key disimpan secara aman di LocalStorage browser Anda.</p>
+            </div>
+
+            <button class="btn btn-primary" onclick="saveSettings()">
+              💾 Simpan API Key DeepSeek
+            </button>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/syariah-rules-engine.js"></script>
+  <script src="js/deepseek-service.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
