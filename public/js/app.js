@@ -339,8 +339,8 @@ function exportToWordDocx() {
   const contentHtml = document.getElementById('document-content-area').innerHTML;
   const headerHtml = `
     <div style="text-align:center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
-      <h2 style="margin:0; text-transform:uppercase;">KOPERASI KONSUMEN AL FIRDAUS</h2>
-      <p style="margin:5px 0 0 0; font-size: 12px;">Jalan Raya Syariah No. 45 Bandung - Jawa Barat</p>
+      <h2 style="margin:0; text-transform:uppercase;">AKADIN - AKAD SYARIAH DIGITAL</h2>
+      <p style="margin:5px 0 0 0; font-size: 12px;">Platform AI Pengembangan & Legalitas Akad Syariah Otomatis</p>
     </div>
   `;
   const formData = getFormData();
@@ -349,12 +349,12 @@ function exportToWordDocx() {
     <table style="width: 100%; border-collapse: collapse; margin-top: 30px;">
       <tr>
         <td style="text-align: center; width: 50%;">
-          <p>PIHAK PERTAMA (Penjual/Koperasi)</p>
+          <p>PIHAK PERTAMA (Penjual / Penyedia)</p>
           <br><br><br><br>
           <p><strong>( ______________________ )</strong></p>
         </td>
         <td style="text-align: center; width: 50%;">
-          <p>PIHAK KEDUA (Pemohon/Anggota)</p>
+          <p>PIHAK KEDUA (Pembeli / Pemohon)</p>
           <br><br><br><br>
           <p><strong>( ${formData.pihakKedua || '______________________'} )</strong></p>
         </td>
