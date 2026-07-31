@@ -212,32 +212,73 @@ async function handleFormSubmit(e) {
   const formData = getFormData();
 
   const btnSubmit = document.getElementById('btn-submit-ai');
+  const progressContainer = document.getElementById('progress-container');
+  const progressBarFill = document.getElementById('progress-bar-fill');
+  const progressStatusText = document.getElementById('progress-status-text');
+  const progressPercentText = document.getElementById('progress-percent-text');
+
   btnSubmit.disabled = true;
   btnSubmit.innerHTML = "⏳ Menghubungi DeepSeek AI Server...";
+  
+  // Reset and show progress bar
+  progressContainer.style.display = "block";
+  progressBarFill.style.width = "5%";
+  progressPercentText.innerText = "5%";
+  progressStatusText.innerText = "⏳ Memvalidasi parameter transaksi...";
+
+  // Simulated progressive updates
+  let currentProgress = 5;
+  const progressInterval = setInterval(() => {
+    if (currentProgress < 30) {
+      currentProgress += 5;
+      progressStatusText.innerText = "🔍 Memverifikasi kepatuhan Rukun & Fatwa DSN-MUI...";
+    } else if (currentProgress < 75) {
+      currentProgress += 3;
+      progressStatusText.innerText = "🤖 DeepSeek AI sedang menyusun klausul & rincian finansial...";
+    } else if (currentProgress < 92) {
+      currentProgress += 1;
+      progressStatusText.innerText = "✍️ Memformat draft akad notaris & merapikan redaksi...";
+    }
+    progressBarFill.style.width = `${currentProgress}%`;
+    progressPercentText.innerText = `${currentProgress}%`;
+  }, 250);
 
   const textResult = await DeepSeekService.generateAkadClause(formData, currentValidationResult);
   
-  btnSubmit.disabled = false;
-  btnSubmit.innerHTML = "⚡ Susun Akad dengan DeepSeek AI";
+  clearInterval(progressInterval);
 
   if (textResult) {
-    currentDraftText = textResult;
-    
-    // Save to active contract list
-    const newContract = {
-      id: `AKD/${currentAkadType.substring(0,3).toUpperCase()}/${Math.floor(100000 + Math.random() * 900000)}`,
-      type: currentAkadType,
-      pihakKedua: formData.pihakKedua,
-      date: new Date().toLocaleDateString('id-ID'),
-      score: currentValidationResult.score,
-      content: currentDraftText,
-      status: 'DRAFT'
-    };
+    progressBarFill.style.width = "100%";
+    progressPercentText.innerText = "100%";
+    progressStatusText.innerText = "✅ Akad syariah berhasil disusun!";
 
-    createdContracts.unshift(newContract);
-    updateDashboardStats();
-    addAuditLog(`Contract Generated via Template: ${newContract.id} (${newContract.type}) - Score: ${newContract.score}%`);
-    viewGeneratedDocument();
+    setTimeout(() => {
+      btnSubmit.disabled = false;
+      btnSubmit.innerHTML = "⚡ Susun Akad dengan DeepSeek AI";
+      progressContainer.style.display = "none";
+      
+      currentDraftText = textResult;
+      
+      // Save to active contract list
+      const newContract = {
+        id: `AKD/${currentAkadType.substring(0,3).toUpperCase()}/${Math.floor(100000 + Math.random() * 900000)}`,
+        type: currentAkadType,
+        pihakKedua: formData.pihakKedua,
+        date: new Date().toLocaleDateString('id-ID'),
+        score: currentValidationResult.score,
+        content: currentDraftText,
+        status: 'DRAFT'
+      };
+
+      createdContracts.unshift(newContract);
+      updateDashboardStats();
+      addAuditLog(`Contract Generated via Template: ${newContract.id} (${newContract.type}) - Score: ${newContract.score}%`);
+      viewGeneratedDocument();
+    }, 600);
+  } else {
+    btnSubmit.disabled = false;
+    btnSubmit.innerHTML = "⚡ Susun Akad dengan DeepSeek AI";
+    progressContainer.style.display = "none";
   }
 }
 
@@ -251,16 +292,38 @@ function viewGeneratedDocument() {
   const formData = getFormData();
   document.getElementById('doc-pihakkedua-sign').innerText = formData.pihakKedua || 'Nama Anggota';
   
-  // Format text into paragraphs HTML
-  const formattedHtml = currentDraftText.split('\n').map(p => {
-    if (p.startsWith('AKAD') || p.startsWith('BISMILLAHIRRAHMANIRRAHIM')) {
-      return `<h3 style="text-align:center; margin: 1rem 0;">${p}</h3>`;
-    } else if (p.startsWith('PASAL')) {
-      return `<h4 style="margin-top:1.25rem; border-bottom:1px solid #ccc; padding-bottom:4px;">${p}</h4>`;
+  // Format text into clean paragraphs & headings HTML
+  let cleanText = currentDraftText;
+  
+  // Clean any markdown formatting (* and **)
+  cleanText = cleanText.replace(/\*\*(.*?)\*\*/g, '$1');
+  cleanText = cleanText.replace(/\*(.*?)\*/g, '$1');
+  cleanText = cleanText.replace(/---/g, '');
+
+  const lines = cleanText.split('\n');
+  let formattedHtml = '';
+
+  lines.forEach(line => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+
+    // Judul Utama & Sub-Judul
+    if (trimmed.startsWith('AKAD ') || trimmed.startsWith('PERJANJIAN ') || trimmed.startsWith('BISMILLAH') || trimmed.includes('بسم الله')) {
+      formattedHtml += `<h3 style="text-align:center; font-size: 1.2rem; font-weight: bold; margin: 1rem 0 0.5rem 0; text-transform: uppercase;">${trimmed}</h3>`;
+    } else if (trimmed.startsWith('No.') || trimmed.startsWith('NO.')) {
+      formattedHtml += `<p style="text-align:center; font-weight: bold; margin-bottom: 1.5rem;">${trimmed}</p>`;
+    } else if (trimmed.startsWith('PASAL') || trimmed.startsWith('Pasal')) {
+      formattedHtml += `<h4 style="text-align:center; font-size: 1.1rem; font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; text-transform: uppercase;">${trimmed}</h4>`;
+    } else if (trimmed.startsWith('Ayat ') || trimmed.startsWith('AYAT ')) {
+      formattedHtml += `<h5 style="font-weight: bold; margin-top: 0.75rem; margin-bottom: 0.25rem;">${trimmed}</h5>`;
+    } else if (trimmed.match(/^[\u0600-\u06FF]/)) { // Teks Bahasa Arab (Al-Qur'an / Hadits)
+      formattedHtml += `<p style="text-align:center; font-size: 1.3rem; font-family: 'Amiri', 'Traditional Arabic', serif; margin: 1rem 0; direction: rtl; line-height: 2;">${trimmed}</p>`;
+    } else if (trimmed.startsWith('"Hai orang-orang') || trimmed.startsWith('Dari Abu Sa\'id') || trimmed.startsWith('(Qs.') || trimmed.startsWith('(HR.')) {
+      formattedHtml += `<p style="text-align:center; font-style: italic; font-size: 0.95rem; margin-bottom: 1rem; color: #334155; padding: 0 1rem;">${trimmed}</p>`;
     } else {
-      return `<p style="margin-bottom:0.75rem; text-align:justify;">${p}</p>`;
+      formattedHtml += `<p style="margin-bottom: 0.75rem; text-align: justify; text-justify: inter-word; text-indent: 2rem; line-height: 1.7;">${trimmed}</p>`;
     }
-  }).join('');
+  });
 
   document.getElementById('document-content-area').innerHTML = formattedHtml;
   switchTab('document');
@@ -268,17 +331,17 @@ function viewGeneratedDocument() {
 
 // Approve Document
 function approveContract() {
-  document.getElementById('approval-stamp').innerHTML = "✅ DISETUJUI DPS & LEGAL KOPERASI";
+  document.getElementById('approval-stamp').innerHTML = "✅ DISAHKAN KOPERASI";
   document.getElementById('approval-stamp').style.borderColor = "var(--success)";
   document.getElementById('approval-stamp').style.color = "var(--success)";
   
   if (createdContracts.length > 0) {
     createdContracts[0].status = 'APPROVED';
-    addAuditLog(`Contract Approved: ${createdContracts[0].id} by Legal Officer & DPS`);
+    addAuditLog(`Contract Approved: ${createdContracts[0].id} oleh Pengurus Koperasi`);
     updateDashboardStats();
   }
   
-  alert("Dokumen Akad Syariah berhasil disetujui, diberi stempel legalitas, dan dicatat ke Audit Trail!");
+  alert("Dokumen Akad Syariah berhasil disahkan, diberi stempel legalitas Koperasi, dan dicatat ke Audit Log!");
 }
 
 // Dashboard Update

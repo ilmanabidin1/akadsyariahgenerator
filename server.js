@@ -32,10 +32,11 @@ app.post('/api/generate-akad', async (req, res) => {
     const prompt = `Anda adalah Notaris Hukum Syariah dan Asisten AI Koperasi. 
 Tugas Anda adalah mengisi dan mengganti seluruh variabel/placeholder identitas (Nama, NIK, Alamat, Pekerjaan/Jabatan), Objek Barang, Harga Pokok, Margin, Uang Muka, Angsuran, Jangka Waktu, Saksi-Saksi, dan Tanggal pada TEMPLATE BAKU AKAD MURABAHAH resmi berikut berdasarkan DATA INPUT TRANSAKSI yang diberikan.
 
-PENTING:
-1. Pertahankan struktur kalimat baku hukum, pasal-pasal, ayat-ayat, dalil Al-Qur'an/Hadits, dan format resmi dokumen.
-2. Ganti identitas Pihak Pertama, Pihak Kedua, Objek Barang, Rincian Nilai Finansial, dan Nama Saksi sesuai Data Transaksi.
-3. Hasilkan output teks dokumen akad utuh yang siap dicetak.
+PENTING DAN WAJIB DIPATUHI:
+1. JANGAN MENGGUNAKAN SIMBOL MARKDOWN SAMA SEKALI (seperti **, *, __, #, dll). Tuliskan dokumen dalam teks biasa (plain text) yang bersih, tanpa tanda bintang atau cetak tebal markdown.
+2. Pertahankan struktur kalimat baku hukum, pasal-pasal, ayat-ayat, dalil Al-Qur'an/Hadits, dan format resmi dokumen.
+3. Ganti identitas Pihak Pertama, Pihak Kedua, Objek Barang, Rincian Nilai Finansial, dan Nama Saksi sesuai Data Transaksi.
+4. Jangan menambahkan karakter aneh di tengah kalimat. Hasilkan output teks dokumen akad utuh yang rapi dan siap dicetak.
 
 === TEMPLATE BAKU AKAD ===
 ${templateMurabahah}
@@ -63,7 +64,7 @@ Tanggal Akad: ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: [
-          { role: 'system', content: 'Anda adalah Notaris Kontrak Syariah Koperasi yang memproses template akad hukum baku.' },
+          { role: 'system', content: 'Anda adalah Notaris Kontrak Syariah Koperasi yang memproses template akad hukum baku. Hasilkan output berupa TEKS POLOS tanpa format markdown (tanpa tanda bintang ** atau *).' },
           { role: 'user', content: prompt }
         ],
         temperature: 0.2
