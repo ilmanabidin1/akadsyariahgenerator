@@ -480,3 +480,105 @@ function addAuditLog(message) {
   const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
   container.innerHTML += `<p>[${timestamp}] ${message}</p>`;
 }
+
+// Chatbot Konsultan / Pengawas Syariah AI Logic
+let chatHistory = [];
+
+function sendQuickChat(promptText) {
+  const inputEl = document.getElementById('chat-input');
+  if (inputEl) {
+    inputEl.value = promptText;
+    document.getElementById('chat-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+  }
+}
+
+async function handleChatSubmit(e) {
+  e.preventDefault();
+  const inputEl = document.getElementById('chat-input');
+  const userMessage = inputEl.value.trim();
+  if (!userMessage) return;
+
+  // Render User Message
+  appendChatMessage('user', userMessage);
+  inputEl.value = '';
+
+  // Save to history
+  chatHistory.push({ role: 'user', content: userMessage });
+
+  // Show typing indicator
+  const typingId = appendChatTyping();
+  const btnSubmit = document.getElementById('chat-submit-btn');
+  btnSubmit.disabled = true;
+
+  try {
+    const response = await fetch('/api/chat-syariah', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: chatHistory })
+    });
+
+    removeChatTyping(typingId);
+    btnSubmit.disabled = false;
+
+    if (response.ok) {
+      const data = await response.json();
+      const botReply = data.reply;
+      chatHistory.push({ role: 'assistant', content: botReply });
+      appendChatMessage('assistant', botReply);
+    } else {
+      const errData = await response.json().catch(() => ({ error: 'Error' }));
+      appendChatMessage('assistant', `⚠️ Maaf, terjadi kesalahan: ${errData.error || 'Gagal terhubung ke AI Service'}`);
+    }
+  } catch (err) {
+    removeChatTyping(typingId);
+    btnSubmit.disabled = false;
+    appendChatMessage('assistant', '⚠️ Terjadi kendala koneksi ke server AI.');
+  }
+}
+
+function appendChatMessage(role, text) {
+  const container = document.getElementById('chat-messages-container');
+  if (!container) return;
+
+  const isUser = role === 'user';
+  const avatar = isUser ? '👤' : '🕌';
+  const bgStyle = isUser ? 'background: var(--primary-subtle); color: var(--primary-dark); border-radius: var(--radius-md) 0 var(--radius-md) var(--radius-md);' : 'background: white; border: 1px solid var(--border-color); border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);';
+  const alignSelf = isUser ? 'flex-direction: row-reverse;' : 'flex-direction: row;';
+
+  // Format line breaks and bold/bullets text nicely
+  let formattedText = text.replace(/\n/g, '<br>');
+  formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+  const html = `
+    <div style="display: flex; gap: 0.75rem; align-items: flex-start; ${alignSelf}">
+      <div style="width: 36px; height: 36px; border-radius: 50%; background: ${isUser ? 'var(--primary)' : 'var(--primary-dark)'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">${avatar}</div>
+      <div style="${bgStyle} padding: 0.85rem 1.1rem; max-width: 85%; box-shadow: var(--shadow-sm); font-size: 0.9rem; line-height: 1.6;">
+        ${formattedText}
+      </div>
+    </div>
+  `;
+
+  container.insertAdjacentHTML('beforeend', html);
+  container.scrollTop = container.scrollHeight;
+}
+
+function appendChatTyping() {
+  const container = document.getElementById('chat-messages-container');
+  const typingId = 'typing-' + Date.now();
+  const html = `
+    <div id="${typingId}" style="display: flex; gap: 0.75rem; align-items: flex-start;">
+      <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-dark); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">🕌</div>
+      <div style="background: white; border: 1px solid var(--border-color); padding: 0.85rem 1.1rem; border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md); max-width: 85%; font-size: 0.85rem; color: var(--text-muted);">
+        <em>Konsultan Syariah AI sedang mengetik... ⏳</em>
+      </div>
+    </div>
+  `;
+  container.insertAdjacentHTML('beforeend', html);
+  container.scrollTop = container.scrollHeight;
+  return typingId;
+}
+
+function removeChatTyping(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
