@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "AKADIN - Akad Syariah AI",
+    "slug": "akadin-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "../public/logo.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "../public/logo_transparent.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f172a"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.akadin.syariah"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "../public/logo.png",
+        "backgroundColor": "#0f172a"
+      },
+      "package": "com.akadin.syariah"
+    },
+    "web": {
+      "favicon": "../public/favicon.png"
+    }
+  }
+}
