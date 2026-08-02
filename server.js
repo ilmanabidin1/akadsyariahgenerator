@@ -10,21 +10,70 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Load template Murabahah dari file extracted_template.txt
-let templateMurabahah = "";
-const templatePath = path.join(__dirname, 'extracted_template.txt');
-if (fs.existsSync(templatePath)) {
-  templateMurabahah = fs.readFileSync(templatePath, 'utf-8');
+// Load Knowledge Base (Fatwa DSN-MUI & Standard Form Templates) dari folder knowledge_base/
+const knowledgeBaseDir = path.join(__dirname, 'knowledge_base');
+let knowledgeBaseTexts = {};
+
+if (fs.existsSync(knowledgeBaseDir)) {
+  const files = fs.readdirSync(knowledgeBaseDir);
+  files.forEach(file => {
+    if (file.endsWith('.txt')) {
+      const content = fs.readFileSync(path.join(knowledgeBaseDir, file), 'utf-8');
+      knowledgeBaseTexts[file] = content;
+    }
+  });
+  console.log(`Knowledge Base berhasil dimuat: ${Object.keys(knowledgeBaseTexts).length} berkas.`);
 }
 
-// Load teks Fatwa DSN-MUI No 04 tentang Murabahah dari fatwa_murabahah_text.txt
-let fatwaMurabahah = "";
-const fatwaPath = path.join(__dirname, 'fatwa_murabahah_text.txt');
-if (fs.existsSync(fatwaPath)) {
-  fatwaMurabahah = fs.readFileSync(fatwaPath, 'utf-8');
+// Helper untuk mengambil template & fatwa yang paling sesuai berdasarkan tipe akad
+function getKnowledgeContextForAkad(tipeAkad) {
+  let context = "";
+  const akadLower = (tipeAkad || "").toLowerCase();
+
+  // Fatwa dasar DSN-MUI Koperasi & Qardh selalu disertakan bila relevan
+  if (knowledgeBaseTexts['141_-_Koperasi_Syariah.txt']) {
+    context += `=== FATWA DSN-MUI NO. 141 (PEDOMAN PENYELENGGARAAN KOPERASI SYARIAH) ===\n` + 
+               knowledgeBaseTexts['141_-_Koperasi_Syariah.txt'].substring(0, 3000) + `\n\n`;
+  }
+
+  if (akadLower.includes('murabahah') || akadLower.includes('jual beli')) {
+    if (knowledgeBaseTexts['04-Murabahah.txt']) {
+      context += `=== FATWA DSN-MUI NO. 04 (MURABAHAH) ===\n` + knowledgeBaseTexts['04-Murabahah.txt'] + `\n\n`;
+    }
+    if (knowledgeBaseTexts['111_-_Akad_Jual_Beli_Murabahah.txt']) {
+      context += `=== TEMPLATE STANDAR FATWA DSN-MUI 111 (AKAD JUAL BELI MURABAHAH) ===\n` + knowledgeBaseTexts['111_-_Akad_Jual_Beli_Murabahah.txt'] + `\n\n`;
+    }
+    if (knowledgeBaseTexts['110_-_Akad_Jual_Beli.txt']) {
+      context += `=== TEMPLATE STANDAR FATWA DSN-MUI 110 (AKAD JUAL BELI) ===\n` + knowledgeBaseTexts['110_-_Akad_Jual_Beli.txt'] + `\n\n`;
+    }
+  } else if (akadLower.includes('ijarah') || akadLower.includes('sewa')) {
+    if (knowledgeBaseTexts['112_-_Akad_Ijarah.txt']) {
+      context += `=== TEMPLATE STANDAR FATWA DSN-MUI 112 (AKAD IJARAH / SEWA) ===\n` + knowledgeBaseTexts['112_-_Akad_Ijarah.txt'] + `\n\n`;
+    }
+  } else if (akadLower.includes('mudharabah') || akadLower.includes('bagi hasil')) {
+    if (knowledgeBaseTexts['115_-_Akad_Mudharabah.txt']) {
+      context += `=== TEMPLATE STANDAR FATWA DSN-MUI 115 (AKAD MUDHARABAH) ===\n` + knowledgeBaseTexts['115_-_Akad_Mudharabah.txt'] + `\n\n`;
+    }
+    if (knowledgeBaseTexts['114_-_Akad_Syirkah.txt']) {
+      context += `=== TEMPLATE STANDAR FATWA DSN-MUI 114 (AKAD SYIRKAH / KEMITRAAN) ===\n` + knowledgeBaseTexts['114_-_Akad_Syirkah.txt'] + `\n\n`;
+    }
+  } else if (akadLower.includes('qardh') || akadLower.includes('pinjaman')) {
+    if (knowledgeBaseTexts['19-Qardh.txt']) {
+      context += `=== FATWA DSN-MUI NO. 19 (AKAD QARDH) ===\n` + knowledgeBaseTexts['19-Qardh.txt'] + `\n\n`;
+    }
+  }
+
+  // Jika belum ada template spesifik, berikan ringkasan seluruh fatwa
+  if (!context) {
+    Object.keys(knowledgeBaseTexts).forEach(key => {
+      context += `=== SUMBER ${key} ===\n` + knowledgeBaseTexts[key].substring(0, 2000) + `\n\n`;
+    });
+  }
+
+  return context;
 }
 
-// API Endpoint proxy untuk DeepSeek AI mengisi template baku akad dengan rujukan Fatwa DSN-MUI
+// API Endpoint proxy untuk DeepSeek AI mengisi template baku akad dengan rujukan Fatwa DSN-MUI PDF
 app.post('/api/generate-akad', async (req, res) => {
   const apiKey = process.env.DEEPSEEK_API_KEY;
   const { akadData, validationResult } = req.body;
@@ -36,30 +85,28 @@ app.post('/api/generate-akad', async (req, res) => {
   }
 
   try {
+    const knowledgeContext = getKnowledgeContextForAkad(akadData.tipeAkad);
+
     const prompt = `Anda adalah Notaris Hukum Syariah dan Asisten AI Koperasi. 
-Tugas Anda adalah mengisi dan mengganti seluruh variabel/placeholder identitas (Nama, NIK, Alamat, Pekerjaan/Jabatan), Objek Barang, Harga Pokok, Margin, Uang Muka, Angsuran, Jangka Waktu, Saksi-Saksi, dan Tanggal pada TEMPLATE BAKU AKAD MURABAHAH resmi berikut berdasarkan DATA INPUT TRANSAKSI yang diberikan, serta memastikan seluruh ketentuannya patuh penuh pada FATWA DSN-MUI NO. 04/DSN-MUI/IV/2000.
+Tugas Anda adalah membuat/mengisi dokumen akad syariah resmi (${akadData.tipeAkad}) berdasarkan TEMPLATE STANDAR & FATWA DSN-MUI RESMI yang ada dalam Knowledge Base berikut.
 
-PENTING DAN WAJIB DIPATUHI:
-1. SAMAKAN FORMAT DAN STRUKTUR TEPAT 100% SAMA PERSIS DENGAN TEMPLATE BAKU (Susunan judul, paragraf pembuka, kalimat hukum, urutan pasal, ayat, dalil Al-Qur'an/Hadits, rincian hitungan, dan penutup). Jangan menambah atau mengurangi struktur kalimat hukum baku.
-2. JANGAN MENGGUNAKAN SIMBOL MARKDOWN SAMA SEKALI (seperti **, *, __, #, dll). Tuliskan dokumen dalam TEKS POLOS (plain text) yang bersih.
-3. Ganti seluruh nilai variabel/identitas Pihak Pertama, Pihak Kedua, Objek Barang, Nilai Finansial, Saksi-Saksi, dan Tanggal secara akurat sesuai Data Input Transaksi Baru.
-4. Pastikan klausul Akad Murabahah mencakup dan mematuhi rujukan resmi Fatwa DSN-MUI berikut:
+=== KNOWLEDGE BASE RESMI FATWA & TEMPLATE STANDAR DSN-MUI ===
+${knowledgeContext}
 
-=== REFERENSI FATWA DSN-MUI NO: 04/DSN-MUI/IV/2000 TENTANG MURABAHAH ===
-${fatwaMurabahah}
+=== PENTING DAN WAJIB DIPATUHI ===
+1. Gunakan susunan pasal-pasal, ayat-ayat, dalil Al-Qur'an/Hadits, dan ketentuan syariah yang 100% SESUAI DENGAN FATWA DAN TEMPLATE STANDAR DSN-MUI di atas.
+2. JANGAN MENGGUNAKAN SIMBOL MARKDOWN SAMA SEKALI (seperti **, *, __, #, dll). Tuliskan dokumen dalam TEKS POLOS (plain text) yang bersih dan siap dicetak.
+3. Isikan data variabel/identitas Pihak Pertama, Pihak Kedua, Objek Akad, Nilai Finansial, Saksi-Saksi, dan Tanggal secara akurat sesuai Data Input Transaksi berikut:
 
-=== TEMPLATE BAKU AKAD ===
-${templateMurabahah}
-
-=== DATA INPUT TRANSAKSI BARU ===
+=== DATA INPUT TRANSAKSI ===
 Jenis Akad: ${akadData.tipeAkad}
-Pihak Pertama (Penjual/Koperasi): ${akadData.pihakPertama} (Jabatan: ${akadData.jabatanPihakPertama || 'Pengurus'}, Alamat: ${akadData.alamatPihakPertama || 'Kantor Koperasi'})
-Pihak Kedua (Pembeli/Anggota): ${akadData.pihakKedua} (NIK: ${akadData.nikPihakKedua || '-'}, Pekerjaan: ${akadData.pekerjaanPihakKedua || '-'}, Alamat: ${akadData.alamatPihakKedua || '-'})
-Objek Barang: ${akadData.namaBarang} (Spesifikasi: ${akadData.spesifikasi || '-'})
-Harga Pokok: Rp ${parseFloat(akadData.hargaBeli || 0).toLocaleString('id-ID')}
-Margin Keuntungan: Rp ${parseFloat(akadData.margin || 0).toLocaleString('id-ID')}
-Uang Muka: Rp ${parseFloat(akadData.uangMuka || 0).toLocaleString('id-ID')}
-Tenor: ${akadData.tenor || 12} Bulan
+Pihak Pertama (Penjual/Pemodal/Koperasi): ${akadData.pihakPertama} (Jabatan: ${akadData.jabatanPihakPertama || 'Pengurus'}, Alamat: ${akadData.alamatPihakPertama || 'Kantor Koperasi'})
+Pihak Kedua (Pembeli/Pengelola/Anggota): ${akadData.pihakKedua} (NIK: ${akadData.nikPihakKedua || '-'}, Pekerjaan: ${akadData.pekerjaanPihakKedua || '-'}, Alamat: ${akadData.alamatPihakKedua || '-'})
+Objek/Barang/Usaha: ${akadData.namaBarang || akadData.bidangUsaha || '-'} (Spesifikasi: ${akadData.spesifikasi || '-'})
+Harga Pokok / Modal: Rp ${parseFloat(akadData.hargaBeli || akadData.jumlahModal || akadData.jumlahPinjaman || 0).toLocaleString('id-ID')}
+Margin / Profit / Ujrah / Nisbah: Margin Rp ${parseFloat(akadData.margin || 0).toLocaleString('id-ID')} / Nisbah ${akadData.nisbahPengelola || 60}% : ${akadData.nisbahPemodal || 40}%
+Uang Muka / Admin: Rp ${parseFloat(akadData.uangMuka || akadData.biayaAdmin || 0).toLocaleString('id-ID')}
+Tenor / Jangka Waktu: ${akadData.tenor || akadData.jatuhTempo || 12} Bulan
 Saksi 1: ${akadData.saksi1 || 'Saksi I Koperasi'}
 Saksi 2: ${akadData.saksi2 || 'Saksi II Koperasi'}
 Tanggal Akad: ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -74,7 +121,7 @@ Tanggal Akad: ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: [
-          { role: 'system', content: 'Anda adalah Notaris Kontrak Syariah Koperasi yang memproses template akad hukum baku berdasarkan Fatwa DSN-MUI No. 04. Hasilkan output berupa TEKS POLOS tanpa format markdown (tanpa tanda bintang ** atau *).' },
+          { role: 'system', content: 'Anda adalah Notaris Kontrak Syariah Koperasi yang memproses template akad hukum baku berdasarkan Fatwa DSN-MUI resmi. Hasilkan output berupa TEKS POLOS tanpa format markdown (tanpa tanda bintang ** atau *).' },
           { role: 'user', content: prompt }
         ],
         temperature: 0.2
@@ -96,7 +143,7 @@ Tanggal Akad: ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 
   }
 });
 
-// API Endpoint proxy untuk Chatbot Konsultan / Pengawas Syariah AI (RAG dengan Fatwa DSN-MUI)
+// API Endpoint proxy untuk Chatbot Konsultan / Pengawas Syariah AI (RAG dengan seluruh Fatwa & Template PDF)
 app.post('/api/chat-syariah', async (req, res) => {
   const apiKey = process.env.DEEPSEEK_API_KEY;
   const { messages } = req.body;
@@ -107,27 +154,22 @@ app.post('/api/chat-syariah', async (req, res) => {
     });
   }
 
-  const systemPrompt = `Kamu adalah AI Konsultan dan Pengawas Syariah (Sharia Advisory Assistant) yang berperan sebagai mitra diskusi bagi praktisi hukum, akademisi, pelaku industri keuangan syariah, dan masyarakat umum. Kamu memiliki pemahaman mendalam tentang fiqh muamalah, hukum ekonomi syariah, dan regulasi keuangan syariah di Indonesia.
+  // Gabungkan seluruh ringkasan Knowledge Base PDF Fatwa & Standar Akad DSN-MUI
+  let fullKnowledgeBasePrompt = "";
+  Object.keys(knowledgeBaseTexts).forEach(filename => {
+    fullKnowledgeBasePrompt += `\n=== KNOWLEDGE BASE: ${filename} ===\n` + knowledgeBaseTexts[filename] + `\n`;
+  });
 
-PENTING: JIKA PENGGUNA BERTANYA TENTANG AKAD MURABAHAH, KETENTUAN UANG MUKA (URBUN), JAMINAN, DERAJANJI, ATAU PENUNDAAN PEMBAYARAN, JAWABANMU HARUS BERDASARKAN TEKS RESMI FATWA DSN-MUI NO. 04/DSN-MUI/IV/2000 BERIKUT:
+  const systemPrompt = `Kamu adalah AI Konsultan dan Dewan Pengawas Syariah (Sharia Advisory Assistant) Koperasi. 
+TUGAS UTAMA: Kamu memiliki akses pengetahuan lengkap ke seluruh FATWA RESMI DSN-MUI & TEMPLATE STANDAR AKAD SYARIAH berikut:
 
-=== SUMBER KNOWLEDGE FATWA DSN-MUI NO: 04/DSN-MUI/IV/2000 TENTANG MURABAHAH ===
-${fatwaMurabahah}
+${fullKnowledgeBasePrompt}
 
-## IDENTITAS DAN PERAN
-
-Kamu bertindak layaknya seorang Dewan Pengawas Syariah (DPS) atau konsultan syariah berpengalaman yang bisa:
-1. Menjelaskan konsep dan struktur akad syariah secara akurat dan mudah dipahami berdasarkan Fatwa DSN-MUI resmi.
-2. Menganalisis kesesuaian suatu skema transaksi atau produk dengan prinsip syariah.
-3. Memberikan rekomendasi struktur akad yang paling tepat untuk kebutuhan pembiayaan tertentu.
-4. Mengidentifikasi potensi masalah syariah (gharar, riba, maysir, jahalah) dalam suatu skema.
-5. Merujuk secara presisi pada poin-poin Fatwa DSN-MUI No. 04 (Ketentuan Umum, Ketentuan kepada Nasabah, Jaminan, Utang, Penundaan Pembayaran, Bangkrut).
-
-## CARA MERESPONS
-
-1. Sertakan rujukan pasal/poin spesifik dari Fatwa DSN-MUI No. 04/DSN-MUI/IV/2000 jika ditanya tentang Murabahah (misalnya: "Berdasarkan Fatwa DSN-MUI No. 04 Poin Kedua Ayat 7 tentang Uang Muka...").
-2. Gunakan penomoran biasa (1., 2., 3.) atau strip (-).
-3. PENTING: JANGAN MENGGUNAKAN SIMBOL MARKDOWN SAMA SEKALI (seperti bintang *, cetak tebal **, miring *, hashtag ###, atau garis ---). Tuliskan balasan dalam TEKS POLOS (plain text) yang bersih.`;
+## ATURAN MERESPONS
+1. JAWABANMU HARUS SELALU DISANDARKAN DAN MERUJUK PADA FATWA DSN-MUI RESMI DI ATAS (Sebutkan Nomor Fatwa DSN-MUI yang relevan, seperti Fatwa No. 04 untuk Murabahah, Fatwa No. 19 untuk Qardh, Fatwa No. 141 untuk Koperasi Syariah, Fatwa 110/111 untuk Jual Beli, Fatwa 112 untuk Ijarah, Fatwa 114/115 untuk Syirkah/Mudharabah).
+2. Jika pengguna bertanya tentang skema akad, aturan uang muka, nisbah bagi hasil, sewa, denda/tazir, jaminan, maupun keanggotaan Koperasi Syariah, kutip poin fatwa yang sesuai secara tepat.
+3. Gunakan penomoran biasa (1., 2., 3.) atau strip (-).
+4. PENTING: JANGAN MENGGUNAKAN SIMBOL MARKDOWN SAMA SEKALI (seperti bintang *, cetak tebal **, miring *, hashtag ###, atau garis ---). Tuliskan balasan dalam TEKS POLOS (plain text) yang bersih.`;
 
   try {
     const formattedMessages = [
@@ -232,5 +274,5 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server Akad Syariah (AKADIN) berjalan di port ${PORT}. Menyimpan data di ${dataDir}`);
+  console.log(`Server Akad Syariah (AKADIN) berjalan di port ${PORT}. Knowledge Base berisi ${Object.keys(knowledgeBaseTexts).length} fatwa/template DSN-MUI.`);
 });
