@@ -111,16 +111,25 @@
 
             <div class="card">
               <h3>Buat Akad Baru</h3>
-              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Pilih jenis akad syariah yang ingin disusun secara dinamis</p>
-              <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <button class="btn btn-primary" onclick="startAkad('Murabahah')">
-                  ➕ Buat Akad Murabahah Dinamis
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">Pilih jenis akad syariah yang ingin disusun secara dinamis (Sesuai Fatwa & Standar DSN-MUI)</p>
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+                <button class="btn btn-primary" onclick="startAkad('Murabahah')" style="padding: 0.6rem 0.75rem; font-size: 0.825rem;">
+                  🛒 Murabahah (Jual Beli)
                 </button>
-                <button class="btn btn-gold" onclick="startAkad('Qardh')">
-                  ➕ Buat Akad Pinjaman Qardh
+                <button class="btn btn-gold" onclick="startAkad('Qardh')" style="padding: 0.6rem 0.75rem; font-size: 0.825rem;">
+                  🤝 Qardh (Pinjaman Kebajikan)
                 </button>
-                <button class="btn btn-outline" onclick="startAkad('Mudharabah')">
-                  ➕ Buat Akad Mudharabah (Bagi Hasil)
+                <button class="btn btn-outline" onclick="startAkad('Mudharabah')" style="padding: 0.6rem 0.75rem; font-size: 0.825rem; border-color: var(--primary); color: var(--primary-dark);">
+                  📈 Mudharabah (Bagi Hasil)
+                </button>
+                <button class="btn btn-outline" onclick="startAkad('Ijarah')" style="padding: 0.6rem 0.75rem; font-size: 0.825rem; border-color: #0284c7; color: #0284c7;">
+                  🏠 Ijarah (Sewa / Ujrah)
+                </button>
+                <button class="btn btn-outline" onclick="startAkad('Syirkah')" style="padding: 0.6rem 0.75rem; font-size: 0.825rem; border-color: #d97706; color: #b45309;">
+                  🤝 Syirkah (Kemitraan Usaha)
+                </button>
+                <button class="btn btn-outline" onclick="startAkad('Koperasi Syariah')" style="padding: 0.6rem 0.75rem; font-size: 0.825rem; border-color: #059669; color: #047857;">
+                  🏛️ Koperasi Syariah (Keanggotaan)
                 </button>
               </div>
             </div>
@@ -152,9 +161,9 @@
 
             <!-- Quick Suggestions -->
             <div style="padding: 0.5rem 1.25rem; background: #f1f5f9; border-top: 1px solid var(--border-color); display: flex; gap: 0.5rem; overflow-x: auto;">
-              <button class="btn btn-outline" style="padding: 0.25rem 0.65rem; font-size: 0.75rem; white-space: nowrap; background: white;" onclick="sendQuickChat('Apa bedanya Akad Murabahah bil Wakalah dengan Murabahah biasa?')">💡 Apa bedanya Murabahah bil Wakalah?</button>
-              <button class="btn btn-outline" style="padding: 0.25rem 0.65rem; font-size: 0.75rem; white-space: nowrap; background: white;" onclick="sendQuickChat('Bagaimana skema pembiayaan modal kerja sesuai syariah?')">💡 Skema Modal Kerja Syariah</button>
-              <button class="btn btn-outline" style="padding: 0.25rem 0.65rem; font-size: 0.75rem; white-space: nowrap; background: white;" onclick="sendQuickChat('Apa saja rukun dan syarat sah akad Murabahah?')">💡 Rukun & Syarat Murabahah</button>
+              <button class="btn btn-outline" style="padding: 0.25rem 0.65rem; font-size: 0.75rem; white-space: nowrap; background: white;" onclick="sendQuickChat('Apa bedanya Akad Murabahah bil Wakalah dengan Murabahah biasa?')">💡 Murabahah vs Murabahah bil Wakalah</button>
+              <button class="btn btn-outline" style="padding: 0.25rem 0.65rem; font-size: 0.75rem; white-space: nowrap; background: white;" onclick="sendQuickChat('Bagaimana skema akad Ijarah (Sewa) sesuai Fatwa DSN-MUI 112?')">💡 Skema Ijarah (Fatwa 112)</button>
+              <button class="btn btn-outline" style="padding: 0.25rem 0.65rem; font-size: 0.75rem; white-space: nowrap; background: white;" onclick="sendQuickChat('Apa saja rukun dan syarat sah akad Mudharabah dan Syirkah?')">💡 Rukun Mudharabah & Syirkah</button>
             </div>
 
             <!-- Input Area -->
@@ -178,18 +187,21 @@
                   <option value="Murabahah">Akad Murabahah (Jual Beli)</option>
                   <option value="Qardh">Akad Qardh (Pinjaman Kebajikan)</option>
                   <option value="Mudharabah">Akad Mudharabah (Bagi Hasil)</option>
+                  <option value="Ijarah">Akad Ijarah (Sewa / Ujrah)</option>
+                  <option value="Syirkah">Akad Syirkah (Kemitraan Usaha)</option>
+                  <option value="Koperasi Syariah">Akad Koperasi Syariah (Keanggotaan)</option>
                 </select>
               </div>
 
               <form id="akad-form" onsubmit="handleFormSubmit(event)">
                 <!-- Common Subjek Akad -->
                 <div class="form-group">
-                  <label>Nama Pihak Pertama (Penjual / Koperasi)</label>
-                  <input type="text" id="pihakPertama" class="form-control" placeholder="Pengurus Koperasi Al Firdaus" required oninput="triggerValidation()">
+                  <label>Nama Pihak Pertama (Penjual / Pemodal / Koperasi)</label>
+                  <input type="text" id="pihakPertama" class="form-control" placeholder="Pengurus Koperasi / Lembaga Syariah" required oninput="triggerValidation()">
                 </div>
                 <div class="form-group">
-                  <label>Nama Pihak Kedua (Anggota / Pemohon)</label>
-                  <input type="text" id="pihakKedua" class="form-control" placeholder="Nama lengkap anggota" required oninput="triggerValidation()">
+                  <label>Nama Pihak Kedua (Pembeli / Pengelola / Anggota)</label>
+                  <input type="text" id="pihakKedua" class="form-control" placeholder="Nama lengkap anggota / nasabah" required oninput="triggerValidation()">
                 </div>
 
                 <!-- Dynamic Inputs depending on Akad Type -->
@@ -271,12 +283,12 @@
 
             <div style="margin-top: 4rem; display: flex; justify-content: space-around; font-family: sans-serif; font-size: 0.9rem;">
               <div style="text-align: center;">
-                <p>PIHAK PERTAMA (Penjual / Penyedia)</p>
+                <p>PIHAK PERTAMA (Penjual / Pemodal)</p>
                 <br><br><br>
                 <p><strong>( ______________________ )</strong></p>
               </div>
               <div style="text-align: center;">
-                <p>PIHAK KEDUA (Pembeli / Pemohon)</p>
+                <p>PIHAK KEDUA (Pembeli / Pengelola)</p>
                 <br><br><br>
                 <p><strong>( <span id="doc-pihakkedua-sign">______________________</span> )</strong></p>
               </div>
