@@ -119,10 +119,18 @@ export default function App() {
     }
   };
 
-  const handleSendChat = async () => {
-    if (!chatInput.trim()) return;
+  const handleSendQuickChat = (promptText) => {
+    setChatInput(promptText);
+    setTimeout(() => {
+      handleSendChatWithText(promptText);
+    }, 100);
+  };
 
-    const userMsg = { role: 'user', content: chatInput.trim() };
+  const handleSendChatWithText = async (customText) => {
+    const textToSend = customText || chatInput.trim();
+    if (!textToSend) return;
+
+    const userMsg = { role: 'user', content: textToSend };
     const updatedMessages = [...chatMessages, userMsg];
     setChatMessages(updatedMessages);
     setChatInput('');
@@ -146,6 +154,10 @@ export default function App() {
     } finally {
       setChatLoading(false);
     }
+  };
+
+  const handleSendChat = () => {
+    handleSendChatWithText(null);
   };
 
   const handleShareContract = async () => {
@@ -262,6 +274,19 @@ export default function App() {
               {chatLoading && <ActivityIndicator size="small" color="#047857" style={{ marginTop: 10 }} />}
             </View>
 
+            {/* Quick Suggestion Chips */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 10 }}>
+              <TouchableOpacity style={styles.chipBtn} onPress={() => handleSendQuickChat('Apa bedanya Murabahah bil Wakalah dengan Murabahah biasa?')}>
+                <Text style={styles.chipText}>💡 Apa bedanya Murabahah bil Wakalah?</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.chipBtn} onPress={() => handleSendQuickChat('Bagaimana skema pembiayaan modal kerja sesuai syariah?')}>
+                <Text style={styles.chipText}>💡 Skema Modal Kerja Syariah</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.chipBtn} onPress={() => handleSendQuickChat('Apa saja rukun dan syarat sah akad Murabahah?')}>
+                <Text style={styles.chipText}>💡 Rukun & Syarat Murabahah</Text>
+              </TouchableOpacity>
+            </ScrollView>
+
             <View style={styles.chatInputRow}>
               <TextInput 
                 style={styles.chatInput} 
@@ -333,6 +358,8 @@ const styles = StyleSheet.create({
   chatInputRow: { flexDirection: 'row', gap: 8 },
   chatInput: { flex: 1, backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#cbd5e1', padding: 10, borderRadius: 6 },
   btnSend: { backgroundColor: '#047857', padding: 12, borderRadius: 6, justifyContent: 'center' },
+  chipBtn: { backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#cbd5e1', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 15, marginRight: 8 },
+  chipText: { fontSize: 11, color: '#047857', fontWeight: '500' },
   navBar: { flexDirection: 'row', backgroundColor: '#0f172a', borderTopWidth: 1, borderColor: '#1e293b' },
   navItem: { flex: 1, padding: 15, alignItems: 'center' },
   navText: { color: '#94a3b8', fontSize: 12, fontWeight: 'bold' },
