@@ -10,6 +10,67 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Stepper Styling */
+    .stepper-container {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .stepper-container::before {
+      content: '';
+      position: absolute;
+      top: 15px;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      background: #e2e8f0;
+      z-index: 1;
+    }
+    .step-item {
+      position: relative;
+      z-index: 2;
+      background: white;
+      padding: 0 0.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      cursor: pointer;
+    }
+    .step-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+    }
+    .step-item.active .step-number {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    .step-item.completed .step-number {
+      background: var(--success);
+      color: white;
+    }
+    .step-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .step-item.active .step-label {
+      color: var(--primary-dark);
+      font-weight: 700;
+    }
+  </style>
 </head>
 <body>
 
@@ -191,46 +252,103 @@
           </footer>
         </section>
 
-        <!-- VIEW 2: GENERATOR AKAD DINAMIS -->
+        <!-- VIEW 2: GENERATOR AKAD DINAMIS (WIZARD 3-STEP) -->
         <section id="view-generator" style="display: none;">
           <div class="grid-cols-2">
-            <!-- Form Input Parameters -->
+            <!-- Form Input Parameters with Wizard Stepper -->
             <div class="card">
               <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
                 <h3>Form Parameter Akad Syariah</h3>
-                <select id="form-akad-type" class="form-control" style="width: auto;" onchange="onAkadTypeChange(this.value)">
-                  <option value="Murabahah">Akad Murabahah (Jual Beli)</option>
-                  <option value="Qardh">Akad Qardh (Pinjaman Kebajikan)</option>
-                  <option value="Mudharabah">Akad Mudharabah (Bagi Hasil)</option>
-                  <option value="Ijarah">Akad Ijarah (Sewa / Ujrah)</option>
-                  <option value="Syirkah">Akad Syirkah (Kemitraan Usaha)</option>
-                  <option value="Koperasi Syariah">Akad Koperasi Syariah (Keanggotaan)</option>
-                </select>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                  <button type="button" class="btn btn-outline" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; border-color: var(--accent-gold); color: #b45309;" onclick="fillQuickDemoData()">
+                    ⚡ Quick Fill Demo
+                  </button>
+                  <select id="form-akad-type" class="form-control" style="width: auto;" onchange="onAkadTypeChange(this.value)">
+                    <option value="Murabahah">Akad Murabahah (Jual Beli)</option>
+                    <option value="Qardh">Akad Qardh (Pinjaman Kebajikan)</option>
+                    <option value="Mudharabah">Akad Mudharabah (Bagi Hasil)</option>
+                    <option value="Ijarah">Akad Ijarah (Sewa / Ujrah)</option>
+                    <option value="Syirkah">Akad Syirkah (Kemitraan Usaha)</option>
+                    <option value="Koperasi Syariah">Akad Koperasi Syariah (Keanggotaan)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Wizard Stepper Indicator Bar -->
+              <div class="stepper-container">
+                <div class="step-item active" id="step-btn-1" onclick="goToWizardStep(1)">
+                  <div class="step-number" id="step-num-1">1</div>
+                  <div class="step-label">Para Pihak</div>
+                </div>
+                <div class="step-item" id="step-btn-2" onclick="goToWizardStep(2)">
+                  <div class="step-number" id="step-num-2">2</div>
+                  <div class="step-label">Detail Transaksi</div>
+                </div>
+                <div class="step-item" id="step-btn-3" onclick="goToWizardStep(3)">
+                  <div class="step-number" id="step-num-3">3</div>
+                  <div class="step-label">Saksi & Legalitas</div>
+                </div>
               </div>
 
               <form id="akad-form" onsubmit="handleFormSubmit(event)">
-                <!-- Common Subjek Akad -->
-                <div class="form-group">
-                  <label>Nama Pihak Pertama (Penjual / Pemodal / Koperasi)</label>
-                  <input type="text" id="pihakPertama" class="form-control" placeholder="Pengurus Koperasi / Lembaga Syariah" required oninput="triggerValidation()">
-                </div>
-                <div class="form-group">
-                  <label>Nama Pihak Kedua (Pembeli / Pengelola / Anggota)</label>
-                  <input type="text" id="pihakKedua" class="form-control" placeholder="Nama lengkap anggota / nasabah" required oninput="triggerValidation()">
+                
+                <!-- STEP 1: PARA PIHAK -->
+                <div id="wizard-step-1">
+                  <div class="form-group">
+                    <label>Nama Pihak Pertama (Penjual / Pemodal / Koperasi)</label>
+                    <input type="text" id="pihakPertama" class="form-control" placeholder="Pengurus Koperasi / Lembaga Syariah" required oninput="triggerValidation()">
+                  </div>
+                  <div class="form-group">
+                    <label>Nama Pihak Kedua (Pembeli / Pengelola / Anggota)</label>
+                    <input type="text" id="pihakKedua" class="form-control" placeholder="Nama lengkap anggota / nasabah" required oninput="triggerValidation()">
+                  </div>
+                  <div style="text-align: right; margin-top: 1.25rem;">
+                    <button type="button" class="btn btn-primary" onclick="goToWizardStep(2)">
+                      Lanjut: Detail Transaksi ➡️
+                    </button>
+                  </div>
                 </div>
 
-                <!-- Dynamic Inputs depending on Akad Type -->
-                <div id="dynamic-fields">
-                  <!-- Default Murabahah fields -->
+                <!-- STEP 2: DETAIL TRANSAKSI (DYNAMIC FIELDS) -->
+                <div id="wizard-step-2" style="display: none;">
+                  <div id="dynamic-fields">
+                    <!-- Default Murabahah / Dynamic fields rendered by JS -->
+                  </div>
+                  <div style="display: flex; justify-content: space-between; margin-top: 1.25rem;">
+                    <button type="button" class="btn btn-outline" onclick="goToWizardStep(1)">
+                      ⬅️ Kembali
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="goToWizardStep(3)">
+                      Lanjut: Saksi & Legalitas ➡️
+                    </button>
+                  </div>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
-                  <button type="submit" id="btn-submit-ai" class="btn btn-primary" style="flex: 1;">
-                    ⚡ Susun Akad dengan AI
-                  </button>
+                <!-- STEP 3: SAKSI & FINAL SUBMIT -->
+                <div id="wizard-step-3" style="display: none;">
+                  <div class="form-group">
+                    <label>Identitas Saksi 1 & Saksi 2</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                      <input type="text" id="saksi1" class="form-control" placeholder="Nama Saksi 1 (opsional)">
+                      <input type="text" id="saksi2" class="form-control" placeholder="Nama Saksi 2 (opsional)">
+                    </div>
+                  </div>
+                  
+                  <div style="background: #f8fafc; padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1rem; font-size: 0.825rem; color: var(--text-muted);">
+                    ℹ️ Parameter telah lengkap. Sistem AI & Rules Engine siap memproses draft akad notaris.
+                  </div>
+
+                  <div style="display: flex; gap: 0.75rem;">
+                    <button type="button" class="btn btn-outline" onclick="goToWizardStep(2)">
+                      ⬅️ Kembali
+                    </button>
+                    <button type="submit" id="btn-submit-ai" class="btn btn-primary" style="flex: 1;">
+                      ⚡ Susun Akad dengan AI
+                    </button>
+                  </div>
 
                   <!-- Progress Bar Container -->
-                  <div id="progress-container" style="display: none; background: #f1f5f9; padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                  <div id="progress-container" style="display: none; background: #f1f5f9; padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-top: 1rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--primary-dark);">
                       <span id="progress-status-text">⏳ Mempersiapkan data transaksi...</span>
                       <span id="progress-percent-text">0%</span>
@@ -241,6 +359,7 @@
                     <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; text-align: center;">Harap tunggu, Sistem AI sedang memproses & menyelaraskan pasal-pasal akad syariah...</p>
                   </div>
                 </div>
+
               </form>
             </div>
 
@@ -296,26 +415,52 @@
               <p style="text-align: center; color: var(--text-muted); padding: 3rem;">Belum ada dokumen yang dibuat. Silakan isi form akad dinamis terlebih dahulu.</p>
             </div>
 
-            <div style="margin-top: 4rem; display: flex; justify-content: space-around; font-family: sans-serif; font-size: 0.9rem;">
-              <div style="text-align: center;">
-                <p>PIHAK PERTAMA (Penjual / Pemodal)</p>
-                <br><br><br>
-                <p><strong>( ______________________ )</strong></p>
+            <!-- QR Code Legalitas & Signature Area -->
+            <div style="margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid #cbd5e1; display: flex; justify-content: space-between; align-items: flex-end; font-family: sans-serif; font-size: 0.85rem;">
+              <!-- QR Code Verification Badge -->
+              <div style="display: flex; align-items: center; gap: 0.75rem; border: 1px solid #e2e8f0; padding: 0.65rem; border-radius: 6px; background: #f8fafc;">
+                <img id="doc-qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data=AKADIN-VERIFIED-SYARIAH-DSN-MUI" alt="QR Code Legalitas" style="width: 70px; height: 70px;">
+                <div>
+                  <p style="font-weight: bold; margin: 0; color: #0f172a;">VERIFIKASI AKAD DIGITAL</p>
+                  <p style="font-size: 0.75rem; color: #64748b; margin: 2px 0;">Terdaftar Rules Engine Syariah</p>
+                  <p style="font-size: 0.7rem; color: #059669; font-weight: 600; margin: 0;" id="doc-qr-hash">Hash: AKD-884920491</p>
+                </div>
               </div>
-              <div style="text-align: center;">
-                <p>PIHAK KEDUA (Pembeli / Pengelola)</p>
-                <br><br><br>
-                <p><strong>( <span id="doc-pihakkedua-sign">______________________</span> )</strong></p>
+
+              <!-- Signatures -->
+              <div style="display: flex; gap: 3rem; text-align: center;">
+                <div>
+                  <p style="margin-bottom: 2.5rem;">PIHAK PERTAMA (Koperasi)</p>
+                  <p><strong>( ______________________ )</strong></p>
+                </div>
+                <div>
+                  <p style="margin-bottom: 2.5rem;">PIHAK KEDUA (Pemohon)</p>
+                  <p><strong>( <span id="doc-pihakkedua-sign">______________________</span> )</strong></p>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- VIEW 4: VERIFIKASI & APPROVAL -->
+        <!-- VIEW 4: VERIFIKASI & APPROVAL (WITH SEARCH & FILTER) -->
         <section id="view-verification" style="display: none;">
           <div class="card">
-            <h3>Daftar Dokumen Akad Terbit</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Daftar akad yang telah disusun dan tersimpan di sistem AKADIN.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+              <div>
+                <h3>Daftar Dokumen Akad Terbit</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Daftar akad yang telah disusun dan tersimpan di sistem AKADIN.</p>
+              </div>
+
+              <!-- Search & Filter Controls -->
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="text" id="contract-search-input" class="form-control" placeholder="🔍 Cari nama anggota / No. Akad..." style="width: 220px; font-size: 0.825rem;" oninput="filterContractsTable()">
+                <select id="contract-status-filter" class="form-control" style="width: auto; font-size: 0.825rem;" onchange="filterContractsTable()">
+                  <option value="ALL">Semua Status</option>
+                  <option value="DRAFT">Status: DRAFT</option>
+                  <option value="APPROVED">Status: DISAHKAN</option>
+                </select>
+              </div>
+            </div>
             
             <table class="data-table">
               <thead>

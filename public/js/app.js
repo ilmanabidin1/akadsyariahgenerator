@@ -6,6 +6,7 @@ let currentAkadType = "Murabahah";
 let currentValidationResult = null;
 let currentDraftText = "";
 let createdContracts = [];
+let currentWizardStep = 1;
 
 // Initialize App
 document.addEventListener("DOMContentLoaded", () => {
@@ -128,15 +129,84 @@ function closeFooterModal() {
   document.getElementById('info-modal').style.display = 'none';
 }
 
-// User Role Change
-function changeUserRole(roleName) {
-  document.getElementById('current-role-display').innerText = `Role: ${roleName}`;
+// Wizard Stepper Navigation Handler
+function goToWizardStep(stepNum) {
+  currentWizardStep = stepNum;
+
+  [1, 2, 3].forEach(num => {
+    const stepView = document.getElementById(`wizard-step-${num}`);
+    const stepBtn = document.getElementById(`step-btn-${num}`);
+    const stepNumEl = document.getElementById(`step-num-${num}`);
+
+    if (stepView) stepView.style.display = (num === stepNum) ? 'block' : 'none';
+
+    if (stepBtn) {
+      stepBtn.classList.remove('active', 'completed');
+      if (num === stepNum) {
+        stepBtn.classList.add('active');
+      } else if (num < stepNum) {
+        stepBtn.classList.add('completed');
+        if (stepNumEl) stepNumEl.innerText = '✓';
+      } else {
+        if (stepNumEl) stepNumEl.innerText = num;
+      }
+    }
+  });
+}
+
+// Quick Fill Demo Data Function
+function fillQuickDemoData() {
+  const p1 = document.getElementById('pihakPertama');
+  const p2 = document.getElementById('pihakKedua');
+  const s1 = document.getElementById('saksi1');
+  const s2 = document.getElementById('saksi2');
+
+  if (p1) p1.value = "Koperasi Syariah Al Firdaus UNISBA";
+  if (p2) p2.value = "H. Ahmad Dahlan, S.E.";
+  if (s1) s1.value = "Budi Santoso, S.H.";
+  if (s2) s2.value = "Dra. Siti Rahmah";
+
+  if (currentAkadType === 'Murabahah') {
+    if (document.getElementById('namaBarang')) document.getElementById('namaBarang').value = "Kendaraan Operasional Motor Honda Vario 160cc";
+    if (document.getElementById('spesifikasi')) document.getElementById('spesifikasi').value = "Tahun 2026, Warna Hitam Metallic, Kondisi Baru 100%";
+    if (document.getElementById('hargaBeli')) document.getElementById('hargaBeli').value = "28000000";
+    if (document.getElementById('margin')) document.getElementById('margin').value = "4200000";
+    if (document.getElementById('uangMuka')) document.getElementById('uangMuka').value = "3000000";
+    if (document.getElementById('tenor')) document.getElementById('tenor').value = "24";
+  } else if (currentAkadType === 'Qardh') {
+    if (document.getElementById('jumlahPinjaman')) document.getElementById('jumlahPinjaman').value = "10000000";
+    if (document.getElementById('biayaAdmin')) document.getElementById('biayaAdmin').value = "75000";
+    if (document.getElementById('jatuhTempo')) document.getElementById('jatuhTempo').value = "6 Bulan";
+    if (document.getElementById('tujuanQardh')) document.getElementById('tujuanQardh').value = "Modal Kerja Usaha Mikro Konveksi";
+  } else if (currentAkadType === 'Mudharabah') {
+    if (document.getElementById('bidangUsaha')) document.getElementById('bidangUsaha').value = "Budidaya & Perdagangan Ikan Nila Syariah";
+    if (document.getElementById('jumlahModal')) document.getElementById('jumlahModal').value = "50000000";
+    if (document.getElementById('nisbahPengelola')) document.getElementById('nisbahPengelola').value = "60";
+    if (document.getElementById('nisbahPemodal')) document.getElementById('nisbahPemodal').value = "40";
+  } else if (currentAkadType === 'Ijarah') {
+    if (document.getElementById('namaBarang')) document.getElementById('namaBarang').value = "Sewa Ruko Tempat Usaha Koperasi 2 Lantai";
+    if (document.getElementById('biayaUjrah')) document.getElementById('biayaUjrah').value = "35000000";
+    if (document.getElementById('tenorIjarah')) document.getElementById('tenorIjarah').value = "1 Tahun";
+  } else if (currentAkadType === 'Syirkah') {
+    if (document.getElementById('bidangUsaha')) document.getElementById('bidangUsaha').value = "Kemitraan Usaha Minimarket Syariah";
+    if (document.getElementById('modalPihak1')) document.getElementById('modalPihak1').value = "100000000";
+    if (document.getElementById('modalPihak2')) document.getElementById('modalPihak2').value = "100000000";
+    if (document.getElementById('nisbahPengelola')) document.getElementById('nisbahPengelola').value = "50";
+    if (document.getElementById('nisbahPemodal')) document.getElementById('nisbahPemodal').value = "50";
+  } else if (currentAkadType === 'Koperasi Syariah') {
+    if (document.getElementById('simpananPokok')) document.getElementById('simpananPokok').value = "500000";
+    if (document.getElementById('simpananWajib')) document.getElementById('simpananWajib').value = "50000";
+  }
+
+  triggerValidation();
+  goToWizardStep(2);
 }
 
 // Start Akad Action from Dashboard
 function startAkad(type) {
   document.getElementById('form-akad-type').value = type;
   onAkadTypeChange(type);
+  goToWizardStep(1);
   switchTab('generator');
 }
 
@@ -170,13 +240,6 @@ function onAkadTypeChange(type) {
       <div class="form-group">
         <label>Tenor / Jangka Waktu (Bulan)</label>
         <input type="number" id="tenor" class="form-control" placeholder="Contoh: 12" required oninput="triggerValidation()">
-      </div>
-      <div class="form-group">
-        <label>Identitas Saksi 1 & Saksi 2</label>
-        <div style="display: flex; gap: 0.5rem;">
-          <input type="text" id="saksi1" class="form-control" placeholder="Nama Saksi 1">
-          <input type="text" id="saksi2" class="form-control" placeholder="Nama Saksi 2">
-        </div>
       </div>
     `;
   } else if (type === 'Qardh') {
@@ -442,8 +505,9 @@ async function handleFormSubmit(e) {
       currentDraftText = textResult;
       
       // Save to active contract list
+      const contractId = `AKD/${currentAkadType.substring(0,3).toUpperCase()}/${Math.floor(100000 + Math.random() * 900000)}`;
       const newContract = {
-        id: `AKD/${currentAkadType.substring(0,3).toUpperCase()}/${Math.floor(100000 + Math.random() * 900000)}`,
+        id: contractId,
         type: currentAkadType,
         pihakKedua: formData.pihakKedua,
         date: new Date().toLocaleDateString('id-ID'),
@@ -475,6 +539,11 @@ function viewGeneratedDocument() {
   const formData = getFormData();
   document.getElementById('doc-pihakkedua-sign').innerText = formData.pihakKedua || 'Nama Anggota';
   
+  // Set QR Code Hash & Image
+  const activeId = createdContracts.length > 0 ? createdContracts[0].id : 'AKD-VERIFIED';
+  document.getElementById('doc-qr-hash').innerText = `Hash: ${activeId}`;
+  document.getElementById('doc-qr-code').src = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=AKADIN-VERIFIED-${activeId}`;
+
   // Format text into clean paragraphs & headings HTML
   let cleanText = currentDraftText;
   
@@ -596,7 +665,23 @@ function approveContract() {
   alert("Dokumen Akad Syariah berhasil disahkan, diberi stempel legalitas Koperasi, dan dicatat ke Audit Log!");
 }
 
-// Dashboard Update
+// Search and Filter Contracts Table
+function filterContractsTable() {
+  const searchQuery = (document.getElementById('contract-search-input')?.value || '').toLowerCase();
+  const statusFilter = document.getElementById('contract-status-filter')?.value || 'ALL';
+
+  const filtered = createdContracts.filter(c => {
+    const matchesSearch = c.id.toLowerCase().includes(searchQuery) ||
+                          c.pihakKedua.toLowerCase().includes(searchQuery) ||
+                          c.type.toLowerCase().includes(searchQuery);
+    const matchesStatus = statusFilter === 'ALL' || c.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  renderVerificationTable(filtered);
+}
+
+// Dashboard & Verification Table Update
 function updateDashboardStats() {
   document.getElementById('stat-total-akad').innerText = createdContracts.length;
   
@@ -626,19 +711,24 @@ function updateDashboardStats() {
     `).join('');
   }
 
-  // Render Verification Table
+  filterContractsTable();
+}
+
+function renderVerificationTable(contractsList) {
   const vbody = document.getElementById('verification-table-body');
-  if (createdContracts.length === 0) {
+  if (!vbody) return;
+
+  if (contractsList.length === 0) {
     vbody.innerHTML = `
       <tr>
         <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
-          Belum ada akad aktif yang dibuat.
+          Tidak ada dokumen akad yang cocok dengan pencarian / filter.
         </td>
       </tr>`;
   } else {
-    vbody.innerHTML = createdContracts.map(c => `
+    vbody.innerHTML = contractsList.map(c => `
       <tr>
-        <td>${c.id}</td>
+        <td><strong>${c.id}</strong></td>
         <td>${c.type}</td>
         <td>${c.pihakKedua}</td>
         <td>${c.date}</td>
