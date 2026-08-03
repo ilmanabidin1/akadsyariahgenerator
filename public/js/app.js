@@ -44,7 +44,7 @@ async function syncContractToBackend(contract) {
 
 // Tab Switcher
 function switchTab(tabId) {
-  const tabs = ['dashboard', 'generator', 'document', 'verification', 'about', 'terms', 'audit'];
+  const tabs = ['dashboard', 'generator', 'document', 'verification', 'audit'];
   tabs.forEach(t => {
     const viewEl = document.getElementById(`view-${t}`);
     const navEl = document.getElementById(`nav-${t}`);
@@ -60,11 +60,72 @@ function switchTab(tabId) {
     'generator': 'Form Penyusunan Akad Syariah Dinamis',
     'document': 'Pratinjau & Cetak Dokumen Akad Syariah',
     'verification': 'Daftar Dokumen Akad Terbit',
-    'about': 'Tentang Kami & Landasan Riset PDUPT',
-    'terms': 'Syarat & Ketentuan Penggunaan Platform',
     'audit': 'Audit Trail & Log Status System'
   };
   document.getElementById('page-title').innerText = titles[tabId] || 'Akad Syariah System';
+}
+
+// Modal Footer Handler for About & Terms
+function toggleFooterModal(type) {
+  const modal = document.getElementById('info-modal');
+  const body = document.getElementById('modal-body-content');
+
+  if (type === 'about') {
+    body.innerHTML = `
+      <div style="border-bottom: 2px solid var(--primary-light); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+        <span class="badge" style="background: var(--primary-subtle); color: var(--primary-dark); margin-bottom: 0.25rem;">Riset Terapan PDUPT</span>
+        <h3 style="color: var(--primary-dark); font-size: 1.25rem; margin: 0.25rem 0;">Tentang AKADIN & Tim Peneliti</h3>
+      </div>
+      
+      <div style="margin-bottom: 1rem; background: var(--primary-subtle); padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--primary-light);">
+        <h4 style="color: var(--primary-dark); margin-bottom: 0.2rem; font-size: 0.95rem;">👨‍💻 Developer & Pengembang Utama Aplikasi:</h4>
+        <p style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; margin: 0;">Dr. M Ilman Abidin, S.H., M.H.</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Dosen & Peneliti - Fakultas Hukum Universitas Islam Bandung (UNISBA)</p>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <h4 style="color: var(--primary-dark); font-size: 0.95rem; margin-bottom: 0.2rem;">👩‍🏫 Ketua Tim Penelitian & Guru Besar:</h4>
+        <p style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; margin: 0;">Prof. Dr. Neni Sri Imaniyati, S.H., M.H.</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Guru Besar Hukum Perbankan Syariah & HKI - Fakultas Hukum UNISBA</p>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <h4 style="color: var(--primary-dark); font-size: 0.95rem; margin-bottom: 0.2rem;">🏛️ Mitra Penerapan Prototipe:</h4>
+        <p style="font-size: 0.85rem; color: var(--text-main); margin: 0;">Koperasi Syariah / Koperasi Konsumen Al Firdaus & Ekosistem Lembaga Keuangan Mikro Syariah (BMT/LKMS).</p>
+      </div>
+
+      <div style="font-size: 0.85rem; line-height: 1.6; text-align: justify; color: var(--text-main); background: #f8fafc; padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+        <strong>Urgensi & Kebaruan Riset:</strong> AKADIN mengintegrasikan logika fikih muamalah, fatwa DSN-MUI, dan regulasi OJK secara otomatis berbasis Artificial Intelligence & Rule Engine untuk memitigasi risiko kesalahan redaksional (compliance risk) serta memberikan kepastian hukum akad syariah digital.
+      </div>
+    `;
+  } else if (type === 'terms') {
+    body.innerHTML = `
+      <div style="border-bottom: 2px solid var(--primary-light); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+        <h3 style="color: var(--primary-dark); font-size: 1.25rem; margin: 0;">Syarat & Ketentuan Penggunaan (Terms & Conditions)</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Ketentuan Hukum & Kepatuhan Syariah Platform AKADIN</p>
+      </div>
+
+      <div style="font-size: 0.85rem; line-height: 1.6; color: var(--text-main);">
+        <h4 style="color: var(--primary-dark); margin-top: 0.75rem; margin-bottom: 0.2rem;">1. Kepatuhan Fatwa DSN-MUI</h4>
+        <p style="margin-bottom: 0.75rem;">Setiap dokumen akad yang disusun melalui platform AKADIN wajib memenuhi rukun akad (Subjek, Objek, Ijab Qabul) dan syarat sah akad (Bebas Riba, Gharar, Maysir) sesuai Fatwa DSN-MUI.</p>
+
+        <h4 style="color: var(--primary-dark); margin-top: 0.75rem; margin-bottom: 0.2rem;">2. Tanggung Jawab Data Input</h4>
+        <p style="margin-bottom: 0.75rem;">Pengguna (Legal Officer/Admin Koperasi/Pengurus) bertanggung jawab penuh atas kebenaran identitas para pihak, barang, rincian finansial, dan saksi yang diisikan ke form.</p>
+
+        <h4 style="color: var(--primary-dark); margin-top: 0.75rem; margin-bottom: 0.2rem;">3. Kedudukan Hasil AI & Pengesahan DPS</h4>
+        <p style="margin-bottom: 0.75rem;">Dokumen hasil AI Generator bertindak sebagai draf baku Notaris/Koperasi. Pengesahan final tetap disarankan melalui peninjauan Dewan Pengawas Syariah (DPS).</p>
+
+        <h4 style="color: var(--primary-dark); margin-top: 0.75rem; margin-bottom: 0.2rem;">4. Hak Kekayaan Intelektual (HKI)</h4>
+        <p style="margin-bottom: 0.75rem;">Metode validasi rukun-syarat otomatis ini dilindungi oleh Hak Cipta & Paten Sederhana terdaftar hasil riset PDUPT Fakultas Hukum UNISBA.</p>
+      </div>
+    `;
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closeFooterModal() {
+  document.getElementById('info-modal').style.display = 'none';
 }
 
 // User Role Change
