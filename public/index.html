@@ -70,6 +70,22 @@
       color: var(--primary-dark);
       font-weight: 700;
     }
+    .pihak-box {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .pihak-title {
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 0.85rem;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -292,16 +308,81 @@
 
               <form id="akad-form" onsubmit="handleFormSubmit(event)">
                 
-                <!-- STEP 1: PARA PIHAK -->
+                <!-- STEP 1: DETIL PARA PIHAK (PIHAK I & PIHAK II DETIL NOTARIS/KOPERASI) -->
                 <div id="wizard-step-1">
-                  <div class="form-group">
-                    <label>Nama Pihak Pertama (Penjual / Pemodal / Koperasi)</label>
-                    <input type="text" id="pihakPertama" class="form-control" placeholder="Pengurus Koperasi / Lembaga Syariah" required oninput="triggerValidation()">
+                  <!-- Waktu & Tempat Akad -->
+                  <div style="background: #e0f2fe; padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid #bae6fd; margin-bottom: 1.25rem; font-size: 0.825rem; color: #0369a1;">
+                    <strong>🕒 Waktu & Tempat Penandatanganan Akad:</strong>
                   </div>
-                  <div class="form-group">
-                    <label>Nama Pihak Kedua (Pembeli / Pengelola / Anggota)</label>
-                    <input type="text" id="pihakKedua" class="form-control" placeholder="Nama lengkap anggota / nasabah" required oninput="triggerValidation()">
+                  <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label>Hari & Tanggal Akad</label>
+                      <input type="text" id="tanggalAkad" class="form-control" placeholder="Contoh: Senin, 15 Juni 2026" oninput="triggerValidation()">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label>Waktu & Tempat Akad</label>
+                      <input type="text" id="tempatAkad" class="form-control" placeholder="Contoh: Pukul 10.00 WIB di Kantor Koperasi" oninput="triggerValidation()">
+                    </div>
                   </div>
+
+                  <!-- PIHAK PERTAMA (PENJUAL / PEMODAL / KOPERASI) -->
+                  <div class="pihak-box">
+                    <div class="pihak-title">🏢 PIHAK PERTAMA (Lembaga / Pemodal)</div>
+                    <div class="form-group">
+                      <label>Nama Pejabat / Perwakilan</label>
+                      <input type="text" id="pihakPertama" class="form-control" placeholder="Contoh: Iswahyudi, S.Sy" required oninput="triggerValidation()">
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+                      <div class="form-group">
+                        <label>Umur Pihak I</label>
+                        <input type="text" id="umurPihak1" class="form-control" placeholder="Contoh: 35 Tahun">
+                      </div>
+                      <div class="form-group">
+                        <label>NIK Pihak I</label>
+                        <input type="text" id="nikPihak1" class="form-control" placeholder="16071012345678">
+                      </div>
+                      <div class="form-group">
+                        <label>Jabatan Pihak I</label>
+                        <input type="text" id="jabatanPihak1" class="form-control" placeholder="Contoh: Kepala Divisi / Pengurus">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Nama Lembaga / Koperasi</label>
+                      <input type="text" id="lembagaPihak1" class="form-control" placeholder="Contoh: Koperasi Syariah Al Firdaus UNISBA">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label>Alamat Kantor / Berkedudukan Di</label>
+                      <input type="text" id="alamatPihak1" class="form-control" placeholder="Alamat lengkap lembaga Pihak Pertama">
+                    </div>
+                  </div>
+
+                  <!-- PIHAK KEDUA (PEMBELI / PENGELOLA / ANGGOTA) -->
+                  <div class="pihak-box">
+                    <div class="pihak-title">👤 PIHAK KEDUA (Pembeli / Anggota / Pengelola)</div>
+                    <div class="form-group">
+                      <label>Nama Lengkap Anggota / Nasabah</label>
+                      <input type="text" id="pihakKedua" class="form-control" placeholder="Contoh: Asrori Agus Latif, S.Sy" required oninput="triggerValidation()">
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+                      <div class="form-group">
+                        <label>Umur Pihak II</label>
+                        <input type="text" id="umurPihak2" class="form-control" placeholder="Contoh: 29 Tahun">
+                      </div>
+                      <div class="form-group">
+                        <label>NIK Pihak II</label>
+                        <input type="text" id="nikPihak2" class="form-control" placeholder="1234567891012314">
+                      </div>
+                      <div class="form-group">
+                        <label>Pekerjaan Pihak II</label>
+                        <input type="text" id="pekerjaanPihak2" class="form-control" placeholder="Contoh: Pegawai Negeri / Wiraswasta">
+                      </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label>Alamat Tempat Tinggal Pihak II</label>
+                      <input type="text" id="alamatPihak2" class="form-control" placeholder="Alamat lengkap sesuai KTP Pihak Kedua">
+                    </div>
+                  </div>
+
                   <div style="text-align: right; margin-top: 1.25rem;">
                     <button type="button" class="btn btn-primary" onclick="goToWizardStep(2)">
                       Lanjut: Detail Transaksi ➡️

@@ -87,8 +87,8 @@ app.post('/api/generate-akad', async (req, res) => {
   try {
     const knowledgeContext = getKnowledgeContextForAkad(akadData.tipeAkad);
 
-    const prompt = `Anda adalah Notaris Hukum Syariah dan Asisten AI Koperasi. 
-Tugas Anda adalah membuat/mengisi dokumen akad syariah resmi (${akadData.tipeAkad}) berdasarkan TEMPLATE STANDAR & FATWA DSN-MUI RESMI yang ada dalam Knowledge Base berikut.
+    const prompt = `Anda adalah Notaris Hukum Syariah dan Asisten AI Koperasi Syariah.
+Tugas Anda adalah membuat/mengisi dokumen akad syariah resmi (${akadData.tipeAkad}) dengan format komplit dan rapi persis seperti standar perbankan syariah / Koperasi Syariah berdasarkan TEMPLATE STANDAR & FATWA DSN-MUI RESMI berikut.
 
 === KNOWLEDGE BASE RESMI FATWA & TEMPLATE STANDAR DSN-MUI ===
 ${knowledgeContext}
@@ -96,20 +96,35 @@ ${knowledgeContext}
 === PENTING DAN WAJIB DIPATUHI ===
 1. Gunakan susunan pasal-pasal, ayat-ayat, dalil Al-Qur'an/Hadits, dan ketentuan syariah yang 100% SESUAI DENGAN FATWA DAN TEMPLATE STANDAR DSN-MUI di atas.
 2. JANGAN MENGGUNAKAN SIMBOL MARKDOWN SAMA SEKALI (seperti **, *, __, #, dll). Tuliskan dokumen dalam TEKS POLOS (plain text) yang bersih dan siap dicetak.
-3. Isikan data variabel/identitas Pihak Pertama, Pihak Kedua, Objek Akad, Nilai Finansial, Saksi-Saksi, dan Tanggal secara akurat sesuai Data Input Transaksi berikut:
+3. BAGIAN PEMBUKA DAN IDENTITAS PARA PIHAK HARUS DITULIS LENGKAP DAN DETAIL SESUAI DATA INPUT DENGAN STRUKTUR SEPERTI INI:
 
-=== DATA INPUT TRANSAKSI ===
+Dengan memohon petunjuk dan ridho Allah SWT, akad pembiayaan ${akadData.tipeAkad} ini dibuat dan ditandatangani pada ${akadData.tanggalAkad || 'hari ini'}, bertempat di ${akadData.tempatAkad || 'Kantor Koperasi'}, oleh para pihak sebagai berikut:
+
+1. Nama: ${akadData.pihakPertama || '-'}
+   Umur: ${akadData.umurPihak1 || '-'}
+   NIK: ${akadData.nikPihak1 || '-'}
+   Jabatan: ${akadData.jabatanPihak1 || 'Pengurus Koperasi'}
+   Alamat: ${akadData.alamatPihak1 || '-'}
+   
+   Dalam hal ini bertindak untuk dan atas nama ${akadData.lembagaPihak1 || 'Koperasi Syariah'} yang berkantor dan berkedudukan di ${akadData.alamatPihak1 || '-'}, selanjutnya disebut sebagai Pihak Pertama.
+
+2. Nama: ${akadData.pihakKedua || '-'}
+   Umur: ${akadData.umurPihak2 || '-'}
+   NIK: ${akadData.nikPihak2 || '-'}
+   Pekerjaan: ${akadData.pekerjaanPihak2 || '-'}
+   Alamat: ${akadData.alamatPihak2 || '-'}
+   
+   Dalam hal ini bertindak untuk dan atas namanya sendiri, selanjutnya disebut sebagai Pihak Kedua.
+
+=== DETAIL TRANSAKSI AKAD ===
 Jenis Akad: ${akadData.tipeAkad}
-Pihak Pertama (Penjual/Pemodal/Koperasi): ${akadData.pihakPertama} (Jabatan: ${akadData.jabatanPihakPertama || 'Pengurus'}, Alamat: ${akadData.alamatPihakPertama || 'Kantor Koperasi'})
-Pihak Kedua (Pembeli/Pengelola/Anggota): ${akadData.pihakKedua} (NIK: ${akadData.nikPihakKedua || '-'}, Pekerjaan: ${akadData.pekerjaanPihakKedua || '-'}, Alamat: ${akadData.alamatPihakKedua || '-'})
 Objek/Barang/Usaha: ${akadData.namaBarang || akadData.bidangUsaha || '-'} (Spesifikasi: ${akadData.spesifikasi || '-'})
 Harga Pokok / Modal: Rp ${parseFloat(akadData.hargaBeli || akadData.jumlahModal || akadData.jumlahPinjaman || 0).toLocaleString('id-ID')}
 Margin / Profit / Ujrah / Nisbah: Margin Rp ${parseFloat(akadData.margin || 0).toLocaleString('id-ID')} / Nisbah ${akadData.nisbahPengelola || 60}% : ${akadData.nisbahPemodal || 40}%
 Uang Muka / Admin: Rp ${parseFloat(akadData.uangMuka || akadData.biayaAdmin || 0).toLocaleString('id-ID')}
-Tenor / Jangka Waktu: ${akadData.tenor || akadData.jatuhTempo || 12} Bulan
-Saksi 1: ${akadData.saksi1 || 'Saksi I Koperasi'}
-Saksi 2: ${akadData.saksi2 || 'Saksi II Koperasi'}
-Tanggal Akad: ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+Tenor / Jangka Waktu: ${akadData.tenor || akadData.tenorIjarah || akadData.jatuhTempo || 12} Bulan
+Saksi 1: ${akadData.saksi1 || 'Saksi I'}
+Saksi 2: ${akadData.saksi2 || 'Saksi II'}
 `;
 
     const response = await fetch('https://api.deepseek.com/chat/completions', {

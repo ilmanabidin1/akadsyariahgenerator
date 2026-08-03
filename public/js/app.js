@@ -154,17 +154,29 @@ function goToWizardStep(stepNum) {
   });
 }
 
-// Quick Fill Demo Data Function
+// Quick Fill Demo Data Function with Detailed Identity
 function fillQuickDemoData() {
-  const p1 = document.getElementById('pihakPertama');
-  const p2 = document.getElementById('pihakKedua');
-  const s1 = document.getElementById('saksi1');
-  const s2 = document.getElementById('saksi2');
+  if (document.getElementById('tanggalAkad')) document.getElementById('tanggalAkad').value = "Senin, 15 Juni 2026";
+  if (document.getElementById('tempatAkad')) document.getElementById('tempatAkad').value = "Pukul 10.00 WIB di Kantor PT Bank BNI Syariah Palembang";
 
-  if (p1) p1.value = "Koperasi Syariah Al Firdaus UNISBA";
-  if (p2) p2.value = "H. Ahmad Dahlan, S.E.";
-  if (s1) s1.value = "Budi Santoso, S.H.";
-  if (s2) s2.value = "Dra. Siti Rahmah";
+  // Pihak Pertama (Lembaga/Penjual)
+  if (document.getElementById('pihakPertama')) document.getElementById('pihakPertama').value = "Iswahyudi, S.Sy";
+  if (document.getElementById('umurPihak1')) document.getElementById('umurPihak1').value = "25 Tahun";
+  if (document.getElementById('nikPihak1')) document.getElementById('nikPihak1').value = "160710102205940003";
+  if (document.getElementById('jabatanPihak1')) document.getElementById('jabatanPihak1').value = "Kepala Divisi Marketing";
+  if (document.getElementById('lembagaPihak1')) document.getElementById('lembagaPihak1').value = "PT Bank BNI Syariah Palembang";
+  if (document.getElementById('alamatPihak1')) document.getElementById('alamatPihak1').value = "Jln. Raya Palembang-Betung Km15 Rt.21/06 Kel. Tanah Mas Kec. Talang Kelapa Banyuasin";
+
+  // Pihak Kedua (Pembeli/Nasabah)
+  if (document.getElementById('pihakKedua')) document.getElementById('pihakKedua').value = "Asrori Agus Latif, S.Sy";
+  if (document.getElementById('umurPihak2')) document.getElementById('umurPihak2').value = "29 Tahun";
+  if (document.getElementById('nikPihak2')) document.getElementById('nikPihak2').value = "1234567891012314";
+  if (document.getElementById('pekerjaanPihak2')) document.getElementById('pekerjaanPihak2').value = "Pegawai Negeri Sipil (Kemenag Banyuasin)";
+  if (document.getElementById('alamatPihak2')) document.getElementById('alamatPihak2').value = "Jln. Pangeran Ayin Rt.10/12 Kel. Talang Keramat Kec. Talang Kelapa Kab. Banyuasin";
+
+  // Saksi
+  if (document.getElementById('saksi1')) document.getElementById('saksi1').value = "Budi Santoso, S.H.";
+  if (document.getElementById('saksi2')) document.getElementById('saksi2').value = "Dra. Siti Rahmah";
 
   if (currentAkadType === 'Murabahah') {
     if (document.getElementById('namaBarang')) document.getElementById('namaBarang').value = "Kendaraan Operasional Motor Honda Vario 160cc";
@@ -374,12 +386,27 @@ function triggerValidation() {
   renderValidationPanel(result);
 }
 
-// Get Form Data Helper
+// Get Form Data Helper with Full Detailed Identiy
 function getFormData() {
   const data = {
     tipeAkad: currentAkadType,
+    tanggalAkad: document.getElementById('tanggalAkad')?.value || '',
+    tempatAkad: document.getElementById('tempatAkad')?.value || '',
+    
+    // Pihak Pertama
     pihakPertama: document.getElementById('pihakPertama')?.value || '',
-    pihakKedua: document.getElementById('pihakKedua')?.value || ''
+    umurPihak1: document.getElementById('umurPihak1')?.value || '',
+    nikPihak1: document.getElementById('nikPihak1')?.value || '',
+    jabatanPihak1: document.getElementById('jabatanPihak1')?.value || '',
+    lembagaPihak1: document.getElementById('lembagaPihak1')?.value || '',
+    alamatPihak1: document.getElementById('alamatPihak1')?.value || '',
+
+    // Pihak Kedua
+    pihakKedua: document.getElementById('pihakKedua')?.value || '',
+    umurPihak2: document.getElementById('umurPihak2')?.value || '',
+    nikPihak2: document.getElementById('nikPihak2')?.value || '',
+    pekerjaanPihak2: document.getElementById('pekerjaanPihak2')?.value || '',
+    alamatPihak2: document.getElementById('alamatPihak2')?.value || ''
   };
 
   if (currentAkadType === 'Murabahah') {
