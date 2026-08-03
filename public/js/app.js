@@ -451,7 +451,7 @@ function renderValidationPanel(result) {
   checklistContainer.innerHTML = html;
 }
 
-// Submit Form - Generate Redaksi Akad via Backend DeepSeek API
+// Submit Form - Generate Redaksi Akad via Akadin AI Server
 async function handleFormSubmit(e) {
   e.preventDefault();
   const formData = getFormData();
@@ -463,7 +463,7 @@ async function handleFormSubmit(e) {
   const progressPercentText = document.getElementById('progress-percent-text');
 
   btnSubmit.disabled = true;
-  btnSubmit.innerHTML = "⏳ Menghubungi DeepSeek AI Server...";
+  btnSubmit.innerHTML = "⏳ Menghubungi Server Akadin AI...";
   
   // Reset and show progress bar
   progressContainer.style.display = "block";
@@ -471,7 +471,7 @@ async function handleFormSubmit(e) {
   progressPercentText.innerText = "5%";
   progressStatusText.innerText = "⏳ Memvalidasi parameter transaksi...";
 
-  // Simulated progressive updates
+  // Simulated progressive updates with Akadin AI branding
   let currentProgress = 5;
   const progressInterval = setInterval(() => {
     if (currentProgress < 30) {
@@ -479,7 +479,7 @@ async function handleFormSubmit(e) {
       progressStatusText.innerText = "🔍 Memverifikasi kepatuhan Rukun & Fatwa DSN-MUI...";
     } else if (currentProgress < 75) {
       currentProgress += 3;
-      progressStatusText.innerText = "🤖 DeepSeek AI sedang menyusun klausul & rincian finansial...";
+      progressStatusText.innerText = "🤖 Akadin AI sedang menyusun klausul & rincian finansial...";
     } else if (currentProgress < 92) {
       currentProgress += 1;
       progressStatusText.innerText = "✍️ Memformat draft akad notaris & merapikan redaksi...";
@@ -581,7 +581,7 @@ function viewGeneratedDocument() {
   switchTab('document');
 }
 
-// Function to Export Document to Microsoft Word (.docx)
+// Function to Export Document to Microsoft Word (.docx) - Standard Compliant HTML Format for Word
 function exportToWordDocx() {
   if (!currentDraftText) {
     alert("Belum ada dokumen akad untuk diexport. Silakan susun dokumen terlebih dahulu.");
@@ -589,64 +589,92 @@ function exportToWordDocx() {
   }
 
   const contentHtml = document.getElementById('document-content-area').innerHTML;
+  const formData = getFormData();
+  const pihakKeduaNama = formData.pihakKedua || 'Anggota';
+  
+  // Safe filename (remove dot, comma, special characters to prevent Word unreadable error)
+  const safeName = pihakKeduaNama.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_');
+  const fileName = `Dokumen_Akad_${currentAkadType}_${safeName}.doc`;
+
   const headerHtml = `
-    <div style="text-align:center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
-      <h2 style="margin:0; text-transform:uppercase;">AKADIN - AKAD SYARIAH DIGITAL</h2>
-      <p style="margin:5px 0 0 0; font-size: 12px;">Platform AI Pengembangan & Legalitas Akad Syariah Otomatis</p>
+    <div style="text-align:center; border-bottom: 2px solid #000000; padding-bottom: 10px; margin-bottom: 20px;">
+      <h2 style="margin:0; text-transform:uppercase; font-family: Arial, sans-serif; font-size: 16pt;">AKADIN - AKAD SYARIAH DIGITAL</h2>
+      <p style="margin:5px 0 0 0; font-size: 10pt; font-family: Arial, sans-serif;">Platform AI Pengembangan & Legalitas Akad Syariah Otomatis</p>
     </div>
   `;
-  const formData = getFormData();
+
   const footerHtml = `
     <br><br>
     <table style="width: 100%; border-collapse: collapse; margin-top: 30px;">
       <tr>
-        <td style="text-align: center; width: 50%;">
-          <p>PIHAK PERTAMA (Penjual / Penyedia)</p>
+        <td style="text-align: center; width: 50%; font-family: 'Times New Roman', serif; font-size: 11pt;">
+          <p>PIHAK PERTAMA (Koperasi)</p>
           <br><br><br><br>
           <p><strong>( ______________________ )</strong></p>
         </td>
-        <td style="text-align: center; width: 50%;">
-          <p>PIHAK KEDUA (Pembeli / Pemohon)</p>
+        <td style="text-align: center; width: 50%; font-family: 'Times New Roman', serif; font-size: 11pt;">
+          <p>PIHAK KEDUA (Pemohon)</p>
           <br><br><br><br>
-          <p><strong>( ${formData.pihakKedua || '______________________'} )</strong></p>
+          <p><strong>( ${pihakKeduaNama} )</strong></p>
         </td>
       </tr>
     </table>
   `;
 
-  const fullHtml = `
-    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-    <head>
-      <meta charset='utf-8'>
-      <title>Dokumen Akad Syariah</title>
-      <style>
-        body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; margin: 1in; }
-        h3 { text-align: center; font-size: 14pt; text-transform: uppercase; margin-top: 15px; }
-        h4 { text-align: center; font-size: 13pt; text-transform: uppercase; margin-top: 20px; }
-        p { margin-bottom: 10px; text-align: justify; }
-      </style>
-    </head>
-    <body>
-      ${headerHtml}
-      ${contentHtml}
-      ${footerHtml}
-    </body>
-    </html>
-  `;
+  // Construct pure HTML for MS Word
+  const fullHtml = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+  <meta charset="utf-8">
+  <title>Dokumen Akad Syariah</title>
+  <!--[if gte mso 9]>
+  <xml>
+    <w:WordDocument>
+      <w:View>Print</w:View>
+      <w:Zoom>100</w:Zoom>
+      <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+  </xml>
+  <![endif]-->
+  <style>
+    @page Section1 {
+      size: 8.5in 11.0in;
+      margin: 1.0in 1.0in 1.0in 1.0in;
+      mso-header-margin: 0.5in;
+      mso-footer-margin: 0.5in;
+      mso-paper-source: 0;
+    }
+    div.Section1 { page: Section1; }
+    body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; color: #000000; }
+    h3 { text-align: center; font-size: 14pt; font-weight: bold; text-transform: uppercase; margin-top: 15pt; margin-bottom: 10pt; }
+    h4 { text-align: center; font-size: 12pt; font-weight: bold; text-transform: uppercase; margin-top: 15pt; margin-bottom: 5pt; }
+    p { margin-bottom: 8pt; text-align: justify; text-justify: inter-word; }
+  </style>
+</head>
+<body>
+  <div class="Section1">
+    ${headerHtml}
+    ${contentHtml}
+    ${footerHtml}
+  </div>
+</body>
+</html>`;
 
-  const blob = new Blob(['\ufeff' + fullHtml], {
-    type: 'application/msword'
-  });
+  // Use application/msword with UTF-8 BOM to prevent MS Word XML parsing errors
+  const blob = new Blob(['\ufeff', fullHtml], { type: 'application/msword;charset=utf-8' });
 
-  const url = URL.createObjectURL(blob);
-  const downloadLink = document.createElement('a');
-  downloadLink.href = url;
-  const fileName = `Dokumen_Akad_${currentAkadType}_${(formData.pihakKedua || 'Anggota').replace(/\s+/g, '_')}.docx`;
-  downloadLink.download = fileName;
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-  document.body.removeChild(downloadLink);
-  URL.revokeObjectURL(url);
+  if (navigator.msSaveOrOpenBlob) {
+    navigator.msSaveOrOpenBlob(blob, fileName);
+  } else {
+    const url = URL.createObjectURL(blob);
+    const downloadLink = document.createElement('a');
+    downloadLink.href = url;
+    downloadLink.download = fileName;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    URL.revokeObjectURL(url);
+  }
 }
 
 // Approve Document
