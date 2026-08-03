@@ -44,7 +44,7 @@ async function syncContractToBackend(contract) {
 
 // Tab Switcher
 function switchTab(tabId) {
-  const tabs = ['dashboard', 'generator', 'document', 'verification', 'audit'];
+  const tabs = ['dashboard', 'generator', 'document', 'verification', 'about', 'terms', 'audit'];
   tabs.forEach(t => {
     const viewEl = document.getElementById(`view-${t}`);
     const navEl = document.getElementById(`nav-${t}`);
@@ -59,7 +59,9 @@ function switchTab(tabId) {
     'dashboard': 'Dashboard Utama',
     'generator': 'Form Penyusunan Akad Syariah Dinamis',
     'document': 'Pratinjau & Cetak Dokumen Akad Syariah',
-    'verification': 'Verifikasi Legal Officer & Dewan Pengawas Syariah',
+    'verification': 'Daftar Dokumen Akad Terbit',
+    'about': 'Tentang Kami & Landasan Riset PDUPT',
+    'terms': 'Syarat & Ketentuan Penggunaan Platform',
     'audit': 'Audit Trail & Log Status System'
   };
   document.getElementById('page-title').innerText = titles[tabId] || 'Akad Syariah System';

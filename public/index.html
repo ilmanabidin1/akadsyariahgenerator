@@ -37,6 +37,16 @@
           </button>
         </li>
         <li class="nav-item">
+          <button id="nav-about" onclick="switchTab('about')">
+            <span>ℹ️</span> Tentang Kami & Riset
+          </button>
+        </li>
+        <li class="nav-item">
+          <button id="nav-terms" onclick="switchTab('terms')">
+            <span>📜</span> Syarat & Ketentuan
+          </button>
+        </li>
+        <li class="nav-item">
           <button id="nav-audit" onclick="switchTab('audit')">
             <span>🔗</span> Audit Log System
           </button>
@@ -327,7 +337,94 @@
           </div>
         </section>
 
-        <!-- VIEW 5: AUDIT TRAIL LOG -->
+        <!-- VIEW 5: TENTANG KAMI & RISET (PDUPT) -->
+        <section id="view-about" style="display: none;">
+          <div class="card">
+            <div style="border-bottom: 2px solid var(--primary-light); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+              <span class="badge" style="background: var(--primary-subtle); color: var(--primary-dark); margin-bottom: 0.5rem;">Penelitian Dosen Utama Terapan (PDUPT)</span>
+              <h2>Tentang Kami - AKADIN System</h2>
+              <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+                Sistem Penyusunan Dokumen Akad Syariah secara Dinamis dengan Validasi Rukun dan Syarat Otomatis
+              </p>
+            </div>
+
+            <div class="grid-cols-2">
+              <div>
+                <h3 style="color: var(--primary-dark); margin-bottom: 0.75rem;">Urgenasi & Latar Belakang Riset</h3>
+                <p style="text-align: justify; line-height: 1.7; font-size: 0.9rem; color: var(--text-main); margin-bottom: 1rem;">
+                  Perkembangan industri keuangan dan bisnis syariah di Indonesia menuntut tersedianya dokumen akad yang disusun secara konsisten dengan rukun dan syarat sebagaimana diatur dalam fikih muamalah serta fatwa DSN-MUI. Ketidaktepatan perumusan redaksi atau kelalaian dalam pemenuhan rukun dan syarat akad berakibat pada batal atau rusaknya (fasid) akad, serta menimbulkan risiko hukum dan kepatuhan (compliance risk) bagi lembaga keuangan syariah.
+                </p>
+                <p style="text-align: justify; line-height: 1.7; font-size: 0.9rem; color: var(--text-main);">
+                  AKADIN dikembangkan untuk mengintegrasikan logika fikih muamalah, fatwa DSN-MUI, dan regulasi OJK secara otomatis berbasis Artificial Intelligence & Rule Engine untuk mengurangi risiko kesalahan redaksional serta meningkatkan efisiensi penyusunan akad syariah digital.
+                </p>
+              </div>
+
+              <div>
+                <h3 style="color: var(--primary-dark); margin-bottom: 0.75rem;">Tim Peneliti & Guru Besar</h3>
+                <div style="background: #f8fafc; padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1rem;">
+                  <h4 style="color: var(--primary-dark); margin-bottom: 0.25rem;">Prof. Dr. Neni Sri Imaniyati, S.H., M.H.</h4>
+                  <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-bottom: 0.5rem;">Guru Besar Hukum Perbankan Syariah - Universitas Islam Bandung (UNISBA)</p>
+                  <p style="font-size: 0.85rem; line-height: 1.6;">
+                    Pakar di bidang Hukum Perbankan Syariah, Hukum Bisnis, dan Hak Kekayaan Intelektual (HKI). Konsultan perancangan sistem kepatuhan syariah (sharia compliance system) dan otomatisasi akad digital.
+                  </p>
+                </div>
+
+                <div style="background: #f8fafc; padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                  <h4 style="color: var(--primary-dark); margin-bottom: 0.25rem;">Mitra Penerapan Prototipe</h4>
+                  <p style="font-size: 0.85rem; line-height: 1.6;">
+                    Koperasi Syariah / Koperasi Konsumen Al Firdaus & Ekosistem Keuangan Mikro Syariah (BMT/LKMS).
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 2rem; background: var(--primary-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--primary-light);">
+              <h4 style="color: var(--primary-dark); margin-bottom: 0.5rem;">Kebaruan Penelitian (Novelty) & Luaran Terdaftar</h4>
+              <ul style="padding-left: 1.25rem; font-size: 0.875rem; line-height: 1.8;">
+                <li>Sistem penyusunan dokumen akad dinamis dengan validasi rukun & syarat berbasis Rule-Based AI terintegrasi Fatwa DSN-MUI.</li>
+                <li>Terdaftar Kekayaan Intelektual (KI) Hak Cipta & Pendaftaran Paten Sederhana Metode Penyusunan Akad Syariah berbasis Rules Engine.</li>
+                <li>Publikasi Jurnal Terakreditasi Sinta 2 (Jurnal Media Hukum) & Diseminasi Seminar Internasional (BAIC).</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 6: SYARAT & KETENTUAN (TERMS & CONDITIONS) -->
+        <section id="view-terms" style="display: none;">
+          <div class="card" style="line-height: 1.7; font-size: 0.9rem;">
+            <div style="border-bottom: 2px solid var(--primary-light); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+              <h2>Syarat & Ketentuan Penggunaan (Terms & Conditions)</h2>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">Ketentuan Hukum & Kepatuhan Syariah Platform AKADIN</p>
+            </div>
+
+            <h4 style="color: var(--primary-dark); margin-top: 1.25rem;">1. Ketentuan Umum Kepatuhan Syariah</h4>
+            <p>
+              Setiap dokumen akad yang disusun melalui platform AKADIN wajib memenuhi rukun akad (Subjek/Al-Aqidain, Objek/Ma'qud 'Alaih, Ijab Qabul) dan syarat sah akad (Suka Sama Suka/Tardhi, Bebas Riba, Bebas Gharar, Bebas Maysir) sesuai dengan ketetapan Fatwa Dewan Syariah Nasional Majelis Ulama Indonesia (DSN-MUI).
+            </p>
+
+            <h4 style="color: var(--primary-dark); margin-top: 1.25rem;">2. Tanggung Jawab Data & Pengisian Form</h4>
+            <p>
+              Pengguna (Legal Officer/Admin Koperasi/Pengurus) bertanggung jawab penuh atas kebenaran, keabsahan, dan akurasi identitas para pihak, spesifikasi barang, rincian finansial, serta tanggal kesepakatan yang diisikan ke dalam form generator.
+            </p>
+
+            <h4 style="color: var(--primary-dark); margin-top: 1.25rem;">3. Kedudukan Dokumen Hasil AI & Verifikasi DPS</h4>
+            <p>
+              Dokumen akad yang disusun secara otomatis oleh AI Generator bertindak sebagai draf hukum Notaris/Koperasi baku. Pengesahan final dokumen disarankan tetap melalui peninjauan Dewan Pengawas Syariah (DPS) dan penandatanganan sah oleh Pihak Pertama dan Pihak Kedua.
+            </p>
+
+            <h4 style="color: var(--primary-dark); margin-top: 1.25rem;">4. Hak Kekayaan Intelektual (HKI) & Lisensi</h4>
+            <p>
+              Metode validasi rukun-syarat otomatis dan sistem penyusunan akad dinamis ini dilindungi oleh Hak Cipta dan Paten Sederhana terdaftar berdasarkan hasil Penelitian Dosen Utama Terapan (PDUPT) UNISBA.
+            </p>
+
+            <h4 style="color: var(--primary-dark); margin-top: 1.25rem;">5. Kerahasiaan & Transparansi Log (Audit Trail)</h4>
+            <p>
+              Setiap pembuatan dan perubahan status dokumen akan dicatat dalam Audit Trail Log secara mutlak guna menjamin transparansi serta kepatuhan pada regulasi Otoritas Jasa Keuangan (OJK) dan DSN-MUI.
+            </p>
+          </div>
+        </section>
+
+        <!-- VIEW 7: AUDIT TRAIL LOG -->
         <section id="view-audit" style="display: none;">
           <div class="card">
             <h3>Audit Trail Log Kepatuhan Syariah</h3>
