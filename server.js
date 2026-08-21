@@ -234,6 +234,30 @@ if (!fs.existsSync(dataDir)) {
 }
 
 const contractsFilePath = path.join(dataDir, 'contracts.json');
+const usersFilePath = path.join(dataDir, 'users.json');
+
+// Helper fungsi membaca daftar pengguna permanen
+function loadUsers() {
+  if (fs.existsSync(usersFilePath)) {
+    try {
+      const fileData = fs.readFileSync(usersFilePath, 'utf-8');
+      return JSON.parse(fileData);
+    } catch (e) {
+      console.error('Gagal membaca users.json:', e);
+      return [];
+    }
+  }
+  return [];
+}
+
+// Helper fungsi menyimpan daftar pengguna permanen
+function saveUsers(users) {
+  try {
+    fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2), 'utf-8');
+  } catch (e) {
+    console.error('Gagal menyimpan users.json:', e);
+  }
+}
 
 // Helper fungsi membaca daftar akad dari berkas permanen
 function loadContracts() {
@@ -257,6 +281,82 @@ function saveContracts(contracts) {
     console.error('Gagal menyimpan berkas contracts.json:', e);
   }
 }
+
+// API Endpoint Registrasi Pengguna Baru (Koperasi Syariah / DPS)
+app.post('/api/auth/register', (req, res) => {
+  const { userType, institutionName, legalNumber, fullname, email, username, password } = req.body;
+
+  if (!username || !password || !fullname || !email || !userType) {
+    return res.status(400).json({ error: 'Semua kolom wajib diisi.' });
+  }
+
+  const users = loadUsers();
+  const existing = users.find(u => u.username.toLowerCase() === username.toLowerCase() || u.email.toLowerCase() === email.toLowerCase());
+
+  if (existing) {
+    return res.status(400).json({ error: 'Username atau Email sudah terdaftar dalam sistem.' });
+  }
+
+  const newUser = {
+    id: `USR-${Date.now()}`,
+    userType, // 'KOPERASI' atau 'DPS'
+    institutionName: institutionName || '',
+    legalNumber: legalNumber || '', // No. AHU/SK Koperasi atau No. Sertifikat Rekomendasi DSN-MUI
+    fullname,
+    email,
+    username: username.trim(),
+    password: password.trim(), // In a live production system, passwords can be hashed
+    createdAt: new Date().toISOString()
+  };
+
+  users.unshift(newUser);
+  saveUsers(users);
+
+  res.json({
+    success: true,
+    message: 'Registrasi berhasil!',
+    user: {
+      id: newUser.id,
+      userType: newUser.userType,
+      institutionName: newUser.institutionName,
+      fullname: newUser.fullname,
+      email: newUser.email,
+      username: newUser.username
+    }
+  });
+});
+
+// API Endpoint Login Nyata
+app.post('/api/auth/login', (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Masukkan username dan password.' });
+  }
+
+  const users = loadUsers();
+  const user = users.find(u => 
+    (u.username.toLowerCase() === username.trim().toLowerCase() || u.email.toLowerCase() === username.trim().toLowerCase()) &&
+    u.password === password.trim()
+  );
+
+  if (!user) {
+    return res.status(401).json({ error: 'Username/Email atau Password tidak sesuai.' });
+  }
+
+  res.json({
+    success: true,
+    message: 'Login berhasil!',
+    user: {
+      id: user.id,
+      userType: user.userType,
+      institutionName: user.institutionName,
+      fullname: user.fullname,
+      email: user.email,
+      username: user.username
+    }
+  });
+});
 
 // API Endpoint untuk mengambil seluruh data akad terpanen
 app.get('/api/contracts', (req, res) => {

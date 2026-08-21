@@ -43,34 +43,53 @@ function formatRupiahInput(inputEl) {
 // ==========================================
 
 function checkAuthSession() {
-  const user = localStorage.getItem('akadify_logged_user');
+  const userJson = localStorage.getItem('akadify_logged_user');
   const landingEl = document.getElementById('landing-page-container');
   const appEl = document.getElementById('main-app-wrapper');
 
-  if (user) {
+  if (userJson) {
+    let userObj = null;
+    try {
+      userObj = JSON.parse(userJson);
+    } catch (e) {
+      userObj = { fullname: userJson, userType: 'KOPERASI' };
+    }
+
     if (landingEl) landingEl.style.display = 'none';
     if (appEl) appEl.style.display = 'flex';
+    
     const displayEl = document.getElementById('logged-user-display');
-    if (displayEl) displayEl.innerText = user;
+    if (displayEl) {
+      const roleLabel = userObj.userType === 'DPS' ? 'Dewan Pengawas' : 'Koperasi';
+      displayEl.innerText = `${userObj.fullname || userObj.username} (${roleLabel})`;
+    }
   } else {
     if (landingEl) landingEl.style.display = 'block';
     if (appEl) appEl.style.display = 'none';
   }
 }
 
-function openLoginModal() {
+function openLoginModal(defaultTab = 'login') {
   const modal = document.getElementById('auth-modal');
   if (modal) {
     modal.style.display = 'flex';
-    const err = document.getElementById('login-error-msg');
-    if (err) err.style.display = 'none';
+    switchAuthTab(defaultTab);
+    
+    // Clear forms
     const userIn = document.getElementById('login-username');
     if (userIn) {
-      userIn.value = 'demo';
+      userIn.value = '';
       userIn.focus();
     }
     const passIn = document.getElementById('login-password');
-    if (passIn) passIn.value = 'demo';
+    if (passIn) passIn.value = '';
+    
+    const errLogin = document.getElementById('login-error-msg');
+    if (errLogin) errLogin.style.display = 'none';
+    const errReg = document.getElementById('register-error-msg');
+    if (errReg) errReg.style.display = 'none';
+    const succReg = document.getElementById('register-success-msg');
+    if (succReg) succReg.style.display = 'none';
   }
 }
 
@@ -79,31 +98,155 @@ function closeLoginModal() {
   if (modal) modal.style.display = 'none';
 }
 
-function handleLoginSubmit(e) {
+function switchAuthTab(tab) {
+  const tabLogin = document.getElementById('tab-btn-login');
+  const tabRegister = document.getElementById('tab-btn-register');
+  const viewLogin = document.getElementById('auth-view-login');
+  const viewRegister = document.getElementById('auth-view-register');
+  const titleEl = document.getElementById('auth-modal-title');
+
+  if (tab === 'login') {
+    tabLogin.style.color = 'var(--primary)';
+    tabLogin.style.borderBottom = '2px solid var(--primary)';
+    tabLogin.style.fontWeight = '700';
+
+    tabRegister.style.color = 'var(--text-muted)';
+    tabRegister.style.borderBottom = 'none';
+    tabRegister.style.fontWeight = '600';
+
+    viewLogin.style.display = 'block';
+    viewRegister.style.display = 'none';
+    if (titleEl) titleEl.innerText = 'Masuk ke Portal AKADIFY';
+  } else {
+    tabRegister.style.color = 'var(--primary)';
+    tabRegister.style.borderBottom = '2px solid var(--primary)';
+    tabRegister.style.fontWeight = '700';
+
+    tabLogin.style.color = 'var(--text-muted)';
+    tabLogin.style.borderBottom = 'none';
+    tabLogin.style.fontWeight = '600';
+
+    viewRegister.style.display = 'block';
+    viewLogin.style.display = 'none';
+    if (titleEl) titleEl.innerText = 'Registrasi Entitas Baru';
+  }
+}
+
+// Toggle Fields Berdasarkan Kategori Registrasi (Koperasi vs DPS)
+function toggleRegisterTypeFields(type) {
+  const labelInst = document.getElementById('label-institution-name');
+  const labelLegal = document.getElementById('label-legal-number');
+  const inputInst = document.getElementById('reg-institution');
+  const inputLegal = document.getElementById('reg-legal-number');
+
+  if (type === 'KOPERASI') {
+    if (labelInst) labelInst.innerText = 'Nama Lembaga Koperasi / BMT / KSPPS';
+    if (inputInst) inputInst.placeholder = 'Contoh: KSPPS BMT Bina Ummah Sejahtera';
+    if (labelLegal) labelLegal.innerText = 'Nomor Badan Hukum / SK Kemenkumham (AHU)';
+    if (inputLegal) inputLegal.placeholder = 'Contoh: AHU-0012345.AH.01.26.TAHUN 2024';
+  } else {
+    if (labelInst) labelInst.innerText = 'Nama Lembaga / Kantor DPS / Afiliasi';
+    if (inputInst) inputInst.placeholder = 'Contoh: Dewan Pengawas Syariah Perwakilan Wilayah';
+    if (labelLegal) labelLegal.innerText = 'No. Sertifikasi / Rekomendasi DSN-MUI';
+    if (inputLegal) inputLegal.placeholder = 'Contoh: DSN-MUI/DPS-CERT/2025/9981';
+  }
+}
+
+// Handle Submit Registrasi Real ke Backend
+async function handleRegisterSubmit(e) {
+  e.preventDefault();
+  const errMsg = document.getElementById('register-error-msg');
+  const succMsg = document.getElementById('register-success-msg');
+  const btnSubmit = document.getElementById('btn-register-submit');
+
+  const userTypeEl = document.querySelector('input[name="registerUserType"]:checked');
+  const userType = userTypeEl ? userTypeEl.value : 'KOPERASI';
+  const institutionName = document.getElementById('reg-institution')?.value.trim() || '';
+  const legalNumber = document.getElementById('reg-legal-number')?.value.trim() || '';
+  const fullname = document.getElementById('reg-fullname')?.value.trim() || '';
+  const email = document.getElementById('reg-email')?.value.trim() || '';
+  const username = document.getElementById('reg-username')?.value.trim() || '';
+  const password = document.getElementById('reg-password')?.value.trim() || '';
+
+  errMsg.style.display = 'none';
+  succMsg.style.display = 'none';
+  btnSubmit.disabled = true;
+  btnSubmit.innerText = 'Memproses Pendaftaran...';
+
+  try {
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userType, institutionName, legalNumber, fullname, email, username, password })
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+      succMsg.innerText = `✅ Registrasi berhasil untuk ${fullname}! Silakan masuk menggunakan username & kata sandi Anda.`;
+      succMsg.style.display = 'block';
+      
+      setTimeout(() => {
+        switchAuthTab('login');
+        const loginUserIn = document.getElementById('login-username');
+        if (loginUserIn) loginUserIn.value = username;
+      }, 1500);
+    } else {
+      errMsg.innerText = `⚠️ ${result.error || 'Gagal melakukan pendaftaran.'}`;
+      errMsg.style.display = 'block';
+    }
+  } catch (err) {
+    console.error('Error register:', err);
+    errMsg.innerText = '⚠️ Terjadi kendala koneksi ke server.';
+    errMsg.style.display = 'block';
+  } finally {
+    btnSubmit.disabled = false;
+    btnSubmit.innerText = 'Daftarkan Akun Lembaga →';
+  }
+}
+
+// Handle Submit Login Real ke Backend
+async function handleLoginSubmit(e) {
   e.preventDefault();
   const username = document.getElementById('login-username')?.value.trim() || '';
   const password = document.getElementById('login-password')?.value.trim() || '';
   const errMsg = document.getElementById('login-error-msg');
+  const btnSubmit = document.getElementById('btn-login-submit');
 
-  // Akun Demo resmi
-  if (username.toLowerCase() === 'demo' && password.toLowerCase() === 'demo') {
-    localStorage.setItem('akadify_logged_user', 'Pengurus Demo (Koperasi)');
-    closeLoginModal();
-    checkAuthSession();
-    addAuditLog("User Logged In: Pengurus Demo (Koperasi)");
-  } else if (username && password) {
-    // Memberikan fleksibilitas login akun pengurus lain
-    localStorage.setItem('akadify_logged_user', username);
-    closeLoginModal();
-    checkAuthSession();
-    addAuditLog(`User Logged In: ${username}`);
-  } else {
-    if (errMsg) errMsg.style.display = 'block';
+  errMsg.style.display = 'none';
+  btnSubmit.disabled = true;
+  btnSubmit.innerText = 'Memverifikasi...';
+
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+      localStorage.setItem('akadify_logged_user', JSON.stringify(result.user));
+      closeLoginModal();
+      checkAuthSession();
+      addAuditLog(`User Logged In: ${result.user.fullname} (${result.user.userType})`);
+    } else {
+      errMsg.innerText = `⚠️ ${result.error || 'Username atau Password tidak valid.'}`;
+      errMsg.style.display = 'block';
+    }
+  } catch (err) {
+    console.error('Error login:', err);
+    errMsg.innerText = '⚠️ Gagal terhubung ke server autentikasi.';
+    errMsg.style.display = 'block';
+  } finally {
+    btnSubmit.disabled = false;
+    btnSubmit.innerText = 'Masuk ke Sistem →';
   }
 }
 
 function handleLogout() {
-  const confirmLogout = confirm("Apakah Anda yakin ingin keluar dari aplikasi AKADIFY?");
+  const confirmLogout = confirm("Apakah Anda yakin ingin keluar dari sistem AKADIFY?");
   if (!confirmLogout) return;
 
   localStorage.removeItem('akadify_logged_user');
