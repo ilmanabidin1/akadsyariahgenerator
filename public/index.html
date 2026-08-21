@@ -94,8 +94,14 @@
     <!-- Sidebar Navigation -->
     <aside class="sidebar" id="app-sidebar">
       <div class="sidebar-header">
-        <img src="logo_transparent.png" alt="AKADIN Logo" class="sidebar-logo-full">
-        <span class="sidebar-logo-mini" title="AKADIN">🏛️</span>
+        <div class="sidebar-logo-container">
+          <img src="logo_transparent.png" alt="AKADIN Logo" class="sidebar-logo-full">
+          <span class="sidebar-logo-mini" title="AKADIN">🏛️</span>
+        </div>
+        <!-- Tombol Lipat Langsung di Sidebar -->
+        <button class="sidebar-collapse-btn" onclick="toggleSidebarFold()" title="Lipat / Perluas Sidebar">
+          <span class="collapse-icon">◀</span>
+        </button>
       </div>
 
       <ul class="nav-list">
@@ -124,6 +130,12 @@
           </button>
         </li>
       </ul>
+
+      <!-- Tombol Lipat Bawah Sidebar -->
+      <div class="sidebar-footer-fold" onclick="toggleSidebarFold()">
+        <span class="fold-footer-icon">◀</span>
+        <span class="fold-footer-text">Lipat Menu Sidebar</span>
+      </div>
     </aside>
 
     <!-- Main Application View -->
