@@ -883,19 +883,49 @@ async function handleFormSubmit(e) {
 }
 
 // Display Generated Document
-function viewGeneratedDocument() {
-  if (!currentDraftText) {
+function viewGeneratedDocument(targetContract = null) {
+  if (!currentDraftText && !targetContract) {
     alert("Belum ada draft akad yang dihasilkan. Silakan isi form dan klik 'Susun Akad dengan AI'.");
     return;
   }
 
-  const formData = getFormData();
-  document.getElementById('doc-pihakkedua-sign').innerText = formData.pihakKedua || 'Nama Anggota';
+  if (targetContract) {
+    currentDraftText = targetContract.content;
+    currentAkadType = targetContract.type || currentAkadType;
+  }
+
+  const formData = targetContract ? {
+    pihakPertama: targetContract.formData?.pihakPertama || 'Pengurus Koperasi',
+    lembagaPihak1: targetContract.formData?.lembagaPihak1 || targetContract.institutionName || 'Koperasi Syariah',
+    pihakKedua: targetContract.pihakKedua || targetContract.formData?.pihakKedua || 'Nama Anggota',
+    saksi1: targetContract.formData?.saksi1 || 'Saksi I',
+    saksi2: targetContract.formData?.saksi2 || 'Saksi II'
+  } : getFormData();
+
+  const signEl = document.getElementById('doc-pihakkedua-sign');
+  if (signEl) signEl.innerText = formData.pihakKedua || 'Nama Anggota';
   
   // Set QR Code Hash & Image
-  const activeId = createdContracts.length > 0 ? createdContracts[0].id : 'AKD-VERIFIED';
-  document.getElementById('doc-qr-hash').innerText = `Hash: ${activeId}`;
-  document.getElementById('doc-qr-code').src = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=AKADIFY-VERIFIED-${activeId}`;
+  const activeId = targetContract ? targetContract.id : (createdContracts.length > 0 ? createdContracts[0].id : 'AKD-VERIFIED');
+  const hashEl = document.getElementById('doc-qr-hash');
+  const qrImg = document.getElementById('doc-qr-code');
+  if (hashEl) hashEl.innerText = `Hash: ${activeId}`;
+  if (qrImg) qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=AKADIFY-VERIFIED-${activeId}`;
+
+  // Update Status Stamp
+  const stampEl = document.getElementById('approval-stamp');
+  if (stampEl) {
+    const isApproved = targetContract ? (targetContract.status === 'APPROVED') : (createdContracts.length > 0 && createdContracts[0].status === 'APPROVED');
+    if (isApproved) {
+      stampEl.innerHTML = "✅ DISAHKAN KOPERASI";
+      stampEl.style.borderColor = "var(--success)";
+      stampEl.style.color = "var(--success)";
+    } else {
+      stampEl.innerHTML = "DRAFT DOKUMEN AKAD";
+      stampEl.style.borderColor = "var(--accent-gold)";
+      stampEl.style.color = "var(--accent-gold)";
+    }
+  }
 
   // Format text into clean paragraphs & headings HTML
   let cleanText = currentDraftText;
@@ -1260,8 +1290,7 @@ function renderVerificationTable(contractsList) {
 function viewContractById(id) {
   const contract = createdContracts.find(c => c.id === id);
   if (contract) {
-    currentDraftText = contract.content;
-    viewGeneratedDocument();
+    viewGeneratedDocument(contract);
   }
 }
 
