@@ -671,15 +671,38 @@ function viewGeneratedDocument() {
     } else if (trimmed.startsWith('"Hai orang-orang') || trimmed.startsWith('Dari Abu Sa\'id') || trimmed.startsWith('(Qs.') || trimmed.startsWith('(HR.')) {
       formattedHtml += `<p style="text-align:center; font-style: italic; font-size: 0.95rem; margin-bottom: 1rem; color: #334155; padding: 0 1rem;">${trimmed}</p>`;
     } else {
-      // Deteksi penomoran butir / pointer (1. , a. , (1) , 1) , A. , dll.)
-      const listMatch = trimmed.match(/^(\d+\.|\([0-9]+\)|[a-z]\.|\([a-z]\)|[A-Z]\.|\d+\))\s+(.*)$/);
+      // Deteksi penomoran butir / pointer berjenjang (Multilevel Numbering)
+      const listMatch = trimmed.match(/^(\d+\.|\([0-9]+\)|[a-z]\.|\([a-z]\)|[A-Z]\.|\d+\)|[ivxlcdm]+\.|\([ivxlcdm]+\)|-)\s+(.*)$/);
       if (listMatch) {
         const numLabel = listMatch[1];
         const textBody = listMatch[2];
+        
+        // Tentukan level indentasi hierarki
+        let levelClass = 'doc-level-1';
+        let wordIndentPt = 0;
+        let wordNumWidthPt = 25;
+
+        if (/^[a-z]\.|\([a-z]\)/.test(numLabel)) {
+          // Level 2: a. , b. , (a)
+          levelClass = 'doc-level-2';
+          wordIndentPt = 24;
+          wordNumWidthPt = 20;
+        } else if (/^[ivxlcdm]+\.|\([ivxlcdm]+\)|-/.test(numLabel)) {
+          // Level 3: i. , ii. , (i) , -
+          levelClass = 'doc-level-3';
+          wordIndentPt = 48;
+          wordNumWidthPt = 18;
+        } else {
+          // Level 1: 1. , (1) , A.
+          levelClass = 'doc-level-1';
+          wordIndentPt = 0;
+          wordNumWidthPt = 25;
+        }
+
         formattedHtml += `
-          <div class="doc-numbered-item" style="display: flex; align-items: flex-start; margin-bottom: 0.65rem; line-height: 1.6;">
-            <div class="doc-numbered-num" style="min-width: 2.2rem; width: 2.2rem; flex-shrink: 0; font-weight: normal;">${numLabel}</div>
-            <div class="doc-numbered-body" style="flex: 1; text-align: justify; text-justify: inter-word;">${textBody}</div>
+          <div class="doc-numbered-item ${levelClass}">
+            <div class="doc-numbered-num">${numLabel}</div>
+            <div class="doc-numbered-body">${textBody}</div>
           </div>
         `;
       } else {
@@ -761,8 +784,14 @@ function exportToWordDocx() {
     h4 { text-align: center; font-size: 12pt; font-weight: bold; text-transform: uppercase; margin-top: 15pt; margin-bottom: 5pt; }
     p { margin-bottom: 8pt; text-align: justify; text-justify: inter-word; }
     .doc-numbered-item { display: flex; align-items: flex-start; margin-bottom: 6pt; line-height: 1.5; }
-    .doc-numbered-num { width: 25pt; min-width: 25pt; }
-    .doc-numbered-body { text-align: justify; text-justify: inter-word; }
+    .doc-level-1 { margin-left: 0pt; }
+    .doc-level-1 > .doc-numbered-num { width: 25pt; min-width: 25pt; }
+    .doc-level-2 { margin-left: 25pt; }
+    .doc-level-2 > .doc-numbered-num { width: 20pt; min-width: 20pt; }
+    .doc-level-3 { margin-left: 50pt; }
+    .doc-level-3 > .doc-numbered-num { width: 20pt; min-width: 20pt; }
+    .doc-numbered-num { text-align: left; }
+    .doc-numbered-body { text-align: justify; text-justify: inter-word; flex: 1; }
   </style>
 </head>
 <body>

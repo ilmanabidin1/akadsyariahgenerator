@@ -532,7 +532,7 @@ body {
   line-height: 1.7;
 }
 
-/* Hanging Indent / Numbering List Format ala MS Word Notaris */
+/* Hanging Indent / Numbering List Format Bertingkat ala MS Word Notaris */
 .doc-numbered-item {
   display: flex;
   align-items: flex-start;
@@ -542,9 +542,34 @@ body {
   line-height: 1.6;
 }
 
-.doc-numbered-num {
+/* Level 1: Angka Utama (1. atau (1)) -> Rata Kiri Standar */
+.doc-level-1 {
+  margin-left: 0rem;
+}
+.doc-level-1 > .doc-numbered-num {
   width: 2.2rem;
   min-width: 2.2rem;
+}
+
+/* Level 2: Sub-Butir Huruf Kecil / Angka Kurung (a. , b. , (a)) -> Menjorok ke Dalam 1.5rem */
+.doc-level-2 {
+  margin-left: 1.8rem;
+}
+.doc-level-2 > .doc-numbered-num {
+  width: 1.8rem;
+  min-width: 1.8rem;
+}
+
+/* Level 3: Sub-Sub Butir (i. , (i) , - ) -> Menjorok ke Dalam 3.5rem */
+.doc-level-3 {
+  margin-left: 3.5rem;
+}
+.doc-level-3 > .doc-numbered-num {
+  width: 1.6rem;
+  min-width: 1.6rem;
+}
+
+.doc-numbered-num {
   flex-shrink: 0;
   text-align: left;
   font-weight: normal;
