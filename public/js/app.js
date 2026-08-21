@@ -882,6 +882,35 @@ async function handleFormSubmit(e) {
   }
 }
 
+// Helper untuk memformat istilah Bahasa Arab / Fiqih Muamalah agar otomatis cetak miring (italic)
+function formatArabicAndShariaTermsItalic(rawText) {
+  if (!rawText) return '';
+  
+  // Daftar istilah baku bahasa Arab / Fiqih Muamalah dalam akad syariah
+  const shariaTerms = [
+    "Murabahah", "Murabahah bil Wakalah", "Mudharabah", "Musyarakah", "Syirkah",
+    "Ijarah", "Ijarah Muntahiyah Bittamlik", "IMBT", "Qardh", "Qardhul Hasan", "Al-Qardh",
+    "Wakalah", "Kafalah", "Rahn", "Hawalah", "Wadiah", "Wadi'ah", "Yad Dhamanah", "Yad Amanah",
+    "Ma'qud 'Alaih", "Ma'qud Alaih", "Shighah", "Ijab", "Qabul", "Ijab Qabul",
+    "Riba", "Riba Nasi'ah", "Riba Fadhl", "Riba Qardh", "Gharar", "Maisir", "Ba'i al-Inah", "Tadlis", "Ikrah",
+    "Ta'widh", "Tazir", "Ta'zir", "Ujrah", "Nisbah", "Ziyadah", "Dhaman", "Muqassah", "Ibra'", "Ibra",
+    "Shahibul Maal", "Shahibul Mal", "Mudharib", "Syarik", "Mu'jir", "Musta'jir", "Ma'jur",
+    "Fiqh Muamalah", "Fiqih Muamalah", "Maslahah", "Amanah", "Tabarru'", "Tabarru", "Tijarah",
+    "Bismillah", "Bismillahi", "Bismillaahirrahmaanirrahiim", "Subhanahu wa Ta'ala", "Shallallahu 'Alaihi wa Sallam",
+    "Ahlul Halli wal Aqdi", "Kharaj bi al-Dhaman", "Al-Ghunmu bil Ghurmi", "Al-Ghurmu bil Ghunmi"
+  ];
+
+  let formatted = rawText;
+
+  // Ganti istilah syariah dengan tag <em> (italic) secara aman
+  shariaTerms.forEach(term => {
+    const regex = new RegExp(`\\b(${term.replace(/[-[\]/{}()*+?.\\^$|]/g, "\\$&")})\\b`, 'gi');
+    formatted = formatted.replace(regex, '<em>$1</em>');
+  });
+
+  return formatted;
+}
+
 // Display Generated Document
 function viewGeneratedDocument(targetContract = null) {
   if (!currentDraftText && !targetContract) {
@@ -963,13 +992,15 @@ function viewGeneratedDocument(targetContract = null) {
     // Jika baris ini adalah Judul Pasal (baris persis setelah 'PASAL X')
     if (isNextLinePasalTitle) {
       isNextLinePasalTitle = false;
-      formattedHtml += `<h5 style="text-align:center; font-size: 1.05rem; font-weight: bold; margin-top: 0.2rem; margin-bottom: 1.25rem; color: #0f172a; text-transform: uppercase;">${trimmed}</h5>`;
+      const formattedTitle = formatArabicAndShariaTermsItalic(trimmed);
+      formattedHtml += `<h5 style="text-align:center; font-size: 1.05rem; font-weight: bold; margin-top: 0.2rem; margin-bottom: 1.25rem; color: #0f172a; text-transform: uppercase;">${formattedTitle}</h5>`;
       return;
     }
 
     // Judul Utama & Sub-Judul
     if (trimmed.startsWith('AKAD ') || trimmed.startsWith('PERJANJIAN ') || trimmed.startsWith('BISMILLAH') || trimmed.includes('بسم الله')) {
-      formattedHtml += `<h3 style="text-align:center; font-size: 1.2rem; font-weight: bold; margin: 1rem 0 0.5rem 0; text-transform: uppercase;">${trimmed}</h3>`;
+      const formattedHeader = formatArabicAndShariaTermsItalic(trimmed);
+      formattedHtml += `<h3 style="text-align:center; font-size: 1.2rem; font-weight: bold; margin: 1rem 0 0.5rem 0; text-transform: uppercase;">${formattedHeader}</h3>`;
     } else if (trimmed.startsWith('No.') || trimmed.startsWith('NO.')) {
       formattedHtml += `<p style="text-align:center; font-weight: bold; margin-bottom: 1.5rem;">${trimmed}</p>`;
     } else if (/^(PASAL|Pasal)\s+\d+/i.test(trimmed)) {
@@ -977,7 +1008,7 @@ function viewGeneratedDocument(targetContract = null) {
       if (trimmed.includes(':') || trimmed.includes(' - ')) {
         const parts = trimmed.split(/[:\-]/);
         const pasalNum = parts[0].trim();
-        const pasalTitle = parts.slice(1).join('-').trim();
+        const pasalTitle = formatArabicAndShariaTermsItalic(parts.slice(1).join('-').trim());
         formattedHtml += `
           <div style="text-align:center; margin-top: 1.75rem; margin-bottom: 1.25rem;">
             <h4 style="font-size: 1.1rem; font-weight: bold; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">${pasalNum}</h4>
@@ -991,8 +1022,8 @@ function viewGeneratedDocument(targetContract = null) {
       }
     } else if (trimmed.startsWith('Ayat ') || trimmed.startsWith('AYAT ')) {
       formattedHtml += `<h5 style="font-weight: bold; margin-top: 0.75rem; margin-bottom: 0.25rem;">${trimmed}</h5>`;
-    } else if (trimmed.match(/^[\u0600-\u06FF]/)) { // Teks Bahasa Arab (Al-Qur'an / Hadits)
-      formattedHtml += `<p style="text-align:center; font-size: 1.3rem; font-family: 'Amiri', 'Traditional Arabic', serif; margin: 1rem 0; direction: rtl; line-height: 2;">${trimmed}</p>`;
+    } else if (trimmed.match(/^[\u0600-\u06FF]/)) { // Teks Bahasa Arab Asli (Al-Qur'an / Hadits)
+      formattedHtml += `<p style="text-align:center; font-size: 1.3rem; font-family: 'Amiri', 'Traditional Arabic', serif; font-style: italic; margin: 1rem 0; direction: rtl; line-height: 2;">${trimmed}</p>`;
     } else if (trimmed.startsWith('"Hai orang-orang') || trimmed.startsWith('Dari Abu Sa\'id') || trimmed.startsWith('(Qs.') || trimmed.startsWith('(HR.')) {
       formattedHtml += `<p style="text-align:center; font-style: italic; font-size: 0.95rem; margin-bottom: 1rem; color: #334155; padding: 0 1rem;">${trimmed}</p>`;
     } else {
@@ -1000,7 +1031,7 @@ function viewGeneratedDocument(targetContract = null) {
       const listMatch = trimmed.match(/^(\d+\.|\([0-9]+\)|[a-z]\.|\([a-z]\)|[A-Z]\.|\d+\)|[ivxlcdm]+\.|\([ivxlcdm]+\)|-)\s+(.*)$/);
       if (listMatch) {
         const numLabel = listMatch[1];
-        const textBody = listMatch[2];
+        const textBody = formatArabicAndShariaTermsItalic(listMatch[2]);
         
         // Tentukan level indentasi hierarki
         let levelClass = 'doc-level-1';
@@ -1023,7 +1054,8 @@ function viewGeneratedDocument(targetContract = null) {
           </div>
         `;
       } else {
-        formattedHtml += `<p style="margin-bottom: 0.75rem; text-align: justify; text-justify: inter-word; text-indent: 2rem; line-height: 1.7;">${trimmed}</p>`;
+        const formattedPara = formatArabicAndShariaTermsItalic(trimmed);
+        formattedHtml += `<p style="margin-bottom: 0.75rem; text-align: justify; text-justify: inter-word; text-indent: 2rem; line-height: 1.7;">${formattedPara}</p>`;
       }
     }
   });
