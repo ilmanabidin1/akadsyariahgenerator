@@ -337,17 +337,17 @@ app.post('/api/auth/login', (req, res) => {
   const trimmedUser = username.trim().toLowerCase();
   const trimmedPass = password.trim();
 
-  // Akun Demo Resmi Bawaan Sistem (Selalu Aktif)
+  // Akun Demo Resmi Bawaan Sistem (Superadmin: Akses Penuh / Global)
   if (trimmedUser === 'demo' && trimmedPass === 'demo') {
     return res.json({
       success: true,
-      message: 'Login demo berhasil!',
+      message: 'Login Superadmin Demo berhasil!',
       user: {
-        id: 'USR-DEMO-001',
-        userType: 'KOPERASI',
-        institutionName: 'KSPPS BMT Bina Ummah (Demo)',
-        fullname: 'Petugas Legal Koperasi (Demo)',
-        email: 'demo@akadify.id',
+        id: 'USR-SUPERADMIN-DEMO',
+        userType: 'SUPERADMIN',
+        institutionName: 'AKADIFY Pusat (Superadmin)',
+        fullname: 'Superadmin Pengawas (Demo)',
+        email: 'superadmin@akadify.id',
         username: 'demo'
       }
     });
@@ -382,8 +382,8 @@ app.get('/api/contracts', (req, res) => {
   const { userId, userType } = req.query;
   const allContracts = loadContracts();
 
-  // Jika DPS (Dewan Pengawas Syariah): Berwenang mengawasi dan mengaudit seluruh akad dari semua koperasi
-  if (userType === 'DPS') {
+  // Jika SUPERADMIN atau DPS (Dewan Pengawas Syariah): Berwenang mengawasi dan melihat seluruh akad dari semua koperasi
+  if (userType === 'SUPERADMIN' || userType === 'DPS' || userId === 'USR-SUPERADMIN-DEMO') {
     return res.json({ contracts: allContracts });
   }
 

@@ -60,7 +60,12 @@ function checkAuthSession() {
     
     const displayEl = document.getElementById('logged-user-display');
     if (displayEl) {
-      const roleLabel = userObj.userType === 'DPS' ? 'Dewan Pengawas' : 'Koperasi';
+      let roleLabel = 'Koperasi';
+      if (userObj.userType === 'SUPERADMIN') {
+        roleLabel = '👑 Superadmin';
+      } else if (userObj.userType === 'DPS') {
+        roleLabel = '🛡️ Dewan Pengawas';
+      }
       displayEl.innerText = `${userObj.fullname || userObj.username} (${roleLabel})`;
     }
   } else {
