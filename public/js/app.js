@@ -907,18 +907,41 @@ function viewGeneratedDocument() {
 
   const lines = cleanText.split('\n');
   let formattedHtml = '';
+  let isNextLinePasalTitle = false;
 
   lines.forEach(line => {
     const trimmed = line.trim();
     if (!trimmed) return;
+
+    // Jika baris ini adalah Judul Pasal (baris persis setelah 'PASAL X')
+    if (isNextLinePasalTitle) {
+      isNextLinePasalTitle = false;
+      formattedHtml += `<h5 style="text-align:center; font-size: 1.05rem; font-weight: bold; margin-top: 0.2rem; margin-bottom: 1.25rem; color: #0f172a; text-transform: uppercase;">${trimmed}</h5>`;
+      return;
+    }
 
     // Judul Utama & Sub-Judul
     if (trimmed.startsWith('AKAD ') || trimmed.startsWith('PERJANJIAN ') || trimmed.startsWith('BISMILLAH') || trimmed.includes('بسم الله')) {
       formattedHtml += `<h3 style="text-align:center; font-size: 1.2rem; font-weight: bold; margin: 1rem 0 0.5rem 0; text-transform: uppercase;">${trimmed}</h3>`;
     } else if (trimmed.startsWith('No.') || trimmed.startsWith('NO.')) {
       formattedHtml += `<p style="text-align:center; font-weight: bold; margin-bottom: 1.5rem;">${trimmed}</p>`;
-    } else if (trimmed.startsWith('PASAL') || trimmed.startsWith('Pasal')) {
-      formattedHtml += `<h4 style="text-align:center; font-size: 1.1rem; font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; text-transform: uppercase;">${trimmed}</h4>`;
+    } else if (/^(PASAL|Pasal)\s+\d+/i.test(trimmed)) {
+      // Cek apakah judul pasal sudah digabung dalam 1 baris, misal: 'PASAL 1: DASAR DAN SUMBER HUKUM'
+      if (trimmed.includes(':') || trimmed.includes(' - ')) {
+        const parts = trimmed.split(/[:\-]/);
+        const pasalNum = parts[0].trim();
+        const pasalTitle = parts.slice(1).join('-').trim();
+        formattedHtml += `
+          <div style="text-align:center; margin-top: 1.75rem; margin-bottom: 1.25rem;">
+            <h4 style="font-size: 1.1rem; font-weight: bold; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">${pasalNum}</h4>
+            <h5 style="font-size: 1.05rem; font-weight: bold; margin: 0.25rem 0 0 0; text-transform: uppercase; color: #0f172a;">${pasalTitle}</h5>
+          </div>
+        `;
+      } else {
+        // Baris terpisah: 'PASAL 1' dan baris berikutnya adalah judulnya
+        formattedHtml += `<h4 style="text-align:center; font-size: 1.1rem; font-weight: bold; margin-top: 1.75rem; margin-bottom: 0.2rem; text-transform: uppercase; letter-spacing: 0.5px;">${trimmed}</h4>`;
+        isNextLinePasalTitle = true;
+      }
     } else if (trimmed.startsWith('Ayat ') || trimmed.startsWith('AYAT ')) {
       formattedHtml += `<h5 style="font-weight: bold; margin-top: 0.75rem; margin-bottom: 0.25rem;">${trimmed}</h5>`;
     } else if (trimmed.match(/^[\u0600-\u06FF]/)) { // Teks Bahasa Arab (Al-Qur'an / Hadits)
@@ -934,24 +957,16 @@ function viewGeneratedDocument() {
         
         // Tentukan level indentasi hierarki
         let levelClass = 'doc-level-1';
-        let wordIndentPt = 0;
-        let wordNumWidthPt = 25;
 
         if (/^[a-z]\.|\([a-z]\)/.test(numLabel)) {
           // Level 2: a. , b. , (a)
           levelClass = 'doc-level-2';
-          wordIndentPt = 24;
-          wordNumWidthPt = 20;
         } else if (/^[ivxlcdm]+\.|\([ivxlcdm]+\)|-/.test(numLabel)) {
           // Level 3: i. , ii. , (i) , -
           levelClass = 'doc-level-3';
-          wordIndentPt = 48;
-          wordNumWidthPt = 18;
         } else {
           // Level 1: 1. , (1) , A.
           levelClass = 'doc-level-1';
-          wordIndentPt = 0;
-          wordNumWidthPt = 25;
         }
 
         formattedHtml += `
@@ -1036,7 +1051,8 @@ function exportToWordDocx() {
     div.Section1 { page: Section1; }
     body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; color: #000000; }
     h3 { text-align: center; font-size: 14pt; font-weight: bold; text-transform: uppercase; margin-top: 15pt; margin-bottom: 10pt; }
-    h4 { text-align: center; font-size: 12pt; font-weight: bold; text-transform: uppercase; margin-top: 15pt; margin-bottom: 5pt; }
+    h4 { text-align: center; font-size: 12pt; font-weight: bold; text-transform: uppercase; margin-top: 15pt; margin-bottom: 3pt; }
+    h5 { text-align: center; font-size: 12pt; font-weight: bold; text-transform: uppercase; margin-top: 2pt; margin-bottom: 10pt; }
     p { margin-bottom: 8pt; text-align: justify; text-justify: inter-word; }
     .doc-numbered-item { display: flex; align-items: flex-start; margin-bottom: 6pt; line-height: 1.5; }
     .doc-level-1 { margin-left: 0pt; }
