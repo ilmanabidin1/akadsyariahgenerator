@@ -92,30 +92,35 @@
 
   <div class="app-container">
     <!-- Sidebar Navigation -->
-    <aside class="sidebar">
-      <div class="sidebar-header" style="padding: 0.5rem; background: transparent; margin-bottom: 1.5rem; display: flex; justify-content: center; align-items: center;">
-        <img src="logo_transparent.png" alt="AKADIN Logo" style="width: 100%; max-width: 130px; height: auto; display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+    <aside class="sidebar" id="app-sidebar">
+      <div class="sidebar-header">
+        <img src="logo_transparent.png" alt="AKADIN Logo" class="sidebar-logo-full">
+        <span class="sidebar-logo-mini" title="AKADIN">🏛️</span>
       </div>
 
       <ul class="nav-list">
         <li class="nav-item">
-          <button id="nav-dashboard" class="active" onclick="switchTab('dashboard')">
-            <span>📊</span> Dashboard Utama
+          <button id="nav-dashboard" class="active" onclick="switchTab('dashboard')" data-tooltip="Dashboard Utama">
+            <span class="nav-icon">📊</span>
+            <span class="nav-text">Dashboard Utama</span>
           </button>
         </li>
         <li class="nav-item">
-          <button id="nav-generator" onclick="switchTab('generator')">
-            <span>✍️</span> Buat Akad Dinamis
+          <button id="nav-generator" onclick="switchTab('generator')" data-tooltip="Buat Akad Dinamis">
+            <span class="nav-icon">✍️</span>
+            <span class="nav-text">Buat Akad Dinamis</span>
           </button>
         </li>
         <li class="nav-item">
-          <button id="nav-verification" onclick="switchTab('verification')">
-            <span>📋</span> Daftar Akad Terbit
+          <button id="nav-verification" onclick="switchTab('verification')" data-tooltip="Daftar Akad Terbit">
+            <span class="nav-icon">📋</span>
+            <span class="nav-text">Daftar Akad Terbit</span>
           </button>
         </li>
         <li class="nav-item">
-          <button id="nav-audit" onclick="switchTab('audit')">
-            <span>🔗</span> Audit Log System
+          <button id="nav-audit" onclick="switchTab('audit')" data-tooltip="Audit Log System">
+            <span class="nav-icon">🔗</span>
+            <span class="nav-text">Audit Log System</span>
           </button>
         </li>
       </ul>
@@ -125,7 +130,12 @@
     <main class="main-content">
       <!-- Top Bar -->
       <header class="top-bar">
-        <h1 id="page-title">Dashboard Utama</h1>
+        <div style="display: flex; align-items: center;">
+          <button class="btn-sidebar-toggle" id="sidebar-toggle-btn" onclick="toggleSidebarFold()" title="Lipat / Buka Sidebar (Ctrl + B)">
+            <span id="sidebar-toggle-icon">☰</span>
+          </button>
+          <h1 id="page-title">Dashboard Utama</h1>
+        </div>
         <div class="user-info">
           <div class="status-indicator">
             <span class="dot-online"></span>

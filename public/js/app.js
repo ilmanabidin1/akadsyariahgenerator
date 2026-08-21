@@ -10,9 +10,54 @@ let currentWizardStep = 1;
 
 // Initialize App
 document.addEventListener("DOMContentLoaded", () => {
+  initSidebarFoldState();
   onAkadTypeChange("Murabahah");
   fetchContractsFromBackend();
+
+  // Keyboard shortcut Ctrl+B or Cmd+B to toggle sidebar fold
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+      e.preventDefault();
+      toggleSidebarFold();
+    }
+  });
 });
+
+// Sidebar Fold / Collapse Toggle Handler
+function toggleSidebarFold() {
+  const sidebar = document.getElementById('app-sidebar');
+  if (!sidebar) return;
+
+  sidebar.classList.toggle('collapsed');
+  const isCollapsed = sidebar.classList.contains('collapsed');
+  
+  // Save user preference
+  localStorage.setItem('akadin_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+  
+  // Update toggle button icon/title
+  const icon = document.getElementById('sidebar-toggle-icon');
+  const btn = document.getElementById('sidebar-toggle-btn');
+  if (icon) {
+    icon.innerText = isCollapsed ? '⏩' : '☰';
+  }
+  if (btn) {
+    btn.title = isCollapsed ? 'Buka Sidebar (Ctrl + B)' : 'Lipat Sidebar (Ctrl + B)';
+  }
+}
+
+// Restore Sidebar Fold State from localStorage
+function initSidebarFoldState() {
+  const isCollapsed = localStorage.getItem('akadin_sidebar_collapsed') === 'true';
+  const sidebar = document.getElementById('app-sidebar');
+  const icon = document.getElementById('sidebar-toggle-icon');
+  const btn = document.getElementById('sidebar-toggle-btn');
+  
+  if (sidebar && isCollapsed) {
+    sidebar.classList.add('collapsed');
+    if (icon) icon.innerText = '⏩';
+    if (btn) btn.title = 'Buka Sidebar (Ctrl + B)';
+  }
+}
 
 // Fetch persistent contracts from backend /data storage
 async function fetchContractsFromBackend() {
