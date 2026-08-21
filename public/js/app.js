@@ -1962,12 +1962,57 @@ async function handleSaveWhiteLabel(e) {
     btn.innerText = 'Menyimpan Pengaturan...';
   }
 
+  const userJson = localStorage.getItem('akadify_logged_user');
+  let userId = 'USR-SUPERADMIN-DEMO';
+  if (userJson) {
+    try {
+      const userObj = JSON.parse(userJson);
+      userId = userObj.id || userObj.username;
+    } catch (err) {
+      userId = userJson;
+    }
+  }
+
+  const whiteLabel = {
+    institutionName: document.getElementById('wl-inst-name')?.value.trim() || '',
+    institutionTagline: document.getElementById('wl-inst-tagline')?.value.trim() || '',
+    institutionAddress: document.getElementById('wl-inst-address')?.value.trim() || '',
+    institutionEmail: document.getElementById('wl-inst-email')?.value.trim() || '',
+    headerLogoUrl: document.getElementById('wl-inst-logo')?.value.trim() || 'logo_transparent.png'
+  };
+
+  try {
+    const res = await fetch('/api/institution/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, whiteLabel })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      currentWhiteLabelSettings = whiteLabel;
+      applyWhiteLabelToUI(whiteLabel);
+      addAuditLog(`White-Label Updated: Kop surat disesuaikan untuk ${whiteLabel.institutionName}`);
+      alert("✅ Pengaturan Kop Surat & White-Label Koperasi berhasil disimpan dan disematkan ke seluruh dokumen akad!");
+    } else {
+      alert("⚠️ Gagal menyimpan pengaturan ke server.");
+    }
+  } catch (err) {
+    console.error("Gagal menyimpan white-label:", err);
+    alert("⚠️ Gagal terhubung ke server backend.");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = '💾 Simpan Pengaturan White-Label';
+    }
+  }
+}
+
 // ==========================================
 // COMPREHENSIVE SETTINGS & PROFILE CONTROLLER
 // ==========================================
 
 let currentUserProfile = null;
-let currentWhiteLabelSettings = null;
 
 // Switch Sub-Tabs in Settings View
 function switchSettingsSubTab(subTabId) {
