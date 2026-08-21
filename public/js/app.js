@@ -46,6 +46,7 @@ function checkAuthSession() {
   const userJson = localStorage.getItem('akadify_logged_user');
   const landingEl = document.getElementById('landing-page-container');
   const appEl = document.getElementById('main-app-wrapper');
+  const floatingWidget = document.getElementById('floating-ai-widget-container');
 
   if (userJson) {
     let userObj = null;
@@ -57,6 +58,7 @@ function checkAuthSession() {
 
     if (landingEl) landingEl.style.display = 'none';
     if (appEl) appEl.style.display = 'flex';
+    if (floatingWidget) floatingWidget.style.display = 'block';
     
     const displayEl = document.getElementById('logged-user-display');
     if (displayEl) {
@@ -71,6 +73,7 @@ function checkAuthSession() {
   } else {
     if (landingEl) landingEl.style.display = 'block';
     if (appEl) appEl.style.display = 'none';
+    if (floatingWidget) floatingWidget.style.display = 'none';
   }
 }
 
@@ -1208,58 +1211,11 @@ function addAuditLog(message) {
   container.innerHTML += `<p>[${timestamp}] ${message}</p>`;
 }
 
-// Chatbot Konsultan / Pengawas Syariah AI Logic
-let chatHistory = [];
-
-function sendQuickChat(promptText) {
-  const inputEl = document.getElementById('chat-input');
-  if (inputEl) {
-    inputEl.value = promptText;
-    document.getElementById('chat-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-  }
-}
-
-async function handleChatSubmit(e) {
-  e.preventDefault();
-  const inputEl = document.getElementById('chat-input');
-  const userMessage = inputEl.value.trim();
-  if (!userMessage) return;
-
-  // Render User Message
-  appendChatMessage('user', userMessage);
-  inputEl.value = '';
-
-  // Save to history
-  chatHistory.push({ role: 'user', content: userMessage });
-
-  // Show typing indicator
-  const typingId = appendChatTyping();
-  const btnSubmit = document.getElementById('chat-submit-btn');
-  btnSubmit.disabled = true;
-
-  try {
-    const response = await fetch('/api/chat-syariah', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: chatHistory })
-    });
-
-    removeChatTyping(typingId);
-    btnSubmit.disabled = false;
-
-    if (response.ok) {
-      const data = await response.json();
-      const botReply = data.reply;
-      chatHistory.push({ role: 'assistant', content: botReply });
-      appendChatMessage('assistant', botReply);
-    } else {
-      const errData = await response.json().catch(() => ({ error: 'Error' }));
-      appendChatMessage('assistant', `⚠️ Maaf, terjadi kesalahan: ${errData.error || 'Gagal terhubung ke AI Service'}`);
-    }
-  } catch (err) {
 // ==========================================
 // FLOATING AI CO-PILOT & CHATBOT LOGIC
 // ==========================================
+
+let chatHistory = [];
 
 function toggleFloatingAiChat() {
   const windowEl = document.getElementById('floating-ai-window');
@@ -1280,18 +1236,37 @@ function toggleFloatingAiChat() {
 async function handleChatSubmit(e) {
   e.preventDefault();
   const inputEl = document.getElementById('chat-user-input');
-  const query = inputEl ? inputEl.value.trim() : '';
-  if (!query) return;
+  const userMessage = inputEl ? inputEl.value.trim() : '';
+  if (!userMessage) return;
 
-  appendChatMessage('user', query);
+  // Render User Message
+  appendChatMessage('user', userMessage);
   inputEl.value = '';
 
+  // Save to history
+  chatHistory.push({ role: 'user', content: userMessage });
+
+  // Show typing indicator
   const typingId = appendChatTyping();
 
   try {
-    const aiResponse = await DeepSeekService.consultWithDeepSeek(query);
+    const response = await fetch('/api/chat-syariah', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: chatHistory })
+    });
+
     removeChatTyping(typingId);
-    appendChatMessage('assistant', aiResponse);
+
+    if (response.ok) {
+      const data = await response.json();
+      const botReply = data.reply;
+      chatHistory.push({ role: 'assistant', content: botReply });
+      appendChatMessage('assistant', botReply);
+    } else {
+      const errData = await response.json().catch(() => ({ error: 'Error' }));
+      appendChatMessage('assistant', `⚠️ Maaf, terjadi kesalahan: ${errData.error || 'Gagal terhubung ke AI Service'}`);
+    }
   } catch (err) {
     console.error("Chat error:", err);
     removeChatTyping(typingId);
