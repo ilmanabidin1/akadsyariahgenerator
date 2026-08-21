@@ -121,6 +121,31 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// Quick Start Demo: Masuk langsung ke Dashboard Utama menggunakan sesi Superadmin Demo
+function quickStartDemo() {
+  const existingUser = localStorage.getItem('akadify_logged_user');
+  if (existingUser) {
+    checkAuthSession();
+    switchTab('dashboard');
+    return;
+  }
+
+  // Jika belum login, inisialisasi sesi default demo superadmin agar langsung masuk ke dashboard tanpa hambatan
+  const demoUser = {
+    id: 'USR-SUPERADMIN-DEMO',
+    username: 'demo',
+    fullname: 'Administrator Demo Syariah',
+    email: 'admin@bmtbinaummah.co.id',
+    userType: 'SUPERADMIN',
+    institutionName: 'KSPPS BMT BINA UMMAH SEJAHTERA'
+  };
+
+  localStorage.setItem('akadify_logged_user', JSON.stringify(demoUser));
+  checkAuthSession();
+  switchTab('dashboard');
+  addAuditLog("Superadmin Demo Login: Akses langsung ke Dashboard Utama AKADIFY");
+}
+
 function openLoginModal(defaultTab = 'login') {
   const modal = document.getElementById('auth-modal');
   if (modal) {
