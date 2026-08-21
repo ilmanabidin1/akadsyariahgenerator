@@ -335,21 +335,9 @@
           </button>
         </li>
         <li class="nav-item">
-          <button id="nav-document" onclick="switchTab('document')" data-tooltip="Pratinjau Dokumen">
-            <span class="nav-icon">📄</span>
-            <span class="nav-text">Pratinjau Dokumen</span>
-          </button>
-        </li>
-        <li class="nav-item">
           <button id="nav-verification" onclick="switchTab('verification')" data-tooltip="Daftar Akad Terbit">
             <span class="nav-icon">🛡️</span>
             <span class="nav-text">Daftar Akad Terbit</span>
-          </button>
-        </li>
-        <li class="nav-item">
-          <button id="nav-consultant" onclick="switchTab('consultant')" data-tooltip="Konsultan AI">
-            <span class="nav-icon">💬</span>
-            <span class="nav-text">Konsultan AI</span>
           </button>
         </li>
         <li class="nav-item">
@@ -1006,6 +994,47 @@
 
       </div>
     </main>
+  </div>
+
+  <!-- FLOATING AI SHARIA CO-PILOT / KONSULTAN WIDGET -->
+  <div id="floating-ai-widget-container" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;">
+    <!-- Toggle Floating Button -->
+    <button id="floating-ai-btn" onclick="toggleFloatingAiChat()" style="display: flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none; padding: 0.85rem 1.35rem; border-radius: 50px; font-size: 0.95rem; font-weight: 700; box-shadow: 0 10px 25px -5px rgba(4, 120, 87, 0.4); cursor: pointer; transition: all 0.3s ease;">
+      <span style="font-size: 1.25rem;">💬</span>
+      <span>Tanya Asisten Fatwa AI</span>
+    </button>
+
+    <!-- Floating Chat Window -->
+    <div id="floating-ai-window" style="display: none; width: 380px; height: 520px; background: white; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 1px solid var(--border-color); flex-direction: column; overflow: hidden; position: absolute; bottom: 4.5rem; right: 0;">
+      <!-- Chat Header -->
+      <div style="background: #0f172a; color: white; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <span style="font-size: 1.3rem;">⚖️</span>
+          <div>
+            <h4 style="margin: 0; font-size: 0.95rem;">Asisten Fatwa DSN-MUI</h4>
+            <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #34d399;">● Online & Siap Membantu</p>
+          </div>
+        </div>
+        <button onclick="toggleFloatingAiChat()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer;">&times;</button>
+      </div>
+
+      <!-- Chat Messages Container -->
+      <div id="chat-messages-container" style="flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; background: #f8fafc; font-size: 0.875rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: flex-start;">
+          <div style="background: var(--primary-subtle); color: var(--primary-dark); padding: 0.75rem 1rem; border-radius: 12px; border-bottom-left-radius: 2px; max-width: 88%; line-height: 1.5;">
+            Assalamu'alaikum! Saya asisten hukum syariah <strong>AKADIFY</strong>. Ada fatwa DSN-MUI, klausul akad, atau perhitungan syariah yang ingin Anda tanyakan?
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Input Area -->
+      <form onsubmit="handleChatSubmit(event)" style="padding: 0.75rem; background: white; border-top: 1px solid var(--border-color); display: flex; gap: 0.5rem;">
+        <input type="text" id="chat-user-input" placeholder="Tanya fatwa atau hukum akad..." style="flex: 1; padding: 0.6rem 0.85rem; border: 1px solid var(--border-color); border-radius: 20px; font-size: 0.85rem; outline: none;">
+        <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 700;">
+          Kirim
+        </button>
+      </form>
+    </div>
   </div>
 
   <!-- MODAL RINGKAS TENTANG KAMI & SYARAT KETENTUAN -->

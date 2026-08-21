@@ -1257,8 +1257,44 @@ async function handleChatSubmit(e) {
       appendChatMessage('assistant', `⚠️ Maaf, terjadi kesalahan: ${errData.error || 'Gagal terhubung ke AI Service'}`);
     }
   } catch (err) {
+// ==========================================
+// FLOATING AI CO-PILOT & CHATBOT LOGIC
+// ==========================================
+
+function toggleFloatingAiChat() {
+  const windowEl = document.getElementById('floating-ai-window');
+  const btnEl = document.getElementById('floating-ai-btn');
+  if (!windowEl) return;
+
+  if (windowEl.style.display === 'none' || windowEl.style.display === '') {
+    windowEl.style.display = 'flex';
+    if (btnEl) btnEl.style.display = 'none';
+    const inputEl = document.getElementById('chat-user-input');
+    if (inputEl) inputEl.focus();
+  } else {
+    windowEl.style.display = 'none';
+    if (btnEl) btnEl.style.display = 'flex';
+  }
+}
+
+async function handleChatSubmit(e) {
+  e.preventDefault();
+  const inputEl = document.getElementById('chat-user-input');
+  const query = inputEl ? inputEl.value.trim() : '';
+  if (!query) return;
+
+  appendChatMessage('user', query);
+  inputEl.value = '';
+
+  const typingId = appendChatTyping();
+
+  try {
+    const aiResponse = await DeepSeekService.consultWithDeepSeek(query);
     removeChatTyping(typingId);
-    btnSubmit.disabled = false;
+    appendChatMessage('assistant', aiResponse);
+  } catch (err) {
+    console.error("Chat error:", err);
+    removeChatTyping(typingId);
     appendChatMessage('assistant', '⚠️ Terjadi kendala koneksi ke server AI.');
   }
 }
@@ -1268,8 +1304,8 @@ function appendChatMessage(role, text) {
   if (!container) return;
 
   const isUser = role === 'user';
-  const avatar = isUser ? '👤' : '🕌';
-  const bgStyle = isUser ? 'background: var(--primary-subtle); color: var(--primary-dark); border-radius: var(--radius-md) 0 var(--radius-md) var(--radius-md);' : 'background: white; border: 1px solid var(--border-color); border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);';
+  const avatar = isUser ? '👤' : '⚖️';
+  const bgStyle = isUser ? 'background: var(--primary-subtle); color: var(--primary-dark); border-radius: 12px 0 12px 12px;' : 'background: white; border: 1px solid var(--border-color); border-radius: 0 12px 12px 12px;';
   const alignSelf = isUser ? 'flex-direction: row-reverse;' : 'flex-direction: row;';
 
   // Clean any markdown symbols (*, **, ###, ---, etc.)
@@ -1285,9 +1321,9 @@ function appendChatMessage(role, text) {
   let formattedText = cleanText.replace(/\n/g, '<br>');
 
   const html = `
-    <div style="display: flex; gap: 0.75rem; align-items: flex-start; ${alignSelf}">
-      <div style="width: 36px; height: 36px; border-radius: 50%; background: ${isUser ? 'var(--primary)' : 'var(--primary-dark)'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">${avatar}</div>
-      <div style="${bgStyle} padding: 0.85rem 1.1rem; max-width: 85%; box-shadow: var(--shadow-sm); font-size: 0.9rem; line-height: 1.6;">
+    <div style="display: flex; gap: 0.5rem; align-items: flex-start; ${alignSelf}">
+      <div style="width: 32px; height: 32px; border-radius: 50%; background: ${isUser ? 'var(--primary)' : 'var(--primary-dark)'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;">${avatar}</div>
+      <div style="${bgStyle} padding: 0.65rem 0.85rem; max-width: 82%; box-shadow: var(--shadow-sm); font-size: 0.85rem; line-height: 1.5;">
         ${formattedText}
       </div>
     </div>
@@ -1301,10 +1337,10 @@ function appendChatTyping() {
   const container = document.getElementById('chat-messages-container');
   const typingId = 'typing-' + Date.now();
   const html = `
-    <div id="${typingId}" style="display: flex; gap: 0.75rem; align-items: flex-start;">
-      <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-dark); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">🕌</div>
-      <div style="background: white; border: 1px solid var(--border-color); padding: 0.85rem 1.1rem; border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md); max-width: 85%; font-size: 0.85rem; color: var(--text-muted);">
-        <em>Konsultan Syariah AI sedang mengetik... ⏳</em>
+    <div id="${typingId}" style="display: flex; gap: 0.5rem; align-items: flex-start;">
+      <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary-dark); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;">⚖️</div>
+      <div style="background: white; border: 1px solid var(--border-color); padding: 0.65rem 0.85rem; border-radius: 0 12px 12px 12px; max-width: 82%; font-size: 0.8rem; color: var(--text-muted);">
+        <em>Asisten sedang mengkaji fatwa... ⏳</em>
       </div>
     </div>
   `;
