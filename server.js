@@ -377,10 +377,23 @@ app.post('/api/auth/login', (req, res) => {
   });
 });
 
-// API Endpoint untuk mengambil seluruh data akad terpanen
+// API Endpoint untuk mengambil seluruh data akad terpanen (Dengan Multi-Tenant Data Isolation)
 app.get('/api/contracts', (req, res) => {
-  const contracts = loadContracts();
-  res.json({ contracts });
+  const { userId, userType } = req.query;
+  const allContracts = loadContracts();
+
+  // Jika DPS (Dewan Pengawas Syariah): Berwenang mengawasi dan mengaudit seluruh akad dari semua koperasi
+  if (userType === 'DPS') {
+    return res.json({ contracts: allContracts });
+  }
+
+  // Jika Koperasi Syariah: Hanya mengambil dan melihat akad miliknya sendiri (Terisolasi)
+  if (userId) {
+    const userContracts = allContracts.filter(c => c.createdByUserId === userId || !c.createdByUserId);
+    return res.json({ contracts: userContracts });
+  }
+
+  res.json({ contracts: allContracts });
 });
 
 // API Endpoint untuk menyimpan data akad baru atau memperbarui status akad secara permanen
@@ -394,7 +407,13 @@ app.post('/api/contracts', (req, res) => {
   const existingIndex = contracts.findIndex(c => c.id === contract.id);
 
   if (existingIndex >= 0) {
-    contracts[existingIndex] = contract;
+    // Preserve owner institution metadata saat update/approve
+    contracts[existingIndex] = {
+      ...contracts[existingIndex],
+      ...contract,
+      createdByUserId: contracts[existingIndex].createdByUserId || contract.createdByUserId,
+      institutionName: contracts[existingIndex].institutionName || contract.institutionName
+    };
   } else {
     contracts.unshift(contract);
   }

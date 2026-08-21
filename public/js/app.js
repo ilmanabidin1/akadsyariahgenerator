@@ -300,10 +300,22 @@ function initSidebarFoldState() {
   }
 }
 
-// Fetch persistent contracts from backend /data storage
+// Fetch persistent contracts from backend /data storage (Filtered by User Role)
 async function fetchContractsFromBackend() {
+  const userJson = localStorage.getItem('akadify_logged_user');
+  let queryParam = '';
+
+  if (userJson) {
+    try {
+      const userObj = JSON.parse(userJson);
+      queryParam = `?userId=${encodeURIComponent(userObj.id || userObj.username)}&userType=${encodeURIComponent(userObj.userType || 'KOPERASI')}`;
+    } catch (e) {
+      queryParam = '';
+    }
+  }
+
   try {
-    const response = await fetch('/api/contracts');
+    const response = await fetch(`/api/contracts${queryParam}`);
     if (response.ok) {
       const data = await response.json();
       if (Array.isArray(data.contracts)) {
@@ -316,8 +328,25 @@ async function fetchContractsFromBackend() {
   updateDashboardStats();
 }
 
-// Sync contract to backend persistent volume /data
+// Sync contract to backend persistent volume /data with Owner Metadata
 async function syncContractToBackend(contract) {
+  const userJson = localStorage.getItem('akadify_logged_user');
+  let currentUserId = 'USR-DEMO-001';
+  let institutionName = 'Koperasi Syariah';
+
+  if (userJson) {
+    try {
+      const userObj = JSON.parse(userJson);
+      currentUserId = userObj.id || userObj.username;
+      institutionName = userObj.institutionName || userObj.fullname;
+    } catch (e) {
+      currentUserId = userJson;
+    }
+  }
+
+  contract.createdByUserId = currentUserId;
+  contract.institutionName = institutionName;
+
   try {
     await fetch('/api/contracts', {
       method: 'POST',
@@ -325,7 +354,7 @@ async function syncContractToBackend(contract) {
       body: JSON.stringify({ contract })
     });
   } catch (err) {
-    console.error("Gagal menyinkronkan data akad ke backend:", err);
+    console.error("Gagal menyimpan akad ke backend:", err);
   }
 }
 
