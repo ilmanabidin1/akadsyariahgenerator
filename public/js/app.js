@@ -1928,48 +1928,183 @@ async function handleSaveWhiteLabel(e) {
     btn.innerText = 'Menyimpan Pengaturan...';
   }
 
+// ==========================================
+// COMPREHENSIVE SETTINGS & PROFILE CONTROLLER
+// ==========================================
+
+let currentUserProfile = null;
+let currentWhiteLabelSettings = null;
+
+// Switch Sub-Tabs in Settings View
+function switchSettingsSubTab(subTabId) {
+  const subTabs = ['profile', 'whitelabel', 'security'];
+  subTabs.forEach(tab => {
+    const viewEl = document.getElementById(`settings-sub-${tab}`);
+    const btnEl = document.getElementById(`set-tab-${tab}-btn`);
+    if (viewEl) viewEl.style.display = (tab === subTabId) ? 'block' : 'none';
+    if (btnEl) {
+      if (tab === subTabId) {
+        btnEl.classList.add('active');
+        btnEl.style.background = 'var(--primary)';
+        btnEl.style.color = '#ffffff';
+      } else {
+        btnEl.classList.remove('active');
+        btnEl.style.background = 'transparent';
+        btnEl.style.color = 'var(--text-main)';
+      }
+    }
+  });
+
+  if (subTabId === 'profile') loadUserProfileSettings();
+  if (subTabId === 'whitelabel') loadWhiteLabelSettings();
+}
+
+// Fetch User Profile from Backend
+async function loadUserProfileSettings() {
+  const userJson = localStorage.getItem('akadify_logged_user');
+  if (!userJson) return;
+
+  let userId = 'USR-SUPERADMIN-DEMO';
+  try {
+    const userObj = JSON.parse(userJson);
+    userId = userObj.id || userObj.username;
+  } catch (e) {
+    userId = userJson;
+  }
+
+  try {
+    const res = await fetch(`/api/user/profile?userId=${encodeURIComponent(userId)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.user) {
+        currentUserProfile = data.user;
+        if (document.getElementById('prof-fullname')) document.getElementById('prof-fullname').value = data.user.fullname || '';
+        if (document.getElementById('prof-position')) document.getElementById('prof-position').value = data.user.position || 'Pengurus / Legal Officer';
+        if (document.getElementById('prof-email')) document.getElementById('prof-email').value = data.user.email || '';
+        if (document.getElementById('prof-phone')) document.getElementById('prof-phone').value = data.user.phone || '';
+        if (document.getElementById('prof-display-username')) document.getElementById('prof-display-username').innerText = data.user.username || 'demo';
+        if (document.getElementById('prof-display-inst')) document.getElementById('prof-display-inst').innerText = data.user.institutionName || 'KSPPS BMT BINA UMMAH';
+        
+        const badgeRole = document.getElementById('prof-badge-role');
+        if (badgeRole) {
+          badgeRole.innerText = data.user.userType === 'SUPERADMIN' ? '👑 Superadmin' : (data.user.userType === 'DPS' ? '🛡️ Dewan Pengawas' : 'Koperasi Syariah');
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Gagal memuat profil user:", err);
+  }
+}
+
+// Save User Profile
+async function handleSaveUserProfile(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btn-save-profile');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = 'Menyimpan Profil...';
+  }
+
   const userJson = localStorage.getItem('akadify_logged_user');
   let userId = 'USR-SUPERADMIN-DEMO';
+  let cachedObj = {};
   if (userJson) {
     try {
-      const userObj = JSON.parse(userJson);
-      userId = userObj.id || userObj.username;
+      cachedObj = JSON.parse(userJson);
+      userId = cachedObj.id || cachedObj.username;
     } catch (err) {
       userId = userJson;
     }
   }
 
-  const whiteLabel = {
-    institutionName: document.getElementById('wl-inst-name')?.value.trim() || '',
-    institutionTagline: document.getElementById('wl-inst-tagline')?.value.trim() || '',
-    institutionAddress: document.getElementById('wl-inst-address')?.value.trim() || '',
-    institutionEmail: document.getElementById('wl-inst-email')?.value.trim() || '',
-    headerLogoUrl: document.getElementById('wl-inst-logo')?.value.trim() || 'logo_transparent.png'
+  const payload = {
+    userId,
+    fullname: document.getElementById('prof-fullname')?.value.trim(),
+    position: document.getElementById('prof-position')?.value.trim(),
+    email: document.getElementById('prof-email')?.value.trim(),
+    phone: document.getElementById('prof-phone')?.value.trim()
   };
 
   try {
-    const res = await fetch('/api/institution/settings', {
+    const res = await fetch('/api/user/profile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, whiteLabel })
+      body: JSON.stringify(payload)
     });
 
     if (res.ok) {
       const data = await res.json();
-      currentWhiteLabelSettings = whiteLabel;
-      applyWhiteLabelToUI(whiteLabel);
-      addAuditLog(`White-Label Updated: Kop surat disesuaikan untuk ${whiteLabel.institutionName}`);
-      alert("✅ Pengaturan Kop Surat & White-Label Koperasi berhasil disimpan dan disematkan ke seluruh dokumen akad!");
+      // Update local storage session
+      const updatedUser = Object.assign({}, cachedObj, data.user);
+      localStorage.setItem('akadify_logged_user', JSON.stringify(updatedUser));
+      checkAuthSession();
+      addAuditLog(`User Profile Updated: ${payload.fullname} (${payload.position})`);
+      alert("✅ Data profil & kontak pengurus berhasil diperbarui!");
     } else {
-      alert("⚠️ Gagal menyimpan pengaturan ke server.");
+      alert("⚠️ Gagal memperbarui data profil.");
     }
   } catch (err) {
-    console.error("Gagal menyimpan white-label:", err);
-    alert("⚠️ Gagal terhubung ke server backend.");
+    console.error("Gagal menyimpan profil:", err);
+    alert("⚠️ Gagal menghubungi server backend.");
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.innerText = '💾 Simpan Pengaturan White-Label';
+      btn.innerText = '💾 Simpan Perubahan Profil';
+    }
+  }
+}
+
+// Handle Change Password
+async function handleChangePassword(e) {
+  e.preventDefault();
+  const oldPassword = document.getElementById('pwd-old')?.value;
+  const newPassword = document.getElementById('pwd-new')?.value;
+  const confirmPassword = document.getElementById('pwd-confirm')?.value;
+
+  if (newPassword !== confirmPassword) {
+    alert("⚠️ Konfirmasi kata sandi baru tidak sesuai!");
+    return;
+  }
+
+  const btn = document.getElementById('btn-change-pwd');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = 'Memperbarui Kata Sandi...';
+  }
+
+  const userJson = localStorage.getItem('akadify_logged_user');
+  let userId = 'USR-SUPERADMIN-DEMO';
+  if (userJson) {
+    try {
+      const u = JSON.parse(userJson);
+      userId = u.id || u.username;
+    } catch (err) {
+      userId = userJson;
+    }
+  }
+
+  try {
+    const res = await fetch('/api/user/change-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, oldPassword, newPassword, confirmPassword })
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      addAuditLog(`Security Event: Kata sandi akun berhasil diubah`);
+      alert(`✅ ${data.message}`);
+      document.getElementById('change-password-form')?.reset();
+    } else {
+      alert(`⚠️ ${data.error || 'Gagal mengubah kata sandi.'}`);
+    }
+  } catch (err) {
+    console.error("Gagal ganti password:", err);
+    alert("⚠️ Gagal menghubungi server.");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = '🔐 Simpan Kata Sandi Baru';
     }
   }
 }
@@ -1977,4 +2112,5 @@ async function handleSaveWhiteLabel(e) {
 // Initial load on App start
 document.addEventListener("DOMContentLoaded", () => {
   loadWhiteLabelSettings();
+  loadUserProfileSettings();
 });

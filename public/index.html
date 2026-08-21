@@ -1087,96 +1087,214 @@
           </div>
         </section>
 
-        <!-- VIEW: PENGATURAN KOP SURAT & WHITE-LABEL KOPERASI -->
+        <!-- VIEW: PUSAT PENGATURAN KOMPREHENSIF (SETTINGS HUB) -->
         <section id="view-settings" style="display: none;">
-          <div class="grid-cols-2" style="gap: 1.5rem;">
-            <!-- Form Input Pengaturan White-Label -->
-            <div class="card">
+          <!-- Settings Navigation Sub-Tabs -->
+          <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid var(--border-color); margin-bottom: 1.5rem; overflow-x: auto; padding-bottom: 2px;">
+            <button id="set-tab-profile-btn" class="btn btn-outline active" onclick="switchSettingsSubTab('profile')" style="border-radius: 8px 8px 0 0; padding: 0.6rem 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+              <span>👤</span> Profil & Kontak Lembaga
+            </button>
+            <button id="set-tab-whitelabel-btn" class="btn btn-outline" onclick="switchSettingsSubTab('whitelabel')" style="border-radius: 8px 8px 0 0; padding: 0.6rem 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🏛️</span> Kop Surat & White-Label
+            </button>
+            <button id="set-tab-security-btn" class="btn btn-outline" onclick="switchSettingsSubTab('security')" style="border-radius: 8px 8px 0 0; padding: 0.6rem 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🔒</span> Keamanan & Ganti Password
+            </button>
+          </div>
+
+          <!-- SUB-TAB 1: PROFIL PENGGUNA & KONTAK -->
+          <div id="settings-sub-profile" style="display: block;">
+            <div class="grid-cols-2" style="gap: 1.5rem;">
+              <div class="card">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
+                  <span style="font-size: 1.6rem;">👤</span>
+                  <div>
+                    <h3 style="margin: 0; color: var(--primary-dark);">Profil Pengurus & Kontak Akun</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 0.825rem; color: var(--text-muted);">Kelola data personal pejabat berwenang dan kontak resmi pengurus</p>
+                  </div>
+                </div>
+
+                <form id="user-profile-form" onsubmit="handleSaveUserProfile(event)">
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; font-size: 0.85rem;">Nama Lengkap Pengurus / Operator</label>
+                    <input type="text" id="prof-fullname" class="form-control" placeholder="Contoh: Asrori Agus Latif, S.Sy" required>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; font-size: 0.85rem;">Jabatan / Posisi di Lembaga</label>
+                    <input type="text" id="prof-position" class="form-control" placeholder="Contoh: Ketua Pengurus / Legal Officer Syariah">
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; font-size: 0.85rem;">Alamat Email Resmi</label>
+                    <input type="email" id="prof-email" class="form-control" placeholder="pengurus@koperasi.id" required>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label style="font-weight: 600; font-size: 0.85rem;">Nomor WhatsApp / Telepon Pengurus</label>
+                    <input type="text" id="prof-phone" class="form-control" placeholder="Contoh: 081234567890">
+                  </div>
+
+                  <button type="submit" id="btn-save-profile" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-weight: 700;">
+                    💾 Simpan Perubahan Profil
+                  </button>
+                </form>
+              </div>
+
+              <!-- Summary Card Status Akun -->
+              <div class="card" style="background: #f8fafc; border: 1px solid var(--border-color);">
+                <h4 style="margin: 0 0 1rem 0; font-size: 0.95rem; color: var(--primary-dark);">🛡️ Rincian Akun & Hak Akses</h4>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.875rem;">
+                  <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">
+                    <span style="color: var(--text-muted);">Tipe Akun:</span>
+                    <strong id="prof-badge-role" class="badge badge-success">Koperasi Syariah</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">
+                    <span style="color: var(--text-muted);">Username Login:</span>
+                    <strong id="prof-display-username">demo</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">
+                    <span style="color: var(--text-muted);">Lembaga Terdaftar:</span>
+                    <strong id="prof-display-inst">KSPPS BMT BINA UMMAH SEJAHTERA</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">
+                    <span style="color: var(--text-muted);">Status Legalitas:</span>
+                    <strong style="color: #059669;">✅ Terverifikasi DSN-MUI</strong>
+                  </div>
+                </div>
+
+                <div style="margin-top: 1.5rem; padding: 0.85rem; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 8px; font-size: 0.8rem; color: #0369a1; line-height: 1.5;">
+                  💡 <strong>Info Keamanan:</strong> Data pengurus digunakan sebagai penanggung jawab hukum resmi pada akad pembiayaan yang diterbitkan oleh sistem.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUB-TAB 2: KOP SURAT & WHITE-LABEL -->
+          <div id="settings-sub-whitelabel" style="display: none;">
+            <div class="grid-cols-2" style="gap: 1.5rem;">
+              <!-- Form Input Pengaturan White-Label -->
+              <div class="card">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
+                  <span style="font-size: 1.6rem;">🏛️</span>
+                  <div>
+                    <h3 style="margin: 0; color: var(--primary-dark);">Pengaturan Kop Surat & Identitas Koperasi</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 0.825rem; color: var(--text-muted);">Sesuaikan identitas resmi lembaga pada seluruh berkas dokumen akad terbit</p>
+                  </div>
+                </div>
+
+                <form id="white-label-form" onsubmit="handleSaveWhiteLabel(event)">
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; font-size: 0.85rem;">Nama Resmi Lembaga / Koperasi</label>
+                    <input type="text" id="wl-inst-name" class="form-control" placeholder="Contoh: KSPPS BMT BINA UMMAH SEJAHTERA" required oninput="updateLiveKopPreview()">
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; font-size: 0.85rem;">Nomor Badan Hukum / SK Kemenkumham (AHU)</label>
+                    <input type="text" id="wl-inst-tagline" class="form-control" placeholder="Contoh: Badan Hukum No. AHU-0012345.AH.01.26.TAHUN 2024" oninput="updateLiveKopPreview()">
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; font-size: 0.85rem;">Alamat Kantor Pusat & Nomor Telepon</label>
+                    <input type="text" id="wl-inst-address" class="form-control" placeholder="Contoh: Jl. Raya Pajajaran No. 45, Bandung | Telp: (022) 7654321" oninput="updateLiveKopPreview()">
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; font-size: 0.85rem;">Email & Website Resmi Lembaga</label>
+                    <input type="text" id="wl-inst-email" class="form-control" placeholder="Contoh: kontak@bmtbinaummah.co.id | www.bmtbinaummah.co.id" oninput="updateLiveKopPreview()">
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label style="font-weight: 600; font-size: 0.85rem;">Logo Lembaga (URL Gambar atau Upload File)</label>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                      <input type="text" id="wl-inst-logo" class="form-control" placeholder="logo_transparent.png atau https://link-gambar.png" oninput="updateLiveKopPreview()">
+                      <label class="btn btn-outline" style="cursor: pointer; white-space: nowrap; font-size: 0.8rem; padding: 0.5rem 0.75rem;">
+                        📁 Unggah File
+                        <input type="file" id="wl-logo-upload" accept="image/*" style="display: none;" onchange="handleLogoFileUpload(event)">
+                      </label>
+                    </div>
+                    <small style="color: var(--text-muted); font-size: 0.75rem;">Format PNG atau JPEG transparan disarankan (Rasio 1:1 atau persegi panjang proporsional).</small>
+                  </div>
+
+                  <button type="submit" id="btn-save-wl" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-weight: 700;">
+                    💾 Simpan Pengaturan White-Label
+                  </button>
+                </form>
+              </div>
+
+              <!-- Live Preview Kop Surat Fisik -->
+              <div>
+                <div class="card" style="background: #f8fafc; border: 1px solid var(--border-color); position: sticky; top: 1rem;">
+                  <h4 style="margin: 0 0 1rem 0; font-size: 0.95rem; color: var(--primary-dark);">👁️ Pratinjau Tampilan Kop Surat Dokumen</h4>
+                  
+                  <!-- Mockup Kertas Kop -->
+                  <div style="background: white; border: 1px solid #cbd5e1; border-radius: 4px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-height: 280px;">
+                    <!-- Header Kop Surat -->
+                    <div id="live-kop-container" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 3px double #0f172a; padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
+                      <div style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <img id="live-kop-logo" src="logo_transparent.png" alt="Logo Koperasi" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                      </div>
+                      <div style="flex: 1; text-align: center; padding: 0 1rem;">
+                        <h3 id="live-kop-title" style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">KSPPS BMT BINA UMMAH SEJAHTERA</h3>
+                        <p id="live-kop-tagline" style="margin: 3px 0 0 0; font-size: 0.75rem; font-weight: 600; color: #334155;">Badan Hukum No. AHU-0012345.AH.01.26.TAHUN 2024</p>
+                        <p id="live-kop-address" style="margin: 2px 0 0 0; font-size: 0.7rem; color: #64748b;">Jl. Raya Pajajaran No. 45, Bandung | Telp: (022) 7654321</p>
+                        <p id="live-kop-email" style="margin: 1px 0 0 0; font-size: 0.7rem; color: var(--primary);">kontak@bmtbinaummah.co.id</p>
+                      </div>
+                      <div style="width: 70px; flex-shrink: 0;"></div>
+                    </div>
+
+                    <!-- Mockup Isi Dokumen -->
+                    <div style="text-align: center; margin-top: 1.5rem;">
+                      <span style="display: inline-block; width: 140px; height: 8px; background: #e2e8f0; border-radius: 4px; margin-bottom: 0.5rem;"></span>
+                      <br>
+                      <span style="display: inline-block; width: 220px; height: 8px; background: #f1f5f9; border-radius: 4px;"></span>
+                    </div>
+                    <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                      <div style="width: 100%; height: 6px; background: #f8fafc; border-radius: 3px;"></div>
+                      <div style="width: 95%; height: 6px; background: #f8fafc; border-radius: 3px;"></div>
+                      <div style="width: 90%; height: 6px; background: #f8fafc; border-radius: 3px;"></div>
+                    </div>
+                  </div>
+
+                  <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5;">
+                    💡 <strong>Info:</strong> Kop surat di atas otomatis disematkan pada lembar pratinjau, cetak PDF, dan berkas ekspor Microsoft Word (`.doc`).
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUB-TAB 3: KEAMANAN & GANTI PASSWORD -->
+          <div id="settings-sub-security" style="display: none;">
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
               <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
-                <span style="font-size: 1.6rem;">🏛️</span>
+                <span style="font-size: 1.6rem;">🔒</span>
                 <div>
-                  <h3 style="margin: 0; color: var(--primary-dark);">Pengaturan Kop Surat & Identitas Koperasi</h3>
-                  <p style="margin: 2px 0 0 0; font-size: 0.825rem; color: var(--text-muted);">Sesuaikan identitas resmi lembaga pada seluruh berkas dokumen akad terbit</p>
+                  <h3 style="margin: 0; color: var(--primary-dark);">Ubah Kata Sandi Akun (Change Password)</h3>
+                  <p style="margin: 2px 0 0 0; font-size: 0.825rem; color: var(--text-muted);">Gunakan kombinasi kata sandi yang kuat untuk menjaga keamanan data akad lembaga</p>
                 </div>
               </div>
 
-              <form id="white-label-form" onsubmit="handleSaveWhiteLabel(event)">
+              <form id="change-password-form" onsubmit="handleChangePassword(event)">
                 <div class="form-group" style="margin-bottom: 1rem;">
-                  <label style="font-weight: 600; font-size: 0.85rem;">Nama Resmi Lembaga / Koperasi</label>
-                  <input type="text" id="wl-inst-name" class="form-control" placeholder="Contoh: KSPPS BMT BINA UMMAH SEJAHTERA" required oninput="updateLiveKopPreview()">
+                  <label style="font-weight: 600; font-size: 0.85rem;">Kata Sandi Saat Ini (Lama)</label>
+                  <input type="password" id="pwd-old" class="form-control" placeholder="Masukkan password lama" required>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 1rem;">
-                  <label style="font-weight: 600; font-size: 0.85rem;">Nomor Badan Hukum / SK Kemenkumham (AHU)</label>
-                  <input type="text" id="wl-inst-tagline" class="form-control" placeholder="Contoh: Badan Hukum No. AHU-0012345.AH.01.26.TAHUN 2024" oninput="updateLiveKopPreview()">
-                </div>
-
-                <div class="form-group" style="margin-bottom: 1rem;">
-                  <label style="font-weight: 600; font-size: 0.85rem;">Alamat Kantor Pusat & Nomor Telepon</label>
-                  <input type="text" id="wl-inst-address" class="form-control" placeholder="Contoh: Jl. Raya Pajajaran No. 45, Bandung | Telp: (022) 7654321" oninput="updateLiveKopPreview()">
-                </div>
-
-                <div class="form-group" style="margin-bottom: 1rem;">
-                  <label style="font-weight: 600; font-size: 0.85rem;">Email & Website Resmi Lembaga</label>
-                  <input type="text" id="wl-inst-email" class="form-control" placeholder="Contoh: kontak@bmtbinaummah.co.id | www.bmtbinaummah.co.id" oninput="updateLiveKopPreview()">
+                  <label style="font-weight: 600; font-size: 0.85rem;">Kata Sandi Baru</label>
+                  <input type="password" id="pwd-new" class="form-control" placeholder="Minimal 4 karakter" minlength="4" required>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 1.5rem;">
-                  <label style="font-weight: 600; font-size: 0.85rem;">Logo Lembaga (URL Gambar atau Upload File)</label>
-                  <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-                    <input type="text" id="wl-inst-logo" class="form-control" placeholder="logo_transparent.png atau https://link-gambar.png" oninput="updateLiveKopPreview()">
-                    <label class="btn btn-outline" style="cursor: pointer; white-space: nowrap; font-size: 0.8rem; padding: 0.5rem 0.75rem;">
-                      📁 Unggah File
-                      <input type="file" id="wl-logo-upload" accept="image/*" style="display: none;" onchange="handleLogoFileUpload(event)">
-                    </label>
-                  </div>
-                  <small style="color: var(--text-muted); font-size: 0.75rem;">Format PNG atau JPEG transparan disarankan (Rasio 1:1 atau persegi panjang proporsional).</small>
+                  <label style="font-weight: 600; font-size: 0.85rem;">Konfirmasi Kata Sandi Baru</label>
+                  <input type="password" id="pwd-confirm" class="form-control" placeholder="Ulangi password baru" minlength="4" required>
                 </div>
 
-                <button type="submit" id="btn-save-wl" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-weight: 700;">
-                  💾 Simpan Pengaturan White-Label
+                <button type="submit" id="btn-change-pwd" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-weight: 700;">
+                  🔐 Simpan Kata Sandi Baru
                 </button>
               </form>
-            </div>
-
-            <!-- Live Preview Kop Surat Fisik -->
-            <div>
-              <div class="card" style="background: #f8fafc; border: 1px solid var(--border-color); position: sticky; top: 1rem;">
-                <h4 style="margin: 0 0 1rem 0; font-size: 0.95rem; color: var(--primary-dark);">👁️ Pratinjau Tampilan Kop Surat Dokumen</h4>
-                
-                <!-- Mockup Kertas Kop -->
-                <div style="background: white; border: 1px solid #cbd5e1; border-radius: 4px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-height: 280px;">
-                  <!-- Header Kop Surat -->
-                  <div id="live-kop-container" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 3px double #0f172a; padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
-                    <div style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                      <img id="live-kop-logo" src="logo_transparent.png" alt="Logo Koperasi" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                    </div>
-                    <div style="flex: 1; text-align: center; padding: 0 1rem;">
-                      <h3 id="live-kop-title" style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">KSPPS BMT BINA UMMAH SEJAHTERA</h3>
-                      <p id="live-kop-tagline" style="margin: 3px 0 0 0; font-size: 0.75rem; font-weight: 600; color: #334155;">Badan Hukum No. AHU-0012345.AH.01.26.TAHUN 2024</p>
-                      <p id="live-kop-address" style="margin: 2px 0 0 0; font-size: 0.7rem; color: #64748b;">Jl. Raya Pajajaran No. 45, Bandung | Telp: (022) 7654321</p>
-                      <p id="live-kop-email" style="margin: 1px 0 0 0; font-size: 0.7rem; color: var(--primary);">kontak@bmtbinaummah.co.id</p>
-                    </div>
-                    <div style="width: 70px; flex-shrink: 0;"></div>
-                  </div>
-
-                  <!-- Mockup Isi Dokumen -->
-                  <div style="text-align: center; margin-top: 1.5rem;">
-                    <span style="display: inline-block; width: 140px; height: 8px; background: #e2e8f0; border-radius: 4px; margin-bottom: 0.5rem;"></span>
-                    <br>
-                    <span style="display: inline-block; width: 220px; height: 8px; background: #f1f5f9; border-radius: 4px;"></span>
-                  </div>
-                  <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
-                    <div style="width: 100%; height: 6px; background: #f8fafc; border-radius: 3px;"></div>
-                    <div style="width: 95%; height: 6px; background: #f8fafc; border-radius: 3px;"></div>
-                    <div style="width: 90%; height: 6px; background: #f8fafc; border-radius: 3px;"></div>
-                  </div>
-                </div>
-
-                <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5;">
-                  💡 <strong>Info:</strong> Kop surat di atas akan otomatis disematkan pada seluruh lembar cetak dokumen akad, pratinjau sistem, serta berkas ekspor Microsoft Word (`.doc`).
-                </div>
-              </div>
             </div>
           </div>
         </section>

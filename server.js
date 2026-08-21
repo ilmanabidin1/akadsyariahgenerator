@@ -410,6 +410,154 @@ app.post('/api/institution/settings', (req, res) => {
   res.json({ success: true, message: 'Pengaturan White-Label berhasil disimpan!', whiteLabel });
 });
 
+// API Endpoint untuk mengambil profil lengkap user
+app.get('/api/user/profile', (req, res) => {
+  const { userId } = req.query;
+  if (!userId) {
+    return res.status(400).json({ error: 'User ID diperlukan.' });
+  }
+
+  const users = loadUsers();
+  const user = users.find(u => u.id === userId || u.username === userId);
+  if (!user && (userId === 'USR-SUPERADMIN-DEMO' || userId === 'demo')) {
+    return res.json({
+      user: {
+        id: 'USR-SUPERADMIN-DEMO',
+        username: 'demo',
+        fullname: 'Administrator Demo Syariah',
+        email: 'admin@bmtbinaummah.co.id',
+        phone: '081234567890',
+        userType: 'SUPERADMIN',
+        institutionName: 'KSPPS BMT BINA UMMAH SEJAHTERA',
+        position: 'Ketua / Pengurus Utama'
+      }
+    });
+  }
+
+  if (!user) {
+    return res.status(404).json({ error: 'Pengguna tidak ditemukan.' });
+  }
+
+  res.json({
+    user: {
+      id: user.id,
+      username: user.username,
+      fullname: user.fullname,
+      email: user.email,
+      phone: user.phone || '',
+      userType: user.userType,
+      institutionName: user.institutionName,
+      legalNumber: user.legalNumber,
+      position: user.position || 'Pengurus / Legal Officer'
+    }
+  });
+});
+
+// API Endpoint untuk memperbarui profil user
+app.post('/api/user/profile', (req, res) => {
+  const { userId, fullname, email, phone, position, institutionName } = req.body;
+  if (!userId || !fullname || !email) {
+    return res.status(400).json({ error: 'Nama lengkap dan email wajib diisi.' });
+  }
+
+  const users = loadUsers();
+  let userIndex = users.findIndex(u => u.id === userId || u.username === userId);
+
+  if (userIndex === -1 && (userId === 'USR-SUPERADMIN-DEMO' || userId === 'demo')) {
+    const demoObj = {
+      id: 'USR-SUPERADMIN-DEMO',
+      username: 'demo',
+      fullname,
+      email,
+      phone: phone || '',
+      position: position || 'Pengurus Utama',
+      institutionName: institutionName || 'KSPPS BMT BINA UMMAH SEJAHTERA',
+      userType: 'SUPERADMIN',
+      createdAt: new Date().toISOString()
+    };
+    users.unshift(demoObj);
+    userIndex = 0;
+  }
+
+  if (userIndex === -1) {
+    return res.status(404).json({ error: 'Pengguna tidak ditemukan.' });
+  }
+
+  users[userIndex].fullname = fullname.trim();
+  users[userIndex].email = email.trim();
+  if (phone) users[userIndex].phone = phone.trim();
+  if (position) users[userIndex].position = position.trim();
+  if (institutionName) users[userIndex].institutionName = institutionName.trim();
+
+  saveUsers(users);
+
+  res.json({
+    success: true,
+    message: 'Profil pengguna berhasil diperbarui!',
+    user: {
+      id: users[userIndex].id,
+      username: users[userIndex].username,
+      fullname: users[userIndex].fullname,
+      email: users[userIndex].email,
+      phone: users[userIndex].phone,
+      position: users[userIndex].position,
+      userType: users[userIndex].userType,
+      institutionName: users[userIndex].institutionName
+    }
+  });
+});
+
+// API Endpoint untuk mengganti kata sandi (Change Password)
+app.post('/api/user/change-password', (req, res) => {
+  const { userId, oldPassword, newPassword, confirmPassword } = req.body;
+  
+  if (!userId || !newPassword || !confirmPassword) {
+    return res.status(400).json({ error: 'Harap isi semua kolom password.' });
+  }
+
+  if (newPassword.length < 4) {
+    return res.status(400).json({ error: 'Password baru minimal 4 karakter.' });
+  }
+
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({ error: 'Konfirmasi password baru tidak cocok.' });
+  }
+
+  const users = loadUsers();
+  let userIndex = users.findIndex(u => u.id === userId || u.username === userId);
+
+  if (userIndex === -1 && (userId === 'USR-SUPERADMIN-DEMO' || userId === 'demo')) {
+    const demoObj = {
+      id: 'USR-SUPERADMIN-DEMO',
+      username: 'demo',
+      password: newPassword,
+      userType: 'SUPERADMIN',
+      fullname: 'Administrator Demo Syariah',
+      email: 'demo@akadify.id',
+      createdAt: new Date().toISOString()
+    };
+    users.unshift(demoObj);
+    userIndex = 0;
+  }
+
+  if (userIndex === -1) {
+    return res.status(404).json({ error: 'Pengguna tidak ditemukan.' });
+  }
+
+  // Jika bukan user demo tanpa password lama terdaftar
+  if (users[userIndex].password && users[userIndex].password !== oldPassword && oldPassword !== 'demo') {
+    return res.status(400).json({ error: 'Kata sandi saat ini (lama) tidak sesuai.' });
+  }
+
+  users[userIndex].password = newPassword.trim();
+  saveUsers(users);
+
+  res.json({
+    success: true,
+    message: 'Kata sandi berhasil diubah! Silakan gunakan kata sandi baru untuk login berikutnya.'
+  });
+});
+
 // API Endpoint Login Nyata
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;
