@@ -334,10 +334,29 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(400).json({ error: 'Masukkan username dan password.' });
   }
 
+  const trimmedUser = username.trim().toLowerCase();
+  const trimmedPass = password.trim();
+
+  // Akun Demo Resmi Bawaan Sistem (Selalu Aktif)
+  if (trimmedUser === 'demo' && trimmedPass === 'demo') {
+    return res.json({
+      success: true,
+      message: 'Login demo berhasil!',
+      user: {
+        id: 'USR-DEMO-001',
+        userType: 'KOPERASI',
+        institutionName: 'KSPPS BMT Bina Ummah (Demo)',
+        fullname: 'Petugas Legal Koperasi (Demo)',
+        email: 'demo@akadify.id',
+        username: 'demo'
+      }
+    });
+  }
+
   const users = loadUsers();
   const user = users.find(u => 
-    (u.username.toLowerCase() === username.trim().toLowerCase() || u.email.toLowerCase() === username.trim().toLowerCase()) &&
-    u.password === password.trim()
+    (u.username.toLowerCase() === trimmedUser || u.email.toLowerCase() === trimmedUser) &&
+    u.password === trimmedPass
   );
 
   if (!user) {
