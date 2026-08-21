@@ -1033,11 +1033,12 @@ function viewGeneratedDocument(targetContract = null) {
         const label = fieldMatch[1].trim();
         const value = formatArabicAndShariaTermsItalic(fieldMatch[2].trim());
         formattedHtml += `
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 0.25rem; font-size: inherit;">
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 0.35rem; font-size: inherit;">
             <tr>
-              <td style="width: 110px; vertical-align: top; padding: 1px 0; color: inherit;">${label}</td>
-              <td style="width: 15px; vertical-align: top; text-align: center; padding: 1px 0; color: inherit;">:</td>
-              <td style="vertical-align: top; padding: 1px 0; text-align: justify; text-justify: inter-word; color: inherit;">${value}</td>
+              <td style="width: 28px; min-width: 28px; vertical-align: top; padding: 2px 0;"></td>
+              <td style="width: 100px; min-width: 100px; vertical-align: top; padding: 2px 0; font-weight: 500;">${label}</td>
+              <td style="width: 15px; min-width: 15px; vertical-align: top; text-align: center; padding: 2px 0; font-weight: 500;">:</td>
+              <td style="vertical-align: top; padding: 2px 0; text-align: justify; text-justify: inter-word;">${value}</td>
             </tr>
           </table>
         `;
@@ -1056,12 +1057,12 @@ function viewGeneratedDocument(targetContract = null) {
           const nestedLabel = nestedFieldMatch[1].trim();
           const nestedVal = formatArabicAndShariaTermsItalic(nestedFieldMatch[2].trim());
           formattedHtml += `
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 0.25rem; font-size: inherit;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 0.35rem; font-size: inherit;">
               <tr>
-                <td style="width: 25px; vertical-align: top; padding: 1px 0;">${numLabel}</td>
-                <td style="width: 90px; vertical-align: top; padding: 1px 0;">${nestedLabel}</td>
-                <td style="width: 15px; vertical-align: top; text-align: center; padding: 1px 0;">:</td>
-                <td style="vertical-align: top; padding: 1px 0; text-align: justify; text-justify: inter-word;">${nestedVal}</td>
+                <td style="width: 28px; min-width: 28px; vertical-align: top; padding: 2px 0; font-weight: 600;">${numLabel}</td>
+                <td style="width: 100px; min-width: 100px; vertical-align: top; padding: 2px 0; font-weight: 500;">${nestedLabel}</td>
+                <td style="width: 15px; min-width: 15px; vertical-align: top; text-align: center; padding: 2px 0; font-weight: 500;">:</td>
+                <td style="vertical-align: top; padding: 2px 0; text-align: justify; text-justify: inter-word;">${nestedVal}</td>
               </tr>
             </table>
           `;
