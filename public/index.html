@@ -347,18 +347,59 @@
           </button>
         </li>
         <li class="nav-item">
-          <button id="nav-settings" onclick="switchTab('settings')" data-tooltip="Pengaturan Kop Surat">
-            <span class="nav-icon">⚙️</span>
-            <span class="nav-text">Kop & White-Label</span>
-          </button>
-        </li>
-        <li class="nav-item">
           <button id="nav-audit" onclick="switchTab('audit')" data-tooltip="Audit Log">
             <span class="nav-icon">🔍</span>
             <span class="nav-text">Audit Log</span>
           </button>
         </li>
       </ul>
+
+      <!-- User Profile & Action Dropdown at the Bottom of Sidebar -->
+      <div class="sidebar-footer" style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); position: relative;">
+        <!-- User Profile Button Trigger -->
+        <button id="sidebar-user-menu-btn" onclick="toggleSidebarUserDropdown(event)" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0.75rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: white; cursor: pointer; transition: all 0.2s ease;">
+          <div style="display: flex; align-items: center; gap: 0.65rem; min-width: 0;">
+            <div id="sidebar-user-avatar" style="width: 34px; height: 34px; border-radius: 8px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem; flex-shrink: 0; color: white; border: 1px solid rgba(255,255,255,0.2);">
+              👤
+            </div>
+            <div class="nav-text" style="text-align: left; min-width: 0; overflow: hidden;">
+              <div id="sidebar-user-fullname" style="font-weight: 700; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white;">Pengguna</div>
+              <div id="sidebar-user-role" style="font-size: 0.725rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Koperasi</div>
+            </div>
+          </div>
+          <span class="nav-text" style="font-size: 0.8rem; color: #94a3b8; margin-left: 4px;">▼</span>
+        </button>
+
+        <!-- Dropdown Menu Popover -->
+        <div id="sidebar-user-dropdown" style="display: none; position: absolute; bottom: 100%; left: 0; width: 100%; min-width: 210px; background: #1e293b; border: 1px solid #334155; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5); padding: 0.5rem; margin-bottom: 0.5rem; z-index: 1000; flex-direction: column; gap: 0.25rem;">
+          <div style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #334155; margin-bottom: 0.25rem;">
+            <div id="dropdown-user-inst" style="font-size: 0.75rem; font-weight: 700; color: #34d399; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">KSPPS BMT Bina Ummah</div>
+            <div id="dropdown-user-email" style="font-size: 0.7rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">pengurus@koperasi.id</div>
+          </div>
+          
+          <button class="dropdown-item-btn" onclick="switchTab('settings'); closeSidebarUserDropdown();" style="width: 100%; display: flex; align-items: center; gap: 0.65rem; padding: 0.55rem 0.75rem; background: transparent; border: none; color: #cbd5e1; font-size: 0.825rem; border-radius: 6px; cursor: pointer; text-align: left;">
+            <span>⚙️</span>
+            <span>Pengaturan Kop & White-Label</span>
+          </button>
+
+          <button class="dropdown-item-btn" onclick="toggleFooterModal('about'); closeSidebarUserDropdown();" style="width: 100%; display: flex; align-items: center; gap: 0.65rem; padding: 0.55rem 0.75rem; background: transparent; border: none; color: #cbd5e1; font-size: 0.825rem; border-radius: 6px; cursor: pointer; text-align: left;">
+            <span>📖</span>
+            <span>Tentang & Tim Peneliti</span>
+          </button>
+
+          <button class="dropdown-item-btn" onclick="toggleFooterModal('terms'); closeSidebarUserDropdown();" style="width: 100%; display: flex; align-items: center; gap: 0.65rem; padding: 0.55rem 0.75rem; background: transparent; border: none; color: #cbd5e1; font-size: 0.825rem; border-radius: 6px; cursor: pointer; text-align: left;">
+            <span>⚖️</span>
+            <span>Syarat & Kepatuhan Fatwa</span>
+          </button>
+
+          <div style="border-top: 1px solid #334155; margin: 0.25rem 0;"></div>
+
+          <button class="dropdown-item-btn" onclick="handleLogout()" style="width: 100%; display: flex; align-items: center; gap: 0.65rem; padding: 0.55rem 0.75rem; background: transparent; border: none; color: #f87171; font-size: 0.825rem; font-weight: 600; border-radius: 6px; cursor: pointer; text-align: left;">
+            <span>🚪</span>
+            <span>Keluar (Logout)</span>
+          </button>
+        </div>
+      </div>
     </aside>
 
     <!-- Main Application View -->

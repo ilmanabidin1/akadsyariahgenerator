@@ -210,6 +210,33 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
+/* Dropdown Item Hover & Profile Footer Styling */
+.dropdown-item-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+#sidebar-user-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.sidebar.collapsed #sidebar-user-menu-btn {
+  padding: 0.5rem 0 !important;
+  justify-content: center !important;
+}
+
+.sidebar.collapsed .sidebar-footer .nav-text {
+  display: none !important;
+}
+
+.sidebar.collapsed #sidebar-user-dropdown {
+  left: 100% !important;
+  bottom: 0 !important;
+  margin-left: 10px !important;
+  margin-bottom: 0 !important;
+}
+
 /* Tooltip on Collapsed Hover */
 .sidebar.collapsed .nav-item button::after {
   content: attr(data-tooltip);

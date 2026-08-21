@@ -46,7 +46,6 @@ function checkAuthSession() {
   const userJson = localStorage.getItem('akadify_logged_user');
   const landingEl = document.getElementById('landing-page-container');
   const appEl = document.getElementById('main-app-wrapper');
-  const floatingWidget = document.getElementById('floating-ai-widget-container');
 
   if (userJson) {
     let userObj = null;
@@ -58,24 +57,69 @@ function checkAuthSession() {
 
     if (landingEl) landingEl.style.display = 'none';
     if (appEl) appEl.style.display = 'flex';
-    if (floatingWidget) floatingWidget.style.display = 'block';
     
+    let roleLabel = 'Koperasi Syariah';
+    if (userObj.userType === 'SUPERADMIN') {
+      roleLabel = '👑 Superadmin';
+    } else if (userObj.userType === 'DPS') {
+      roleLabel = '🛡️ Dewan Pengawas';
+    }
+
+    // Update Topbar
     const displayEl = document.getElementById('logged-user-display');
     if (displayEl) {
-      let roleLabel = 'Koperasi';
-      if (userObj.userType === 'SUPERADMIN') {
-        roleLabel = '👑 Superadmin';
-      } else if (userObj.userType === 'DPS') {
-        roleLabel = '🛡️ Dewan Pengawas';
-      }
       displayEl.innerText = `${userObj.fullname || userObj.username} (${roleLabel})`;
+    }
+
+    // Update Sidebar Footer Profile
+    const sbFullname = document.getElementById('sidebar-user-fullname');
+    const sbRole = document.getElementById('sidebar-user-role');
+    const dropInst = document.getElementById('dropdown-user-inst');
+    const dropEmail = document.getElementById('dropdown-user-email');
+    const avatarEl = document.getElementById('sidebar-user-avatar');
+
+    if (sbFullname) sbFullname.innerText = userObj.fullname || userObj.username || 'Pengurus Lembaga';
+    if (sbRole) sbRole.innerText = roleLabel;
+    if (dropInst) dropInst.innerText = userObj.institutionName || 'Lembaga Keuangan Syariah';
+    if (dropEmail) dropEmail.innerText = userObj.email || `${userObj.username || 'user'}@akadify.id`;
+    if (avatarEl) {
+      const initial = (userObj.fullname || userObj.username || 'U').charAt(0).toUpperCase();
+      avatarEl.innerText = initial;
     }
   } else {
     if (landingEl) landingEl.style.display = 'block';
     if (appEl) appEl.style.display = 'none';
-    if (floatingWidget) floatingWidget.style.display = 'none';
   }
 }
+
+// Toggle Sidebar User Profile Dropdown
+function toggleSidebarUserDropdown(e) {
+  if (e) e.stopPropagation();
+  const dropdown = document.getElementById('sidebar-user-dropdown');
+  if (!dropdown) return;
+
+  if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+    dropdown.style.display = 'flex';
+  } else {
+    dropdown.style.display = 'none';
+  }
+}
+
+function closeSidebarUserDropdown() {
+  const dropdown = document.getElementById('sidebar-user-dropdown');
+  if (dropdown) dropdown.style.display = 'none';
+}
+
+// Auto close user dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  const dropdown = document.getElementById('sidebar-user-dropdown');
+  const btn = document.getElementById('sidebar-user-menu-btn');
+  if (dropdown && dropdown.style.display === 'flex') {
+    if (!dropdown.contains(e.target) && (!btn || !btn.contains(e.target))) {
+      dropdown.style.display = 'none';
+    }
+  }
+});
 
 function openLoginModal(defaultTab = 'login') {
   const modal = document.getElementById('auth-modal');
