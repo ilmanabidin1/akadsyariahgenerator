@@ -84,7 +84,7 @@ async function syncContractToBackend(contract) {
 
 // Tab Switcher
 function switchTab(tabId) {
-  const tabs = ['dashboard', 'generator', 'document', 'verification', 'audit'];
+  const tabs = ['dashboard', 'generator', 'document', 'calculator', 'verification', 'audit'];
   tabs.forEach(t => {
     const viewEl = document.getElementById(`view-${t}`);
     const navEl = document.getElementById(`nav-${t}`);
@@ -99,6 +99,7 @@ function switchTab(tabId) {
     'dashboard': 'Dashboard Utama',
     'generator': 'Form Penyusunan Akad Syariah Dinamis',
     'document': 'Pratinjau & Cetak Dokumen Akad Syariah',
+    'calculator': 'Simulasi Finansial & Kalkulator Syariah',
     'verification': 'Daftar Dokumen Akad Terbit',
     'audit': 'Audit Trail & Log Status System'
   };
@@ -957,4 +958,236 @@ function appendChatTyping() {
 function removeChatTyping(id) {
   const el = document.getElementById(id);
   if (el) el.remove();
+}
+
+// ==========================================
+// SHARIA FINANCIAL CALCULATOR & AMORTIZATION
+// ==========================================
+
+let currentAmortizationSchedule = [];
+
+// Handle Calc Type Selection Change
+function onCalcTypeChange(type) {
+  const marginGroup = document.getElementById('calc-group-margin');
+  const nisbahGroup = document.getElementById('calc-group-nisbah');
+  const labelPokok = document.getElementById('calc-label-pokok');
+  const labelResMargin = document.getElementById('calc-label-res-margin');
+  const noteEl = document.getElementById('calc-compliance-note');
+  const thMargin = document.getElementById('th-calc-margin');
+
+  if (type === 'Murabahah') {
+    marginGroup.style.display = 'block';
+    nisbahGroup.style.display = 'none';
+    labelPokok.innerText = 'Nilai Pokok / Harga Beli (Rp)';
+    labelResMargin.innerText = 'Total Margin Keuntungan:';
+    if (thMargin) thMargin.innerText = 'Margin Keuntungan';
+    noteEl.innerText = 'Harga jual Murabahah (Pokok + Margin) bersifat mengikat dan tetap (fixed) sepanjang masa tenor. Koperasi dilarang mengenakan bunga majemuk atau menaikkan margin saat keterlambatan.';
+  } else if (type === 'Ijarah') {
+    marginGroup.style.display = 'block';
+    nisbahGroup.style.display = 'none';
+    labelPokok.innerText = 'Nilai Aset / Manfaat Jasa Disewakan (Rp)';
+    labelResMargin.innerText = 'Total Ujrah (Sewa/Jasa):';
+    if (thMargin) thMargin.innerText = 'Ujrah (Sewa/Jasa)';
+    noteEl.innerText = 'Ujrah (sewa) disepakati di muka untuk pemanfaatan aset/jasa. Selama masa akad, pemeliharaan pokok barang tetap menjadi tanggung jawab pemilik aset (Mu\'jir).';
+  } else if (type === 'Mudharabah') {
+    marginGroup.style.display = 'none';
+    nisbahGroup.style.display = 'block';
+    labelPokok.innerText = 'Total Modal Usaha / Investasi (Rp)';
+    labelResMargin.innerText = 'Proyeksi Bagi Hasil Koperasi:';
+    if (thMargin) thMargin.innerText = 'Proyeksi Bagi Hasil';
+    noteEl.innerText = 'Bagi hasil wajib dihitung dari realisasi keuntungan usaha (Profit & Loss Sharing) sesuai nisbah yang disepakati, bukan persentase tetap dari modal pokok.';
+  } else if (type === 'Qardh') {
+    marginGroup.style.display = 'none';
+    nisbahGroup.style.display = 'none';
+    labelPokok.innerText = 'Jumlah Pinjaman Pokok Qardh (Rp)';
+    labelResMargin.innerText = 'Tambahan / Biaya Terlarang:';
+    if (thMargin) thMargin.innerText = 'Tambahan (Rp 0)';
+    noteEl.innerText = 'Akad Qardh adalah pinjaman kebajikan tanpa tambahan manfaat (Kullu qardhin jarra manfa\'atan fahuwa riba). Pengembalian harus tepat sejumlah pokok tanpa bunga.';
+  }
+
+  calculateShariaFinance();
+}
+
+// Quick Demo Fill for Calculator
+function fillQuickCalcDemo() {
+  document.getElementById('calc-pokok').value = "36000000";
+  document.getElementById('calc-margin-percent').value = "10";
+  document.getElementById('calc-tenor').value = "12";
+  
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  document.getElementById('calc-start-date').value = `${year}-${month}-${day}`;
+
+  calculateShariaFinance();
+}
+
+// Main Calculation Function
+function calculateShariaFinance() {
+  const type = document.getElementById('calc-akad-type') ? document.getElementById('calc-akad-type').value : 'Murabahah';
+  const pokok = parseFloat(document.getElementById('calc-pokok') ? document.getElementById('calc-pokok').value : 0) || 0;
+  const tenor = parseInt(document.getElementById('calc-tenor') ? document.getElementById('calc-tenor').value : 12) || 12;
+  const marginPercent = parseFloat(document.getElementById('calc-margin-percent') ? document.getElementById('calc-margin-percent').value : 0) || 0;
+  
+  const nisbahKoperasi = parseFloat(document.getElementById('calc-nisbah-koperasi') ? document.getElementById('calc-nisbah-koperasi').value : 40) || 40;
+  if (document.getElementById('calc-nisbah-anggota')) {
+    document.getElementById('calc-nisbah-anggota').value = Math.max(0, 100 - nisbahKoperasi);
+  }
+  const proyeksiLaba = parseFloat(document.getElementById('calc-proyeksi-laba') ? document.getElementById('calc-proyeksi-laba').value : 0) || 0;
+
+  let totalMargin = 0;
+  let totalKewajiban = pokok;
+  let angsuranPerBulan = 0;
+  let pokokPerBulan = tenor > 0 ? (pokok / tenor) : 0;
+  let marginPerBulan = 0;
+
+  if (type === 'Murabahah' || type === 'Ijarah') {
+    // Formula Flat Syariah: Total Margin = Pokok * (Margin% / 100) * (Tenor / 12)
+    totalMargin = pokok * (marginPercent / 100) * (tenor / 12);
+    totalKewajiban = pokok + totalMargin;
+    angsuranPerBulan = tenor > 0 ? (totalKewajiban / tenor) : 0;
+    marginPerBulan = tenor > 0 ? (totalMargin / tenor) : 0;
+  } else if (type === 'Mudharabah') {
+    // Proyeksi Bagi Hasil bulanan untuk koperasi
+    const bagiHasilBulanKoperasi = proyeksiLaba * (nisbahKoperasi / 100);
+    totalMargin = bagiHasilBulanKoperasi * tenor;
+    totalKewajiban = pokok + totalMargin;
+    marginPerBulan = bagiHasilBulanKoperasi;
+    angsuranPerBulan = pokokPerBulan + marginPerBulan;
+  } else if (type === 'Qardh') {
+    totalMargin = 0;
+    totalKewajiban = pokok;
+    marginPerBulan = 0;
+    angsuranPerBulan = pokokPerBulan;
+  }
+
+  // Update Summary DOM
+  const formatIDR = (val) => "Rp " + Math.round(val).toLocaleString('id-ID');
+
+  if (document.getElementById('calc-result-angsuran')) {
+    document.getElementById('calc-result-angsuran').innerText = formatIDR(angsuranPerBulan) + " / bln";
+    document.getElementById('calc-result-pokok').innerText = formatIDR(pokok);
+    document.getElementById('calc-result-margin').innerText = formatIDR(totalMargin);
+    document.getElementById('calc-result-total').innerText = formatIDR(totalKewajiban);
+  }
+
+  const badgeTenor = document.getElementById('amortization-badge-tenor');
+  if (badgeTenor) badgeTenor.innerText = `${tenor} Bulan Angsuran`;
+
+  // Generate Amortization Table Rows
+  generateAmortizationSchedule(pokok, totalMargin, tenor, angsuranPerBulan, pokokPerBulan, marginPerBulan);
+}
+
+// Generate Amortization Schedule Table
+function generateAmortizationSchedule(pokok, totalMargin, tenor, angsuranPerBulan, pokokPerBulan, marginPerBulan) {
+  const tbody = document.getElementById('amortization-table-body');
+  if (!tbody) return;
+
+  if (pokok <= 0 || tenor <= 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+          Masukkan nilai pokok dan tenor di atas untuk menghasilkan tabel jadwal angsuran.
+        </td>
+      </tr>
+    `;
+    currentAmortizationSchedule = [];
+    return;
+  }
+
+  const formatIDR = (val) => "Rp " + Math.round(val).toLocaleString('id-ID');
+  
+  let startDateStr = document.getElementById('calc-start-date') ? document.getElementById('calc-start-date').value : '';
+  let currentDate = startDateStr ? new Date(startDateStr) : new Date();
+
+  let remainingPiutang = pokok + totalMargin;
+  let html = '';
+  currentAmortizationSchedule = [];
+
+  for (let i = 1; i <= tenor; i++) {
+    // Increment Month
+    const dueDate = new Date(currentDate);
+    dueDate.setMonth(dueDate.getMonth() + i);
+    const dateStr = dueDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    // Handle last month rounding difference
+    let currentAngsuran = angsuranPerBulan;
+    let curPokok = pokokPerBulan;
+    let curMargin = marginPerBulan;
+
+    if (i === tenor) {
+      currentAngsuran = remainingPiutang;
+      remainingPiutang = 0;
+    } else {
+      remainingPiutang -= currentAngsuran;
+    }
+
+    currentAmortizationSchedule.push({
+      bulanKe: i,
+      jatuhTempo: dateStr,
+      angsuranPokok: curPokok,
+      angsuranMargin: curMargin,
+      totalAngsuran: currentAngsuran,
+      sisaPiutang: remainingPiutang
+    });
+
+    html += `
+      <tr>
+        <td style="text-align: center; font-weight: 600; color: var(--primary);">${i}</td>
+        <td><strong>${dateStr}</strong></td>
+        <td style="text-align: right;">${formatIDR(curPokok)}</td>
+        <td style="text-align: right; color: #d97706; font-weight: 500;">${formatIDR(curMargin)}</td>
+        <td style="text-align: right; font-weight: 700; color: var(--primary-dark);">${formatIDR(currentAngsuran)}</td>
+        <td style="text-align: right; color: var(--text-muted);">${formatIDR(Math.max(0, remainingPiutang))}</td>
+      </tr>
+    `;
+  }
+
+  tbody.innerHTML = html;
+}
+
+// Apply Calculation Results directly to Akad Generator Form
+function applyCalcToAkadGenerator() {
+  const type = document.getElementById('calc-akad-type').value;
+  const pokok = parseFloat(document.getElementById('calc-pokok').value) || 0;
+  const tenor = parseInt(document.getElementById('calc-tenor').value) || 12;
+  const marginPercent = parseFloat(document.getElementById('calc-margin-percent').value) || 0;
+  const totalMargin = pokok * (marginPercent / 100) * (tenor / 12);
+
+  // Switch form to selected Akad Type
+  document.getElementById('form-akad-type').value = type;
+  onAkadTypeChange(type);
+
+  // Prefill fields
+  if (type === 'Murabahah') {
+    if (document.getElementById('hargaBeli')) document.getElementById('hargaBeli').value = pokok;
+    if (document.getElementById('margin')) document.getElementById('margin').value = Math.round(totalMargin);
+    if (document.getElementById('tenor')) document.getElementById('tenor').value = tenor;
+  } else if (type === 'Qardh') {
+    if (document.getElementById('jumlahPinjaman')) document.getElementById('jumlahPinjaman').value = pokok;
+    if (document.getElementById('jatuhTempo')) document.getElementById('jatuhTempo').value = `${tenor} Bulan`;
+  } else if (type === 'Mudharabah') {
+    if (document.getElementById('jumlahModal')) document.getElementById('jumlahModal').value = pokok;
+    const nisbahKop = document.getElementById('calc-nisbah-koperasi').value;
+    if (document.getElementById('nisbahPengelola')) document.getElementById('nisbahPengelola').value = Math.max(0, 100 - parseFloat(nisbahKop));
+    if (document.getElementById('nisbahPemodal')) document.getElementById('nisbahPemodal').value = nisbahKop;
+  } else if (type === 'Ijarah') {
+    if (document.getElementById('biayaUjrah')) document.getElementById('biayaUjrah').value = Math.round(pokok + totalMargin);
+    if (document.getElementById('tenorIjarah')) document.getElementById('tenorIjarah').value = `${tenor} Bulan`;
+  }
+
+  triggerValidation();
+  goToWizardStep(2);
+  switchTab('generator');
+  alert(`✅ Parameter finansial berhasil diterapkan ke Form Akad ${type}! Silakan lengkapi identitas para pihak.`);
+}
+
+// Print Amortization Table
+function printAmortizationTable() {
+  if (currentAmortizationSchedule.length === 0) {
+    alert("Silakan hitung simulasi finansial terlebih dahulu sebelum mencetak jadwal.");
+    return;
+  }
+  window.print();
 }
