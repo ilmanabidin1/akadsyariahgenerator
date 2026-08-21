@@ -532,6 +532,30 @@ body {
   line-height: 1.7;
 }
 
+/* Hanging Indent / Numbering List Format ala MS Word Notaris */
+.doc-numbered-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.65rem;
+  text-align: justify;
+  text-justify: inter-word;
+  line-height: 1.6;
+}
+
+.doc-numbered-num {
+  width: 2.2rem;
+  min-width: 2.2rem;
+  flex-shrink: 0;
+  text-align: left;
+  font-weight: normal;
+}
+
+.doc-numbered-body {
+  flex: 1;
+  text-align: justify;
+  text-justify: inter-word;
+}
+
 .doc-header {
   text-align: center;
   border-bottom: 2px solid #000;
