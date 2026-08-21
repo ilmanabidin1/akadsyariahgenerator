@@ -629,7 +629,7 @@
 
               <div class="form-group">
                 <label id="calc-label-pokok">Nilai Pokok / Harga Beli (Rp)</label>
-                <input type="number" id="calc-pokok" class="form-control" placeholder="Contoh: 25000000" oninput="calculateShariaFinance()">
+                <input type="text" id="calc-pokok" class="form-control rupiah-input" placeholder="Contoh: 25.000.000" oninput="formatRupiahInput(this); calculateShariaFinance();">
               </div>
 
               <!-- Container Khusus Murabahah & Ijarah (Margin / Ujrah) -->
@@ -663,7 +663,7 @@
                 </div>
                 <div class="form-group">
                   <label>Proyeksi Keuntungan Usaha / Bulan (Rp)</label>
-                  <input type="number" id="calc-proyeksi-laba" class="form-control" placeholder="Contoh: 3000000" oninput="calculateShariaFinance()">
+                  <input type="text" id="calc-proyeksi-laba" class="form-control rupiah-input" placeholder="Contoh: 3.000.000" oninput="formatRupiahInput(this); calculateShariaFinance();">
                 </div>
               </div>
 

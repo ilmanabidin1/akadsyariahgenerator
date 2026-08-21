@@ -8,6 +8,36 @@ let currentDraftText = "";
 let createdContracts = [];
 let currentWizardStep = 1;
 
+// ==========================================
+// RUPIAH CURRENCY FORMATTER HELPERS
+// ==========================================
+
+// Format plain number into thousand separator dot string (e.g. 1000000 -> 1.000.000)
+function formatNumberWithDots(value) {
+  if (value === null || value === undefined || value === '') return '';
+  const cleanNumber = String(value).replace(/[^0-9]/g, '');
+  if (!cleanNumber) return '';
+  return parseInt(cleanNumber, 10).toLocaleString('id-ID');
+}
+
+// Parse string with dot separators back to raw float (e.g. "1.000.000" -> 1000000)
+function parseRawNumber(str) {
+  if (!str) return 0;
+  const cleanStr = String(str).replace(/[^0-9]/g, '');
+  return cleanStr ? parseFloat(cleanStr) : 0;
+}
+
+// Live Input Event Formatter (formats dynamically while keeping cursor clean)
+function formatRupiahInput(inputEl) {
+  if (!inputEl) return;
+  const raw = inputEl.value.replace(/[^0-9]/g, '');
+  if (!raw) {
+    inputEl.value = '';
+    return;
+  }
+  inputEl.value = parseInt(raw, 10).toLocaleString('id-ID');
+}
+
 // Initialize App
 document.addEventListener("DOMContentLoaded", () => {
   initSidebarFoldState();
@@ -221,33 +251,33 @@ function fillQuickDemoData() {
   if (currentAkadType === 'Murabahah') {
     if (document.getElementById('namaBarang')) document.getElementById('namaBarang').value = "Kendaraan Operasional Motor Honda Vario 160cc";
     if (document.getElementById('spesifikasi')) document.getElementById('spesifikasi').value = "Tahun 2026, Warna Hitam Metallic, Kondisi Baru 100%";
-    if (document.getElementById('hargaBeli')) document.getElementById('hargaBeli').value = "28000000";
-    if (document.getElementById('margin')) document.getElementById('margin').value = "4200000";
-    if (document.getElementById('uangMuka')) document.getElementById('uangMuka').value = "3000000";
+    if (document.getElementById('hargaBeli')) document.getElementById('hargaBeli').value = "28.000.000";
+    if (document.getElementById('margin')) document.getElementById('margin').value = "4.200.000";
+    if (document.getElementById('uangMuka')) document.getElementById('uangMuka').value = "3.000.000";
     if (document.getElementById('tenor')) document.getElementById('tenor').value = "24";
   } else if (currentAkadType === 'Qardh') {
-    if (document.getElementById('jumlahPinjaman')) document.getElementById('jumlahPinjaman').value = "10000000";
-    if (document.getElementById('biayaAdmin')) document.getElementById('biayaAdmin').value = "75000";
+    if (document.getElementById('jumlahPinjaman')) document.getElementById('jumlahPinjaman').value = "10.000.000";
+    if (document.getElementById('biayaAdmin')) document.getElementById('biayaAdmin').value = "75.000";
     if (document.getElementById('jatuhTempo')) document.getElementById('jatuhTempo').value = "6 Bulan";
     if (document.getElementById('tujuanQardh')) document.getElementById('tujuanQardh').value = "Modal Kerja Usaha Mikro Konveksi";
   } else if (currentAkadType === 'Mudharabah') {
     if (document.getElementById('bidangUsaha')) document.getElementById('bidangUsaha').value = "Budidaya & Perdagangan Ikan Nila Syariah";
-    if (document.getElementById('jumlahModal')) document.getElementById('jumlahModal').value = "50000000";
+    if (document.getElementById('jumlahModal')) document.getElementById('jumlahModal').value = "50.000.000";
     if (document.getElementById('nisbahPengelola')) document.getElementById('nisbahPengelola').value = "60";
     if (document.getElementById('nisbahPemodal')) document.getElementById('nisbahPemodal').value = "40";
   } else if (currentAkadType === 'Ijarah') {
     if (document.getElementById('namaBarang')) document.getElementById('namaBarang').value = "Sewa Ruko Tempat Usaha Koperasi 2 Lantai";
-    if (document.getElementById('biayaUjrah')) document.getElementById('biayaUjrah').value = "35000000";
+    if (document.getElementById('biayaUjrah')) document.getElementById('biayaUjrah').value = "35.000.000";
     if (document.getElementById('tenorIjarah')) document.getElementById('tenorIjarah').value = "1 Tahun";
   } else if (currentAkadType === 'Syirkah') {
     if (document.getElementById('bidangUsaha')) document.getElementById('bidangUsaha').value = "Kemitraan Usaha Minimarket Syariah";
-    if (document.getElementById('modalPihak1')) document.getElementById('modalPihak1').value = "100000000";
-    if (document.getElementById('modalPihak2')) document.getElementById('modalPihak2').value = "100000000";
+    if (document.getElementById('modalPihak1')) document.getElementById('modalPihak1').value = "100.000.000";
+    if (document.getElementById('modalPihak2')) document.getElementById('modalPihak2').value = "100.000.000";
     if (document.getElementById('nisbahPengelola')) document.getElementById('nisbahPengelola').value = "50";
     if (document.getElementById('nisbahPemodal')) document.getElementById('nisbahPemodal').value = "50";
   } else if (currentAkadType === 'Koperasi Syariah') {
-    if (document.getElementById('simpananPokok')) document.getElementById('simpananPokok').value = "500000";
-    if (document.getElementById('simpananWajib')) document.getElementById('simpananWajib').value = "50000";
+    if (document.getElementById('simpananPokok')) document.getElementById('simpananPokok').value = "500.000";
+    if (document.getElementById('simpananWajib')) document.getElementById('simpananWajib').value = "50.000";
   }
 
   triggerValidation();
@@ -279,30 +309,30 @@ function onAkadTypeChange(type) {
       </div>
       <div class="form-group">
         <label>Harga Pokok Pembelian (Rp)</label>
-        <input type="number" id="hargaBeli" class="form-control" placeholder="Contoh: 100000000" required oninput="triggerValidation()">
+        <input type="text" id="hargaBeli" class="form-control rupiah-input" placeholder="Contoh: 100.000.000" required oninput="formatRupiahInput(this); triggerValidation();">
       </div>
       <div class="form-group">
         <label>Margin Keuntungan Koperasi (Rp)</label>
-        <input type="number" id="margin" class="form-control" placeholder="Contoh: 15000000" required oninput="triggerValidation()">
+        <input type="text" id="margin" class="form-control rupiah-input" placeholder="Contoh: 15.000.000" required oninput="formatRupiahInput(this); triggerValidation();">
       </div>
       <div class="form-group">
         <label>Uang Muka / DP (Rp)</label>
-        <input type="number" id="uangMuka" class="form-control" placeholder="Contoh: 10000000" oninput="triggerValidation()">
+        <input type="text" id="uangMuka" class="form-control rupiah-input" placeholder="Contoh: 10.000.000" oninput="formatRupiahInput(this); triggerValidation();">
       </div>
       <div class="form-group">
         <label>Tenor / Jangka Waktu (Bulan)</label>
-        <input type="number" id="tenor" class="form-control" placeholder="Contoh: 12" required oninput="triggerValidation()">
+        <input type="number" id="tenor" class="form-control" placeholder="Contoh: 12" min="1" max="120" required oninput="triggerValidation()">
       </div>
     `;
   } else if (type === 'Qardh') {
     container.innerHTML = `
       <div class="form-group">
         <label>Jumlah Pinjaman Pokok (Rp)</label>
-        <input type="number" id="jumlahPinjaman" class="form-control" placeholder="0" required oninput="triggerValidation()">
+        <input type="text" id="jumlahPinjaman" class="form-control rupiah-input" placeholder="Contoh: 10.000.000" required oninput="formatRupiahInput(this); triggerValidation();">
       </div>
       <div class="form-group">
         <label>Biaya Administrasi Riil / Cetak Dokumen (Rp)</label>
-        <input type="number" id="biayaAdmin" class="form-control" placeholder="0" required oninput="triggerValidation()">
+        <input type="text" id="biayaAdmin" class="form-control rupiah-input" placeholder="Contoh: 50.000" required oninput="formatRupiahInput(this); triggerValidation();">
       </div>
       <div class="form-group">
         <label>Jatuh Tempo Pengembalian</label>
@@ -321,7 +351,7 @@ function onAkadTypeChange(type) {
       </div>
       <div class="form-group">
         <label>Jumlah Modal Disetor Shahibul Maal (Rp)</label>
-        <input type="number" id="jumlahModal" class="form-control" placeholder="0" required oninput="triggerValidation()">
+        <input type="text" id="jumlahModal" class="form-control rupiah-input" placeholder="Contoh: 50.000.000" required oninput="formatRupiahInput(this); triggerValidation();">
       </div>
       <div class="form-group">
         <label>Nisbah Bagi Hasil Pengelola / Mudharib (%)</label>
@@ -344,7 +374,7 @@ function onAkadTypeChange(type) {
       </div>
       <div class="form-group">
         <label>Biaya Sewa / Ujrah (Rp per periode)</label>
-        <input type="number" id="biayaUjrah" class="form-control" placeholder="Contoh: 5000000" required oninput="triggerValidation()">
+        <input type="text" id="biayaUjrah" class="form-control rupiah-input" placeholder="Contoh: 5.000.000" required oninput="formatRupiahInput(this); triggerValidation();">
       </div>
       <div class="form-group">
         <label>Masa Sewa / Periode</label>
@@ -363,29 +393,30 @@ function onAkadTypeChange(type) {
       </div>
       <div class="form-group">
         <label>Setoran Modal Pihak Pertama (Rp)</label>
-        <input type="number" id="modalPihak1" class="form-control" placeholder="0" required oninput="triggerValidation()">
+        <input type="text" id="modalPihak1" class="form-control rupiah-input" placeholder="Contoh: 100.000.000" required oninput="formatRupiahInput(this); triggerValidation();">
       </div>
       <div class="form-group">
         <label>Setoran Modal Pihak Kedua (Rp)</label>
-        <input type="number" id="modalPihak2" class="form-control" placeholder="0" required oninput="triggerValidation()">
+        <input type="text" id="modalPihak2" class="form-control rupiah-input" placeholder="Contoh: 100.000.000" required oninput="formatRupiahInput(this); triggerValidation();">
       </div>
       <div class="form-group">
-        <label>Nisbah Pembagian Keuntungan (% Pihak 1 : % Pihak 2)</label>
-        <div style="display: flex; gap: 0.5rem;">
-          <input type="number" id="nisbahPengelola" class="form-control" placeholder="% Pihak 1 (Contoh: 50)">
-          <input type="number" id="nisbahPemodal" class="form-control" placeholder="% Pihak 2 (Contoh: 50)">
-        </div>
+        <label>Nisbah Bagi Hasil Pengelola (%)</label>
+        <input type="number" id="nisbahPengelola" class="form-control" placeholder="50" required oninput="triggerValidation()">
+      </div>
+      <div class="form-group">
+        <label>Nisbah Bagi Hasil Pemodal (%)</label>
+        <input type="number" id="nisbahPemodal" class="form-control" placeholder="50" required oninput="triggerValidation()">
       </div>
     `;
   } else if (type === 'Koperasi Syariah') {
     container.innerHTML = `
       <div class="form-group">
-        <label>Simpanan Pokok Anggota (Rp)</label>
-        <input type="number" id="simpananPokok" class="form-control" placeholder="Contoh: 100000" required oninput="triggerValidation()">
+        <label>Simpanan Pokok (Rp)</label>
+        <input type="text" id="simpananPokok" class="form-control rupiah-input" placeholder="Contoh: 500.000" required oninput="formatRupiahInput(this); triggerValidation();">
       </div>
       <div class="form-group">
-        <label>Simpanan Wajib Anggota (Rp / Bulan)</label>
-        <input type="number" id="simpananWajib" class="form-control" placeholder="Contoh: 25000" required oninput="triggerValidation()">
+        <label>Simpanan Wajib (Rp per bulan)</label>
+        <input type="text" id="simpananWajib" class="form-control rupiah-input" placeholder="Contoh: 50.000" required oninput="formatRupiahInput(this); triggerValidation();">
       </div>
       <div class="form-group">
         <label>Hak & Kewajiban Utama Anggota</label>
@@ -452,35 +483,35 @@ function getFormData() {
   if (currentAkadType === 'Murabahah') {
     data.namaBarang = document.getElementById('namaBarang')?.value || '';
     data.spesifikasi = document.getElementById('spesifikasi')?.value || '';
-    data.hargaBeli = document.getElementById('hargaBeli')?.value || 0;
-    data.margin = document.getElementById('margin')?.value || 0;
-    data.uangMuka = document.getElementById('uangMuka')?.value || 0;
-    data.tenor = document.getElementById('tenor')?.value || 1;
+    data.hargaBeli = parseRawNumber(document.getElementById('hargaBeli')?.value);
+    data.margin = parseRawNumber(document.getElementById('margin')?.value);
+    data.uangMuka = parseRawNumber(document.getElementById('uangMuka')?.value);
+    data.tenor = parseInt(document.getElementById('tenor')?.value || 1, 10);
     data.saksi1 = document.getElementById('saksi1')?.value || '';
     data.saksi2 = document.getElementById('saksi2')?.value || '';
   } else if (currentAkadType === 'Qardh') {
-    data.jumlahPinjaman = document.getElementById('jumlahPinjaman')?.value || 0;
-    data.biayaAdmin = document.getElementById('biayaAdmin')?.value || 0;
+    data.jumlahPinjaman = parseRawNumber(document.getElementById('jumlahPinjaman')?.value);
+    data.biayaAdmin = parseRawNumber(document.getElementById('biayaAdmin')?.value);
     data.jatuhTempo = document.getElementById('jatuhTempo')?.value || '';
     data.tujuanQardh = document.getElementById('tujuanQardh')?.value || '';
   } else if (currentAkadType === 'Mudharabah') {
     data.bidangUsaha = document.getElementById('bidangUsaha')?.value || '';
-    data.jumlahModal = document.getElementById('jumlahModal')?.value || 0;
+    data.jumlahModal = parseRawNumber(document.getElementById('jumlahModal')?.value);
     data.nisbahPengelola = parseFloat(document.getElementById('nisbahPengelola')?.value || 0);
     data.nisbahPemodal = parseFloat(document.getElementById('nisbahPemodal')?.value || 0);
   } else if (currentAkadType === 'Ijarah') {
     data.namaBarang = document.getElementById('namaBarang')?.value || '';
-    data.biayaUjrah = document.getElementById('biayaUjrah')?.value || 0;
+    data.biayaUjrah = parseRawNumber(document.getElementById('biayaUjrah')?.value);
     data.tenorIjarah = document.getElementById('tenorIjarah')?.value || '';
   } else if (currentAkadType === 'Syirkah') {
     data.bidangUsaha = document.getElementById('bidangUsaha')?.value || '';
-    data.modalPihak1 = document.getElementById('modalPihak1')?.value || 0;
-    data.modalPihak2 = document.getElementById('modalPihak2')?.value || 0;
+    data.modalPihak1 = parseRawNumber(document.getElementById('modalPihak1')?.value);
+    data.modalPihak2 = parseRawNumber(document.getElementById('modalPihak2')?.value);
     data.nisbahPengelola = parseFloat(document.getElementById('nisbahPengelola')?.value || 50);
     data.nisbahPemodal = parseFloat(document.getElementById('nisbahPemodal')?.value || 50);
   } else if (currentAkadType === 'Koperasi Syariah') {
-    data.simpananPokok = document.getElementById('simpananPokok')?.value || 0;
-    data.simpananWajib = document.getElementById('simpananWajib')?.value || 0;
+    data.simpananPokok = parseRawNumber(document.getElementById('simpananPokok')?.value);
+    data.simpananWajib = parseRawNumber(document.getElementById('simpananWajib')?.value);
   }
 
   return data;
@@ -1010,7 +1041,7 @@ function onCalcTypeChange(type) {
 
 // Quick Demo Fill for Calculator
 function fillQuickCalcDemo() {
-  document.getElementById('calc-pokok').value = "36000000";
+  document.getElementById('calc-pokok').value = "36.000.000";
   document.getElementById('calc-margin-percent').value = "10";
   document.getElementById('calc-tenor').value = "12";
   
@@ -1026,15 +1057,15 @@ function fillQuickCalcDemo() {
 // Main Calculation Function
 function calculateShariaFinance() {
   const type = document.getElementById('calc-akad-type') ? document.getElementById('calc-akad-type').value : 'Murabahah';
-  const pokok = parseFloat(document.getElementById('calc-pokok') ? document.getElementById('calc-pokok').value : 0) || 0;
-  const tenor = parseInt(document.getElementById('calc-tenor') ? document.getElementById('calc-tenor').value : 12) || 12;
-  const marginPercent = parseFloat(document.getElementById('calc-margin-percent') ? document.getElementById('calc-margin-percent').value : 0) || 0;
+  const pokok = parseRawNumber(document.getElementById('calc-pokok')?.value);
+  const tenor = parseInt(document.getElementById('calc-tenor')?.value || 12, 10) || 12;
+  const marginPercent = parseFloat(document.getElementById('calc-margin-percent')?.value || 0) || 0;
   
-  const nisbahKoperasi = parseFloat(document.getElementById('calc-nisbah-koperasi') ? document.getElementById('calc-nisbah-koperasi').value : 40) || 40;
+  const nisbahKoperasi = parseFloat(document.getElementById('calc-nisbah-koperasi')?.value || 40) || 40;
   if (document.getElementById('calc-nisbah-anggota')) {
     document.getElementById('calc-nisbah-anggota').value = Math.max(0, 100 - nisbahKoperasi);
   }
-  const proyeksiLaba = parseFloat(document.getElementById('calc-proyeksi-laba') ? document.getElementById('calc-proyeksi-laba').value : 0) || 0;
+  const proyeksiLaba = parseRawNumber(document.getElementById('calc-proyeksi-laba')?.value);
 
   let totalMargin = 0;
   let totalKewajiban = pokok;
@@ -1150,30 +1181,30 @@ function generateAmortizationSchedule(pokok, totalMargin, tenor, angsuranPerBula
 // Apply Calculation Results directly to Akad Generator Form
 function applyCalcToAkadGenerator() {
   const type = document.getElementById('calc-akad-type').value;
-  const pokok = parseFloat(document.getElementById('calc-pokok').value) || 0;
-  const tenor = parseInt(document.getElementById('calc-tenor').value) || 12;
-  const marginPercent = parseFloat(document.getElementById('calc-margin-percent').value) || 0;
+  const pokok = parseRawNumber(document.getElementById('calc-pokok')?.value);
+  const tenor = parseInt(document.getElementById('calc-tenor')?.value || 12, 10) || 12;
+  const marginPercent = parseFloat(document.getElementById('calc-margin-percent')?.value || 0) || 0;
   const totalMargin = pokok * (marginPercent / 100) * (tenor / 12);
 
   // Switch form to selected Akad Type
   document.getElementById('form-akad-type').value = type;
   onAkadTypeChange(type);
 
-  // Prefill fields
+  // Prefill fields with dot formatting
   if (type === 'Murabahah') {
-    if (document.getElementById('hargaBeli')) document.getElementById('hargaBeli').value = pokok;
-    if (document.getElementById('margin')) document.getElementById('margin').value = Math.round(totalMargin);
+    if (document.getElementById('hargaBeli')) document.getElementById('hargaBeli').value = formatNumberWithDots(pokok);
+    if (document.getElementById('margin')) document.getElementById('margin').value = formatNumberWithDots(Math.round(totalMargin));
     if (document.getElementById('tenor')) document.getElementById('tenor').value = tenor;
   } else if (type === 'Qardh') {
-    if (document.getElementById('jumlahPinjaman')) document.getElementById('jumlahPinjaman').value = pokok;
+    if (document.getElementById('jumlahPinjaman')) document.getElementById('jumlahPinjaman').value = formatNumberWithDots(pokok);
     if (document.getElementById('jatuhTempo')) document.getElementById('jatuhTempo').value = `${tenor} Bulan`;
   } else if (type === 'Mudharabah') {
-    if (document.getElementById('jumlahModal')) document.getElementById('jumlahModal').value = pokok;
+    if (document.getElementById('jumlahModal')) document.getElementById('jumlahModal').value = formatNumberWithDots(pokok);
     const nisbahKop = document.getElementById('calc-nisbah-koperasi').value;
     if (document.getElementById('nisbahPengelola')) document.getElementById('nisbahPengelola').value = Math.max(0, 100 - parseFloat(nisbahKop));
     if (document.getElementById('nisbahPemodal')) document.getElementById('nisbahPemodal').value = nisbahKop;
   } else if (type === 'Ijarah') {
-    if (document.getElementById('biayaUjrah')) document.getElementById('biayaUjrah').value = Math.round(pokok + totalMargin);
+    if (document.getElementById('biayaUjrah')) document.getElementById('biayaUjrah').value = formatNumberWithDots(Math.round(pokok + totalMargin));
     if (document.getElementById('tenorIjarah')) document.getElementById('tenorIjarah').value = `${tenor} Bulan`;
   }
 
