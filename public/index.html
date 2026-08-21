@@ -710,28 +710,21 @@
               <p style="text-align: center; color: var(--text-muted); padding: 3rem;">Belum ada dokumen yang dibuat. Silakan isi form akad dinamis terlebih dahulu.</p>
             </div>
 
-            <!-- QR Code Legalitas & Signature Area -->
-            <div style="margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid #cbd5e1; display: flex; justify-content: space-between; align-items: flex-end; font-family: sans-serif; font-size: 0.85rem;">
+            <!-- QR Code Legalitas & Footer Dokumen -->
+            <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #cbd5e1; display: flex; justify-content: space-between; align-items: center; font-family: sans-serif; font-size: 0.85rem;">
               <!-- QR Code Verification Badge -->
-              <div style="display: flex; align-items: center; gap: 0.75rem; border: 1px solid #e2e8f0; padding: 0.65rem; border-radius: 6px; background: #f8fafc;">
-                <img id="doc-qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data=AKADIFY-VERIFIED-SYARIAH-DSN-MUI" alt="QR Code Legalitas" style="width: 70px; height: 70px;">
+              <div style="display: flex; align-items: center; gap: 0.75rem; border: 1px solid #e2e8f0; padding: 0.5rem 0.75rem; border-radius: 6px; background: #f8fafc;">
+                <img id="doc-qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=AKADIFY-VERIFIED-SYARIAH-DSN-MUI" alt="QR Code Legalitas" style="width: 60px; height: 60px;">
                 <div>
-                  <p style="font-weight: bold; margin: 0; color: #0f172a;">VERIFIKASI AKAD DIGITAL</p>
-                  <p style="font-size: 0.75rem; color: #64748b; margin: 2px 0;">Terdaftar Rules Engine Syariah</p>
+                  <p style="font-weight: bold; margin: 0; color: #0f172a; font-size: 0.8rem;">VERIFIKASI AKAD DIGITAL RESMI</p>
+                  <p style="font-size: 0.725rem; color: #64748b; margin: 2px 0;">Tervalidasi Rules Engine Syariah & Fatwa DSN-MUI</p>
                   <p style="font-size: 0.7rem; color: #059669; font-weight: 600; margin: 0;" id="doc-qr-hash">Hash: AKD-884920491</p>
                 </div>
               </div>
 
-              <!-- Signatures -->
-              <div style="display: flex; gap: 3rem; text-align: center;">
-                <div>
-                  <p style="margin-bottom: 2.5rem;">PIHAK PERTAMA (Koperasi)</p>
-                  <p><strong>( ______________________ )</strong></p>
-                </div>
-                <div>
-                  <p style="margin-bottom: 2.5rem;">PIHAK KEDUA (Pemohon)</p>
-                  <p><strong>( <span id="doc-pihakkedua-sign">______________________</span> )</strong></p>
-                </div>
+              <div style="text-align: right; color: #64748b; font-size: 0.75rem;">
+                <p style="margin: 0;">Dokumen ini sah dan mengikat para pihak sesuai KUHPerdata & Fatwa DSN-MUI.</p>
+                <p style="margin: 2px 0 0 0;">Dicetak otomatis melalui Platform AKADIFY.</p>
               </div>
             </div>
           </div>

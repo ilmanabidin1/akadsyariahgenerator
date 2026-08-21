@@ -909,7 +909,24 @@ function viewGeneratedDocument() {
   let formattedHtml = '';
   let isNextLinePasalTitle = false;
 
-  lines.forEach(line => {
+  // Filter teks agar baris tanda tangan vertikal di badan teks AI tidak tertampil ganda
+  const filteredLines = [];
+  let reachedSignatureBlock = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const lineStr = lines[i].trim();
+    if (!lineStr) continue;
+
+    // Deteksi jika AI mulai mencetak blok tanda tangan vertikal di ujung dokumen
+    if (/^(PIHAK PERTAMA|Pihak Pertama|PIHAK KESATU|Pihak Kesatu)/i.test(lineStr) && i > lines.length - 12) {
+      reachedSignatureBlock = true;
+      break;
+    }
+    if (reachedSignatureBlock) break;
+    filteredLines.push(lineStr);
+  }
+
+  filteredLines.forEach(line => {
     const trimmed = line.trim();
     if (!trimmed) return;
 
@@ -980,6 +997,60 @@ function viewGeneratedDocument() {
       }
     }
   });
+
+  // Tambahkan Blok Tanda Tangan Horizontal Resmi di Akhir Dokumen
+  const pihak1Nama = formData.pihakPertama || 'Pengurus Koperasi';
+  const pihak1Lembaga = formData.lembagaPihak1 || 'Koperasi Syariah';
+  const pihak2Nama = formData.pihakKedua || 'Nama Anggota';
+  const saksi1Nama = formData.saksi1 || 'Saksi I';
+  const saksi2Nama = formData.saksi2 || 'Saksi II';
+
+  formattedHtml += `
+    <div style="margin-top: 3rem; margin-bottom: 2rem; page-break-inside: avoid;">
+      <!-- Baris Tanda Tangan Utama: Pihak Pertama (Kiri) & Pihak Kedua (Kanan) Horizontal -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 2.5rem;">
+        <tr>
+          <td style="width: 48%; text-align: center; vertical-align: top; font-size: 0.95rem;">
+            <p style="margin: 0; font-weight: bold;">PIHAK PERTAMA</p>
+            <p style="margin: 2px 0 0 0; color: #475569; font-size: 0.85rem;">${pihak1Lembaga}</p>
+            <div style="height: 5.5rem;"></div>
+            <p style="margin: 0; font-weight: bold; text-decoration: underline;">( ${pihak1Nama} )</p>
+            <p style="margin: 2px 0 0 0; font-size: 0.8rem; color: #64748b;">Pengurus / Pejabat Berwenang</p>
+          </td>
+          <td style="width: 4%;"></td>
+          <td style="width: 48%; text-align: center; vertical-align: top; font-size: 0.95rem;">
+            <p style="margin: 0; font-weight: bold;">PIHAK KEDUA</p>
+            <p style="margin: 2px 0 0 0; color: #475569; font-size: 0.85rem;">Anggota / Nasabah Pemohon</p>
+            <div style="height: 5.5rem;"></div>
+            <p style="margin: 0; font-weight: bold; text-decoration: underline;">( ${pihak2Nama} )</p>
+            <p style="margin: 2px 0 0 0; font-size: 0.8rem; color: #64748b;">Penerima Fasilitas Pembiayaan</p>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Baris Saksi-Saksi (Horizontal Rapi) -->
+      <table style="width: 100%; border-collapse: collapse; margin-top: 1.5rem;">
+        <tr>
+          <td colspan="3" style="text-align: center; padding-bottom: 1rem;">
+            <strong style="font-size: 0.9rem; letter-spacing: 0.5px; text-transform: uppercase;">SAKSI - SAKSI:</strong>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 48%; text-align: center; vertical-align: top; font-size: 0.9rem;">
+            <p style="margin: 0; font-weight: 600;">Saksi I</p>
+            <div style="height: 4rem;"></div>
+            <p style="margin: 0; text-decoration: underline;">( ${saksi1Nama} )</p>
+          </td>
+          <td style="width: 4%;"></td>
+          <td style="width: 48%; text-align: center; vertical-align: top; font-size: 0.9rem;">
+            <p style="margin: 0; font-weight: 600;">Saksi II</p>
+            <div style="height: 4rem;"></div>
+            <p style="margin: 0; text-decoration: underline;">( ${saksi2Nama} )</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+  `;
 
   document.getElementById('document-content-area').innerHTML = formattedHtml;
   switchTab('document');

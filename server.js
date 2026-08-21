@@ -116,6 +116,9 @@ Dengan memohon petunjuk dan ridho Allah SWT, akad pembiayaan ${akadData.tipeAkad
    
    Dalam hal ini bertindak untuk dan atas namanya sendiri, selanjutnya disebut sebagai Pihak Kedua.
 
+4. DI AKHIR AKAD SETELAH PASAL PENUTUP, JANGAN membuat daftar tanda tangan vertikal berjejer ke bawah. Cukup akhiri dengan kalimat penutup baku:
+"Demikian akad ini dibuat dan ditandatangani oleh para pihak dalam keadaan sadar, sehat jasmani rohani, serta tanpa adanya paksaan dari pihak manapun."
+
 === DETAIL TRANSAKSI AKAD ===
 Jenis Akad: ${akadData.tipeAkad}
 Objek/Barang/Usaha: ${akadData.namaBarang || akadData.bidangUsaha || '-'} (Spesifikasi: ${akadData.spesifikasi || '-'})
