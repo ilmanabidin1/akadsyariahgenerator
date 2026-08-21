@@ -335,6 +335,12 @@
           </button>
         </li>
         <li class="nav-item">
+          <button id="nav-ai-syariah" onclick="switchTab('ai-syariah')" data-tooltip="AI Syariah (Asisten Fatwa)">
+            <span class="nav-icon">🤖</span>
+            <span class="nav-text">AI Syariah</span>
+          </button>
+        </li>
+        <li class="nav-item">
           <button id="nav-verification" onclick="switchTab('verification')" data-tooltip="Daftar Akad Terbit">
             <span class="nav-icon">🛡️</span>
             <span class="nav-text">Daftar Akad Terbit</span>
@@ -979,6 +985,98 @@
           </div>
         </section>
 
+        <!-- VIEW: AI SYARIAH ASISTEN FATWA & KONSULTASI LENGKAP -->
+        <section id="view-ai-syariah" style="display: none;">
+          <div class="grid-cols-2" style="grid-template-columns: 320px 1fr; gap: 1.5rem;">
+            <!-- Panel Kiri: Topik Fatwa & Quick Prompts -->
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+              <div class="card" style="background: #0f172a; color: white;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                  <span style="font-size: 1.8rem;">⚖️</span>
+                  <div>
+                    <h3 style="margin: 0; font-size: 1.1rem; color: white;">AI Syariah Expert</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #34d399;">● Knowledge Base DSN-MUI Terintegrasi</p>
+                  </div>
+                </div>
+                <p style="font-size: 0.825rem; color: #94a3b8; line-height: 1.5; margin: 0;">
+                  Didukung model AI penalaran fikih muamalah kontemporer untuk membantu Koperasi dan DPS dalam menelaah fatwa, batasan margin, ujrah, denda (ta'widh), dan klausul sengketa.
+                </p>
+              </div>
+
+              <div class="card">
+                <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 0.75rem;">
+                  💡 Pertanyaan Cepat (Quick Topics)
+                </h4>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  <button class="btn btn-outline" style="text-align: left; padding: 0.6rem 0.75rem; font-size: 0.8rem; justify-content: flex-start;" onclick="sendQuickChatPrompt('Apakah koperasi syariah boleh mengenakan denda keterlambatan (ta\'widh) dan bagaimana penyalurannya menurut DSN-MUI?')">
+                    📌 Hukum Denda Ta'widh & Dana Kebajikan
+                  </button>
+                  <button class="btn btn-outline" style="text-align: left; padding: 0.6rem 0.75rem; font-size: 0.8rem; justify-content: flex-start;" onclick="sendQuickChatPrompt('Jelaskan rukun dan syarat sah akad Murabahah bil Wakalah agar terhindar dari Riba dan Ba\'i al-Inah!')">
+                    📌 Rukun Murabahah bil Wakalah
+                  </button>
+                  <button class="btn btn-outline" style="text-align: left; padding: 0.6rem 0.75rem; font-size: 0.8rem; justify-content: flex-start;" onclick="sendQuickChatPrompt('Bagaimana aturan nisbah bagi hasil Mudharabah jika usaha anggota mengalami kerugian non-kelalaian?')">
+                    📌 Risiko Kerugian Usaha Mudharabah
+                  </button>
+                  <button class="btn btn-outline" style="text-align: left; padding: 0.6rem 0.75rem; font-size: 0.8rem; justify-content: flex-start;" onclick="sendQuickChatPrompt('Apa perbedaan mendasar antara akad Ijarah murni dengan Ijarah Muntahiyah Bittamlik (IMBT)?')">
+                    📌 Ketentuan Sewa Beli (IMBT)
+                  </button>
+                </div>
+              </div>
+
+              <div class="card" style="background: #f8fafc; font-size: 0.8rem; color: var(--text-muted);">
+                <strong style="color: var(--primary-dark);">📚 Referensi Hukum:</strong>
+                <ul style="margin: 0.5rem 0 0 1.25rem; line-height: 1.6;">
+                  <li>Fatwa DSN-MUI No. 04 (Murabahah)</li>
+                  <li>Fatwa DSN-MUI No. 07 (Mudharabah)</li>
+                  <li>Fatwa DSN-MUI No. 09 (Ijarah)</li>
+                  <li>Fatwa DSN-MUI No. 19 (Al-Qardh)</li>
+                  <li>Fatwa DSN-MUI No. 43 (Ganti Rugi / Ta'widh)</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Panel Kanan: Full Interface Chat Window -->
+            <div class="card" style="display: flex; flex-direction: column; height: 680px; padding: 0; overflow: hidden; border: 1px solid var(--border-color);">
+              <!-- Chat Room Header -->
+              <div style="background: #f8fafc; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <h3 style="margin: 0; font-size: 1.05rem; color: #0f172a;">Konsultasi & Asisten Fatwa Syariah</h3>
+                  <p style="margin: 2px 0 0 0; font-size: 0.8rem; color: var(--text-muted);">Tanyakan permasalahan legalitas akad, klausula kontrak, dan regulasi OJK / DSN-MUI</p>
+                </div>
+                <button class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;" onclick="clearChatHistory()">
+                  🧹 Bersihkan Percakapan
+                </button>
+              </div>
+
+              <!-- Chat Messages Stream -->
+              <div id="full-chat-messages-container" style="flex: 1; padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; background: #ffffff;">
+                <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                  <div style="width: 36px; height: 36px; border-radius: 50%; background: #0f172a; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">⚖️</div>
+                  <div style="background: #f1f5f9; color: var(--text-main); padding: 1rem 1.25rem; border-radius: 16px; border-top-left-radius: 2px; max-width: 85%; font-size: 0.9rem; line-height: 1.6; border: 1px solid #e2e8f0;">
+                    Assalamu'alaikum Warahmatullahi Wabarakatuh.<br><br>
+                    Saya adalah <strong>Asisten Ahli AI Syariah AKADIFY</strong>. Saya siap membantu Pengurus Koperasi dan Dewan Pengawas Syariah (DPS) untuk:
+                    <ul style="margin: 0.5rem 0 0 1.25rem;">
+                      <li>Konsultasi kesesuaian fatwa DSN-MUI dan Fiqih Muamalah.</li>
+                      <li>Review klausula perlindungan hukum dan mitigasi risiko wanprestasi.</li>
+                      <li>Analisis skema pembiayaan (Murabahah, Mudharabah, Ijarah, Qardh, Syirkah).</li>
+                    </ul>
+                    <br>
+                    Silakan ketik pertanyaan Anda di bawah atau klik topik rekomendasi di sebelah kiri.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Chat Input Bar -->
+              <form onsubmit="handleFullChatSubmit(event)" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid var(--border-color); display: flex; gap: 0.75rem; align-items: center;">
+                <input type="text" id="full-chat-input" placeholder="Ketik pertanyaan fatwa, klausul, atau masalah pembiayaan syariah..." required style="flex: 1; padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 0.9rem; outline: none; background: white;">
+                <button type="submit" id="btn-full-chat-send" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-weight: 700; border-radius: var(--radius-md);">
+                  Kirim Pertanyaan 🚀
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
+
         <!-- VIEW 5: AUDIT TRAIL LOG -->
         <section id="view-audit" style="display: none;">
           <div class="card">
@@ -994,47 +1092,6 @@
 
       </div>
     </main>
-  </div>
-
-  <!-- FLOATING AI SHARIA CO-PILOT / KONSULTAN WIDGET -->
-  <div id="floating-ai-widget-container" style="display: none; position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;">
-    <!-- Toggle Floating Button -->
-    <button id="floating-ai-btn" onclick="toggleFloatingAiChat()" style="display: flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none; padding: 0.85rem 1.35rem; border-radius: 50px; font-size: 0.95rem; font-weight: 700; box-shadow: 0 10px 25px -5px rgba(4, 120, 87, 0.4); cursor: pointer; transition: all 0.3s ease;">
-      <span style="font-size: 1.25rem;">💬</span>
-      <span>Tanya Asisten Fatwa AI</span>
-    </button>
-
-    <!-- Floating Chat Window -->
-    <div id="floating-ai-window" style="display: none; width: 380px; height: 520px; background: white; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 1px solid var(--border-color); flex-direction: column; overflow: hidden; position: absolute; bottom: 4.5rem; right: 0;">
-      <!-- Chat Header -->
-      <div style="background: #0f172a; color: white; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 0.6rem;">
-          <span style="font-size: 1.3rem;">⚖️</span>
-          <div>
-            <h4 style="margin: 0; font-size: 0.95rem;">Asisten Fatwa DSN-MUI</h4>
-            <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #34d399;">● Online & Siap Membantu</p>
-          </div>
-        </div>
-        <button onclick="toggleFloatingAiChat()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer;">&times;</button>
-      </div>
-
-      <!-- Chat Messages Container -->
-      <div id="chat-messages-container" style="flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; background: #f8fafc; font-size: 0.875rem;">
-        <div style="display: flex; gap: 0.5rem; align-items: flex-start;">
-          <div style="background: var(--primary-subtle); color: var(--primary-dark); padding: 0.75rem 1rem; border-radius: 12px; border-bottom-left-radius: 2px; max-width: 88%; line-height: 1.5;">
-            Assalamu'alaikum! Saya asisten hukum syariah <strong>AKADIFY</strong>. Ada fatwa DSN-MUI, klausul akad, atau perhitungan syariah yang ingin Anda tanyakan?
-          </div>
-        </div>
-      </div>
-
-      <!-- Chat Input Area -->
-      <form onsubmit="handleChatSubmit(event)" style="padding: 0.75rem; background: white; border-top: 1px solid var(--border-color); display: flex; gap: 0.5rem;">
-        <input type="text" id="chat-user-input" placeholder="Tanya fatwa atau hukum akad..." style="flex: 1; padding: 0.6rem 0.85rem; border: 1px solid var(--border-color); border-radius: 20px; font-size: 0.85rem; outline: none;">
-        <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 700;">
-          Kirim
-        </button>
-      </form>
-    </div>
   </div>
 
   <!-- MODAL RINGKAS TENTANG KAMI & SYARAT KETENTUAN -->

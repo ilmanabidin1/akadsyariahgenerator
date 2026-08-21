@@ -368,7 +368,7 @@ async function syncContractToBackend(contract) {
 
 // Tab Switcher
 function switchTab(tabId) {
-  const tabs = ['dashboard', 'generator', 'document', 'calculator', 'verification', 'audit'];
+  const tabs = ['dashboard', 'generator', 'document', 'calculator', 'ai-syariah', 'verification', 'audit'];
   tabs.forEach(t => {
     const viewEl = document.getElementById(`view-${t}`);
     const navEl = document.getElementById(`nav-${t}`);
@@ -384,6 +384,7 @@ function switchTab(tabId) {
     'generator': 'Form Penyusunan Akad Syariah Dinamis',
     'document': 'Pratinjau & Cetak Dokumen Akad Syariah',
     'calculator': 'Simulasi Finansial & Kalkulator Syariah',
+    'ai-syariah': 'AI Syariah - Konsultasi & Asisten Fatwa DSN-MUI',
     'verification': 'Daftar Dokumen Akad Terbit',
     'audit': 'Audit Trail & Log Status System'
   };
@@ -1212,42 +1213,57 @@ function addAuditLog(message) {
 }
 
 // ==========================================
-// FLOATING AI CO-PILOT & CHATBOT LOGIC
+// FULL-PAGE AI SYARIAH ASISTEN FATWA LOGIC
 // ==========================================
 
 let chatHistory = [];
 
-function toggleFloatingAiChat() {
-  const windowEl = document.getElementById('floating-ai-window');
-  const btnEl = document.getElementById('floating-ai-btn');
-  if (!windowEl) return;
-
-  if (windowEl.style.display === 'none' || windowEl.style.display === '') {
-    windowEl.style.display = 'flex';
-    if (btnEl) btnEl.style.display = 'none';
-    const inputEl = document.getElementById('chat-user-input');
-    if (inputEl) inputEl.focus();
-  } else {
-    windowEl.style.display = 'none';
-    if (btnEl) btnEl.style.display = 'flex';
+function sendQuickChatPrompt(promptText) {
+  const inputEl = document.getElementById('full-chat-input');
+  if (inputEl) {
+    inputEl.value = promptText;
+    const form = inputEl.closest('form');
+    if (form) {
+      form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    }
   }
 }
 
-async function handleChatSubmit(e) {
+function clearChatHistory() {
+  chatHistory = [];
+  const container = document.getElementById('full-chat-messages-container');
+  if (container) {
+    container.innerHTML = `
+      <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+        <div style="width: 36px; height: 36px; border-radius: 50%; background: #0f172a; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">⚖️</div>
+        <div style="background: #f1f5f9; color: var(--text-main); padding: 1rem 1.25rem; border-radius: 16px; border-top-left-radius: 2px; max-width: 85%; font-size: 0.9rem; line-height: 1.6; border: 1px solid #e2e8f0;">
+          Percakapan telah dibersihkan. Silakan ajukan pertanyaan fatwa atau klausul akad baru Anda.
+        </div>
+      </div>
+    `;
+  }
+}
+
+async function handleFullChatSubmit(e) {
   e.preventDefault();
-  const inputEl = document.getElementById('chat-user-input');
+  const inputEl = document.getElementById('full-chat-input');
+  const btnSubmit = document.getElementById('btn-full-chat-send');
   const userMessage = inputEl ? inputEl.value.trim() : '';
   if (!userMessage) return;
 
   // Render User Message
-  appendChatMessage('user', userMessage);
+  appendFullChatMessage('user', userMessage);
   inputEl.value = '';
 
   // Save to history
   chatHistory.push({ role: 'user', content: userMessage });
 
   // Show typing indicator
-  const typingId = appendChatTyping();
+  const typingId = appendFullChatTyping();
+  if (btnSubmit) {
+    btnSubmit.disabled = true;
+    btnSubmit.innerText = 'Menganalisis...';
+  }
 
   try {
     const response = await fetch('/api/chat-syariah', {
@@ -1256,34 +1272,41 @@ async function handleChatSubmit(e) {
       body: JSON.stringify({ messages: chatHistory })
     });
 
-    removeChatTyping(typingId);
+    removeFullChatTyping(typingId);
 
     if (response.ok) {
       const data = await response.json();
       const botReply = data.reply;
       chatHistory.push({ role: 'assistant', content: botReply });
-      appendChatMessage('assistant', botReply);
+      appendFullChatMessage('assistant', botReply);
     } else {
       const errData = await response.json().catch(() => ({ error: 'Error' }));
-      appendChatMessage('assistant', `⚠️ Maaf, terjadi kesalahan: ${errData.error || 'Gagal terhubung ke AI Service'}`);
+      appendFullChatMessage('assistant', `⚠️ Maaf, terjadi kendala: ${errData.error || 'Gagal terhubung ke AI Service'}`);
     }
   } catch (err) {
     console.error("Chat error:", err);
-    removeChatTyping(typingId);
-    appendChatMessage('assistant', '⚠️ Terjadi kendala koneksi ke server AI.');
+    removeFullChatTyping(typingId);
+    appendFullChatMessage('assistant', '⚠️ Terjadi kendala koneksi ke server AI Syariah.');
+  } finally {
+    if (btnSubmit) {
+      btnSubmit.disabled = false;
+      btnSubmit.innerText = 'Kirim Pertanyaan 🚀';
+    }
   }
 }
 
-function appendChatMessage(role, text) {
-  const container = document.getElementById('chat-messages-container');
+function appendFullChatMessage(role, text) {
+  const container = document.getElementById('full-chat-messages-container');
   if (!container) return;
 
   const isUser = role === 'user';
   const avatar = isUser ? '👤' : '⚖️';
-  const bgStyle = isUser ? 'background: var(--primary-subtle); color: var(--primary-dark); border-radius: 12px 0 12px 12px;' : 'background: white; border: 1px solid var(--border-color); border-radius: 0 12px 12px 12px;';
+  const bgStyle = isUser 
+    ? 'background: var(--primary-subtle); color: var(--primary-dark); border-radius: 16px 0 16px 16px; border: 1px solid rgba(4, 120, 87, 0.2);' 
+    : 'background: #ffffff; border: 1px solid #e2e8f0; color: #0f172a; border-radius: 0 16px 16px 16px; box-shadow: var(--shadow-sm);';
   const alignSelf = isUser ? 'flex-direction: row-reverse;' : 'flex-direction: row;';
 
-  // Clean any markdown symbols (*, **, ###, ---, etc.)
+  // Format text & Markdown
   let cleanText = text;
   cleanText = cleanText.replace(/###\s*/g, '');
   cleanText = cleanText.replace(/##\s*/g, '');
@@ -1296,9 +1319,9 @@ function appendChatMessage(role, text) {
   let formattedText = cleanText.replace(/\n/g, '<br>');
 
   const html = `
-    <div style="display: flex; gap: 0.5rem; align-items: flex-start; ${alignSelf}">
-      <div style="width: 32px; height: 32px; border-radius: 50%; background: ${isUser ? 'var(--primary)' : 'var(--primary-dark)'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;">${avatar}</div>
-      <div style="${bgStyle} padding: 0.65rem 0.85rem; max-width: 82%; box-shadow: var(--shadow-sm); font-size: 0.85rem; line-height: 1.5;">
+    <div style="display: flex; gap: 0.75rem; align-items: flex-start; ${alignSelf}">
+      <div style="width: 36px; height: 36px; border-radius: 50%; background: ${isUser ? 'var(--primary)' : '#0f172a'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;">${avatar}</div>
+      <div style="${bgStyle} padding: 1rem 1.25rem; max-width: 82%; font-size: 0.9rem; line-height: 1.6;">
         ${formattedText}
       </div>
     </div>
@@ -1308,14 +1331,14 @@ function appendChatMessage(role, text) {
   container.scrollTop = container.scrollHeight;
 }
 
-function appendChatTyping() {
-  const container = document.getElementById('chat-messages-container');
+function appendFullChatTyping() {
+  const container = document.getElementById('full-chat-messages-container');
   const typingId = 'typing-' + Date.now();
   const html = `
-    <div id="${typingId}" style="display: flex; gap: 0.5rem; align-items: flex-start;">
-      <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary-dark); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;">⚖️</div>
-      <div style="background: white; border: 1px solid var(--border-color); padding: 0.65rem 0.85rem; border-radius: 0 12px 12px 12px; max-width: 82%; font-size: 0.8rem; color: var(--text-muted);">
-        <em>Asisten sedang mengkaji fatwa... ⏳</em>
+    <div id="${typingId}" style="display: flex; gap: 0.75rem; align-items: flex-start;">
+      <div style="width: 36px; height: 36px; border-radius: 50%; background: #0f172a; color: white; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;">⚖️</div>
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.85rem 1.15rem; border-radius: 0 16px 16px 16px; max-width: 82%; font-size: 0.85rem; color: var(--text-muted);">
+        <em>Asisten AI sedang menelaah Fatwa DSN-MUI... ⏳</em>
       </div>
     </div>
   `;
@@ -1324,7 +1347,7 @@ function appendChatTyping() {
   return typingId;
 }
 
-function removeChatTyping(id) {
+function removeFullChatTyping(id) {
   const el = document.getElementById(id);
   if (el) el.remove();
 }
