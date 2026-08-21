@@ -329,6 +329,87 @@ app.post('/api/auth/register', (req, res) => {
   });
 });
 
+// API Endpoint untuk mengambil pengaturan White-Label Koperasi
+app.get('/api/institution/settings', (req, res) => {
+  const { userId } = req.query;
+  if (!userId) {
+    return res.status(400).json({ error: 'User ID diperlukan.' });
+  }
+
+  // Jika akun Demo, sediakan data default yang dapat dimodifikasi
+  if (userId === 'USR-SUPERADMIN-DEMO' || userId === 'demo') {
+    const users = loadUsers();
+    const demoUser = users.find(u => u.id === 'USR-SUPERADMIN-DEMO' || u.username === 'demo');
+    return res.json({
+      settings: demoUser?.whiteLabel || {
+        institutionName: 'KSPPS BMT BINA UMMAH SEJAHTERA',
+        institutionTagline: 'Badan Hukum No. AHU-0012345.AH.01.26.TAHUN 2024',
+        institutionAddress: 'Jl. Raya Pajajaran No. 45, Bandung, Jawa Barat | Telp: (022) 7654321',
+        institutionEmail: 'kontak@bmtbinaummah.co.id',
+        headerLogoUrl: 'logo_transparent.png',
+        primaryColor: '#047857'
+      }
+    });
+  }
+
+  const users = loadUsers();
+  const user = users.find(u => u.id === userId || u.username === userId);
+  if (!user) {
+    return res.status(404).json({ error: 'Pengguna tidak ditemukan.' });
+  }
+
+  res.json({
+    settings: user.whiteLabel || {
+      institutionName: user.institutionName || 'Koperasi Simpan Pinjam dan Pembiayaan Syariah',
+      institutionTagline: user.legalNumber ? `Badan Hukum No. ${user.legalNumber}` : 'Platform Penyusunan Akad Syariah Resmi',
+      institutionAddress: '',
+      institutionEmail: user.email || '',
+      headerLogoUrl: '',
+      primaryColor: '#047857'
+    }
+  });
+});
+
+// API Endpoint untuk menyimpan pengaturan White-Label Koperasi
+app.post('/api/institution/settings', (req, res) => {
+  const { userId, whiteLabel } = req.body;
+  if (!userId || !whiteLabel) {
+    return res.status(400).json({ error: 'Data pengaturan tidak lengkap.' });
+  }
+
+  const users = loadUsers();
+  let userIndex = users.findIndex(u => u.id === userId || u.username === userId);
+
+  // Jika user demo belum ada di users.json, buat entri-nya
+  if (userIndex === -1 && (userId === 'USR-SUPERADMIN-DEMO' || userId === 'demo')) {
+    const demoObj = {
+      id: 'USR-SUPERADMIN-DEMO',
+      username: 'demo',
+      userType: 'SUPERADMIN',
+      institutionName: whiteLabel.institutionName || 'AKADIFY Pusat',
+      whiteLabel: whiteLabel,
+      createdAt: new Date().toISOString()
+    };
+    users.unshift(demoObj);
+    userIndex = 0;
+  }
+
+  if (userIndex === -1) {
+    return res.status(404).json({ error: 'Pengguna tidak ditemukan.' });
+  }
+
+  users[userIndex].whiteLabel = whiteLabel;
+  if (whiteLabel.institutionName) {
+    users[userIndex].institutionName = whiteLabel.institutionName;
+  }
+  if (whiteLabel.institutionTagline) {
+    users[userIndex].legalNumber = whiteLabel.institutionTagline;
+  }
+
+  saveUsers(users);
+  res.json({ success: true, message: 'Pengaturan White-Label berhasil disimpan!', whiteLabel });
+});
+
 // API Endpoint Login Nyata
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;

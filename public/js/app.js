@@ -368,7 +368,7 @@ async function syncContractToBackend(contract) {
 
 // Tab Switcher
 function switchTab(tabId) {
-  const tabs = ['dashboard', 'generator', 'document', 'calculator', 'ai-syariah', 'verification', 'audit'];
+  const tabs = ['dashboard', 'generator', 'document', 'calculator', 'ai-syariah', 'verification', 'settings', 'audit'];
   tabs.forEach(t => {
     const viewEl = document.getElementById(`view-${t}`);
     const navEl = document.getElementById(`nav-${t}`);
@@ -386,9 +386,14 @@ function switchTab(tabId) {
     'calculator': 'Simulasi Finansial & Kalkulator Syariah',
     'ai-syariah': 'AI Syariah - Konsultasi & Asisten Fatwa DSN-MUI',
     'verification': 'Daftar Dokumen Akad Terbit',
+    'settings': 'Pengaturan Kop Surat & Identitas Koperasi (White-Label)',
     'audit': 'Audit Trail & Log Status System'
   };
   document.getElementById('page-title').innerText = titles[tabId] || 'Akad Syariah System';
+
+  if (tabId === 'settings') {
+    loadWhiteLabelSettings();
+  }
 }
 
 // Modal Footer Handler for About & Terms
@@ -1171,11 +1176,25 @@ function exportToWordDocx() {
   const safeName = pihakKeduaNama.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_');
   const fileName = `Dokumen_Akad_${currentAkadType}_${safeName}.doc`;
 
+  // Ambil data White Label terkini
+  const wl = currentWhiteLabelSettings || {
+    institutionName: 'KSPPS BMT BINA UMMAH SEJAHTERA',
+    institutionTagline: 'Badan Hukum No. AHU-0012345.AH.01.26.TAHUN 2024',
+    institutionAddress: 'Jl. Raya Pajajaran No. 45, Bandung | Telp: (022) 7654321',
+    institutionEmail: 'kontak@bmtbinaummah.co.id'
+  };
+
   const headerHtml = `
-    <div style="text-align:center; border-bottom: 2px solid #000000; padding-bottom: 10px; margin-bottom: 20px;">
-      <h2 style="margin:0; text-transform:uppercase; font-family: Arial, sans-serif; font-size: 16pt;">AKADIFY - AKAD SYARIAH DIGITAL</h2>
-      <p style="margin:5px 0 0 0; font-size: 10pt; font-family: Arial, sans-serif;">Platform AI Pengembangan & Legalitas Akad Syariah Otomatis</p>
-    </div>
+    <table style="width: 100%; border-collapse: collapse; border-bottom: 3px double #000000; padding-bottom: 12px; margin-bottom: 25px;">
+      <tr>
+        <td style="text-align: center; vertical-align: middle;">
+          <h2 style="margin: 0; text-transform: uppercase; font-family: 'Times New Roman', serif; font-size: 15pt; font-weight: bold; letter-spacing: 0.5px;">${wl.institutionName || 'KOPERASI SIMPAN PINJAM DAN PEMBIAYAAN SYARIAH'}</h2>
+          <p style="margin: 3px 0 0 0; font-size: 9.5pt; font-family: Arial, sans-serif; font-weight: bold; color: #333333;">${wl.institutionTagline || 'Badan Hukum Koperasi Syariah'}</p>
+          <p style="margin: 2px 0 0 0; font-size: 9pt; font-family: Arial, sans-serif; color: #555555;">${wl.institutionAddress || ''}</p>
+          <p style="margin: 1px 0 0 0; font-size: 8.5pt; font-family: Arial, sans-serif; color: #047857;">${wl.institutionEmail || ''}</p>
+        </td>
+      </tr>
+    </table>
   `;
 
   const footerHtml = `
@@ -1761,11 +1780,157 @@ function applyCalcToAkadGenerator() {
   alert(`✅ Parameter finansial berhasil diterapkan ke Form Akad ${type}! Silakan lengkapi identitas para pihak.`);
 }
 
-// Print Amortization Table
-function printAmortizationTable() {
-  if (currentAmortizationSchedule.length === 0) {
-    alert("Silakan hitung simulasi finansial terlebih dahulu sebelum mencetak jadwal.");
+// ==========================================
+// WHITE-LABEL & KOP SURAT KOPERASI CONTROLLER
+// ==========================================
+
+let currentWhiteLabelSettings = null;
+
+// Fetch White-Label Settings from Backend
+async function loadWhiteLabelSettings() {
+  const userJson = localStorage.getItem('akadify_logged_user');
+  if (!userJson) return;
+
+  let userId = 'USR-SUPERADMIN-DEMO';
+  try {
+    const userObj = JSON.parse(userJson);
+    userId = userObj.id || userObj.username;
+  } catch (e) {
+    userId = userJson;
+  }
+
+  try {
+    const res = await fetch(`/api/institution/settings?userId=${encodeURIComponent(userId)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.settings) {
+        currentWhiteLabelSettings = data.settings;
+        populateWhiteLabelForm(data.settings);
+        applyWhiteLabelToUI(data.settings);
+      }
+    }
+  } catch (err) {
+    console.error("Gagal memuat pengaturan white-label:", err);
+  }
+}
+
+// Populate input form with loaded settings
+function populateWhiteLabelForm(settings) {
+  if (document.getElementById('wl-inst-name')) document.getElementById('wl-inst-name').value = settings.institutionName || '';
+  if (document.getElementById('wl-inst-tagline')) document.getElementById('wl-inst-tagline').value = settings.institutionTagline || '';
+  if (document.getElementById('wl-inst-address')) document.getElementById('wl-inst-address').value = settings.institutionAddress || '';
+  if (document.getElementById('wl-inst-email')) document.getElementById('wl-inst-email').value = settings.institutionEmail || '';
+  if (document.getElementById('wl-inst-logo')) document.getElementById('wl-inst-logo').value = settings.headerLogoUrl || '';
+  
+  updateLiveKopPreview();
+}
+
+// Handle Logo File Upload (Base64 Data URI)
+function handleLogoFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (file.size > 2 * 1024 * 1024) {
+    alert("⚠️ Ukuran file maksimal 2 MB.");
     return;
   }
-  window.print();
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const base64Url = e.target.result;
+    const logoInput = document.getElementById('wl-inst-logo');
+    if (logoInput) logoInput.value = base64Url;
+    updateLiveKopPreview();
+  };
+  reader.readAsDataURL(file);
 }
+
+// Live Update Kop Surat Preview on Input
+function updateLiveKopPreview() {
+  const name = document.getElementById('wl-inst-name')?.value || 'NAMA LEMBAGA KOPERASI SYARIAH';
+  const tagline = document.getElementById('wl-inst-tagline')?.value || 'Nomor Badan Hukum / SK AHU Kemenkumham';
+  const address = document.getElementById('wl-inst-address')?.value || 'Alamat Kantor & Kontak Telepon';
+  const email = document.getElementById('wl-inst-email')?.value || 'email@koperasi.id';
+  const logo = document.getElementById('wl-inst-logo')?.value || 'logo_transparent.png';
+
+  // Update Mockup di Form Settings
+  if (document.getElementById('live-kop-title')) document.getElementById('live-kop-title').innerText = name;
+  if (document.getElementById('live-kop-tagline')) document.getElementById('live-kop-tagline').innerText = tagline;
+  if (document.getElementById('live-kop-address')) document.getElementById('live-kop-address').innerText = address;
+  if (document.getElementById('live-kop-email')) document.getElementById('live-kop-email').innerText = email;
+  if (document.getElementById('live-kop-logo')) document.getElementById('live-kop-logo').src = logo;
+}
+
+// Apply White-Label Settings to Document View & App UI
+function applyWhiteLabelToUI(settings) {
+  if (!settings) return;
+
+  // Update Kop Surat Dokumen Pratinjau
+  if (document.getElementById('doc-kop-title')) document.getElementById('doc-kop-title').innerText = settings.institutionName || 'KOPERASI SYARIAH';
+  if (document.getElementById('doc-kop-tagline')) document.getElementById('doc-kop-tagline').innerText = settings.institutionTagline || '';
+  if (document.getElementById('doc-kop-address')) document.getElementById('doc-kop-address').innerText = settings.institutionAddress || '';
+  if (document.getElementById('doc-kop-email')) document.getElementById('doc-kop-email').innerText = settings.institutionEmail || '';
+  if (document.getElementById('doc-kop-logo') && settings.headerLogoUrl) {
+    document.getElementById('doc-kop-logo').src = settings.headerLogoUrl;
+  }
+}
+
+// Save White-Label Settings to Backend
+async function handleSaveWhiteLabel(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btn-save-wl');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = 'Menyimpan Pengaturan...';
+  }
+
+  const userJson = localStorage.getItem('akadify_logged_user');
+  let userId = 'USR-SUPERADMIN-DEMO';
+  if (userJson) {
+    try {
+      const userObj = JSON.parse(userJson);
+      userId = userObj.id || userObj.username;
+    } catch (err) {
+      userId = userJson;
+    }
+  }
+
+  const whiteLabel = {
+    institutionName: document.getElementById('wl-inst-name')?.value.trim() || '',
+    institutionTagline: document.getElementById('wl-inst-tagline')?.value.trim() || '',
+    institutionAddress: document.getElementById('wl-inst-address')?.value.trim() || '',
+    institutionEmail: document.getElementById('wl-inst-email')?.value.trim() || '',
+    headerLogoUrl: document.getElementById('wl-inst-logo')?.value.trim() || 'logo_transparent.png'
+  };
+
+  try {
+    const res = await fetch('/api/institution/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, whiteLabel })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      currentWhiteLabelSettings = whiteLabel;
+      applyWhiteLabelToUI(whiteLabel);
+      addAuditLog(`White-Label Updated: Kop surat disesuaikan untuk ${whiteLabel.institutionName}`);
+      alert("✅ Pengaturan Kop Surat & White-Label Koperasi berhasil disimpan dan disematkan ke seluruh dokumen akad!");
+    } else {
+      alert("⚠️ Gagal menyimpan pengaturan ke server.");
+    }
+  } catch (err) {
+    console.error("Gagal menyimpan white-label:", err);
+    alert("⚠️ Gagal terhubung ke server backend.");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = '💾 Simpan Pengaturan White-Label';
+    }
+  }
+}
+
+// Initial load on App start
+document.addEventListener("DOMContentLoaded", () => {
+  loadWhiteLabelSettings();
+});
