@@ -289,5 +289,5 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server Akad Syariah (AKADIN) berjalan di port ${PORT}. Knowledge Base berisi ${Object.keys(knowledgeBaseTexts).length} fatwa/template DSN-MUI.`);
+  console.log(`Server Akad Syariah (AKADIFY) berjalan di port ${PORT}. Knowledge Base berisi ${Object.keys(knowledgeBaseTexts).length} fatwa/template DSN-MUI.`);
 });

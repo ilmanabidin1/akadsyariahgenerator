@@ -32,7 +32,7 @@ function toggleSidebarFold() {
   const isCollapsed = sidebar.classList.contains('collapsed');
   
   // Save user preference
-  localStorage.setItem('akadin_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+  localStorage.setItem('akadify_sidebar_collapsed', isCollapsed ? 'true' : 'false');
   
   // Update toggle button title
   const btn = document.getElementById('sidebar-toggle-btn');
@@ -43,7 +43,7 @@ function toggleSidebarFold() {
 
 // Restore Sidebar Fold State from localStorage
 function initSidebarFoldState() {
-  const isCollapsed = localStorage.getItem('akadin_sidebar_collapsed') === 'true';
+  const isCollapsed = localStorage.getItem('akadify_sidebar_collapsed') === 'true';
   const sidebar = document.getElementById('app-sidebar');
   const btn = document.getElementById('sidebar-toggle-btn');
   
@@ -114,7 +114,7 @@ function toggleFooterModal(type) {
     body.innerHTML = `
       <div style="border-bottom: 2px solid var(--primary-light); padding-bottom: 0.75rem; margin-bottom: 1rem;">
         <span class="badge" style="background: var(--primary-subtle); color: var(--primary-dark); margin-bottom: 0.25rem;">Riset Terapan PDUPT</span>
-        <h3 style="color: var(--primary-dark); font-size: 1.25rem; margin: 0.25rem 0;">Tentang AKADIN & Tim Peneliti</h3>
+        <h3 style="color: var(--primary-dark); font-size: 1.25rem; margin: 0.25rem 0;">Tentang AKADIFY & Tim Peneliti</h3>
       </div>
       
       <div style="margin-bottom: 1rem; background: var(--primary-subtle); padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--primary-light);">
@@ -135,19 +135,19 @@ function toggleFooterModal(type) {
       </div>
 
       <div style="font-size: 0.85rem; line-height: 1.6; text-align: justify; color: var(--text-main); background: #f8fafc; padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-        <strong>Urgensi & Kebaruan Riset:</strong> AKADIN mengintegrasikan logika fikih muamalah, fatwa DSN-MUI, dan regulasi OJK secara otomatis berbasis Artificial Intelligence & Rule Engine untuk memitigasi risiko kesalahan redaksional (compliance risk) serta memberikan kepastian hukum akad syariah digital.
+        <strong>Urgensi & Kebaruan Riset:</strong> AKADIFY mengintegrasikan logika fikih muamalah, fatwa DSN-MUI, dan regulasi OJK secara otomatis berbasis Artificial Intelligence & Rule Engine untuk memitigasi risiko kesalahan redaksional (compliance risk) serta memberikan kepastian hukum akad syariah digital.
       </div>
     `;
   } else if (type === 'terms') {
     body.innerHTML = `
       <div style="border-bottom: 2px solid var(--primary-light); padding-bottom: 0.75rem; margin-bottom: 1rem;">
         <h3 style="color: var(--primary-dark); font-size: 1.25rem; margin: 0;">Syarat & Ketentuan Penggunaan (Terms & Conditions)</h3>
-        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Ketentuan Hukum & Kepatuhan Syariah Platform AKADIN</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Ketentuan Hukum & Kepatuhan Syariah Platform AKADIFY</p>
       </div>
 
       <div style="font-size: 0.85rem; line-height: 1.6; color: var(--text-main);">
         <h4 style="color: var(--primary-dark); margin-top: 0.75rem; margin-bottom: 0.2rem;">1. Kepatuhan Fatwa DSN-MUI</h4>
-        <p style="margin-bottom: 0.75rem;">Setiap dokumen akad yang disusun melalui platform AKADIN wajib memenuhi rukun akad (Subjek, Objek, Ijab Qabul) dan syarat sah akad (Bebas Riba, Gharar, Maysir) sesuai Fatwa DSN-MUI.</p>
+        <p style="margin-bottom: 0.75rem;">Setiap dokumen akad yang disusun melalui platform AKADIFY wajib memenuhi rukun akad (Subjek, Objek, Ijab Qabul) dan syarat sah akad (Bebas Riba, Gharar, Maysir) sesuai Fatwa DSN-MUI.</p>
 
         <h4 style="color: var(--primary-dark); margin-top: 0.75rem; margin-bottom: 0.2rem;">2. Tanggung Jawab Data Input</h4>
         <p style="margin-bottom: 0.75rem;">Pengguna (Legal Officer/Admin Koperasi/Pengurus) bertanggung jawab penuh atas kebenaran identitas para pihak, barang, rincian finansial, dan saksi yang diisikan ke form.</p>
@@ -517,7 +517,7 @@ function renderValidationPanel(result) {
   checklistContainer.innerHTML = html;
 }
 
-// Submit Form - Generate Redaksi Akad via Akadin AI Server
+// Submit Form - Generate Redaksi Akad via Akadify AI Server
 async function handleFormSubmit(e) {
   e.preventDefault();
   const formData = getFormData();
@@ -529,7 +529,7 @@ async function handleFormSubmit(e) {
   const progressPercentText = document.getElementById('progress-percent-text');
 
   btnSubmit.disabled = true;
-  btnSubmit.innerHTML = "⏳ Menghubungi Server Akadin AI...";
+  btnSubmit.innerHTML = "⏳ Menghubungi Server Akadify AI...";
   
   // Reset and show progress bar
   progressContainer.style.display = "block";
@@ -537,7 +537,7 @@ async function handleFormSubmit(e) {
   progressPercentText.innerText = "5%";
   progressStatusText.innerText = "⏳ Memvalidasi parameter transaksi...";
 
-  // Simulated progressive updates with Akadin AI branding
+  // Simulated progressive updates with Akadify AI branding
   let currentProgress = 5;
   const progressInterval = setInterval(() => {
     if (currentProgress < 30) {
@@ -545,7 +545,7 @@ async function handleFormSubmit(e) {
       progressStatusText.innerText = "🔍 Memverifikasi kepatuhan Rukun & Fatwa DSN-MUI...";
     } else if (currentProgress < 75) {
       currentProgress += 3;
-      progressStatusText.innerText = "🤖 Akadin AI sedang menyusun klausul & rincian finansial...";
+      progressStatusText.innerText = "🤖 Akadify AI sedang menyusun klausul & rincian finansial...";
     } else if (currentProgress < 92) {
       currentProgress += 1;
       progressStatusText.innerText = "✍️ Memformat draft akad notaris & merapikan redaksi...";
@@ -608,7 +608,7 @@ function viewGeneratedDocument() {
   // Set QR Code Hash & Image
   const activeId = createdContracts.length > 0 ? createdContracts[0].id : 'AKD-VERIFIED';
   document.getElementById('doc-qr-hash').innerText = `Hash: ${activeId}`;
-  document.getElementById('doc-qr-code').src = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=AKADIN-VERIFIED-${activeId}`;
+  document.getElementById('doc-qr-code').src = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=AKADIFY-VERIFIED-${activeId}`;
 
   // Format text into clean paragraphs & headings HTML
   let cleanText = currentDraftText;
@@ -664,7 +664,7 @@ function exportToWordDocx() {
 
   const headerHtml = `
     <div style="text-align:center; border-bottom: 2px solid #000000; padding-bottom: 10px; margin-bottom: 20px;">
-      <h2 style="margin:0; text-transform:uppercase; font-family: Arial, sans-serif; font-size: 16pt;">AKADIN - AKAD SYARIAH DIGITAL</h2>
+      <h2 style="margin:0; text-transform:uppercase; font-family: Arial, sans-serif; font-size: 16pt;">AKADIFY - AKAD SYARIAH DIGITAL</h2>
       <p style="margin:5px 0 0 0; font-size: 10pt; font-family: Arial, sans-serif;">Platform AI Pengembangan & Legalitas Akad Syariah Otomatis</p>
     </div>
   `;

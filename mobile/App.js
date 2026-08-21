@@ -23,7 +23,7 @@ export default function App() {
 
   // Form State
   const [tipeAkad, setTipeAkad] = useState('Murabahah');
-  const [pihakPertama, setPihakPertama] = useState('AKADIN Syariah');
+  const [pihakPertama, setPihakPertama] = useState('AKADIFY Syariah');
   const [pihakKedua, setPihakKedua] = useState('');
   const [namaBarang, setNamaBarang] = useState('');
   const [hargaBeli, setHargaBeli] = useState('');
@@ -38,7 +38,7 @@ export default function App() {
   // Chatbot State
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState([
-    { role: 'assistant', content: 'Assalamu\'alaikum wr. wb. Saya adalah AI Konsultan & Pengawas Syariah AKADIN. Ada yang bisa saya bantu terkait fiqh muamalah atau fatwa DSN-MUI?' }
+    { role: 'assistant', content: 'Assalamu\'alaikum wr. wb. Saya adalah AI Konsultan & Pengawas Syariah AKADIFY. Ada yang bisa saya bantu terkait fiqh muamalah atau fatwa DSN-MUI?' }
   ]);
   const [chatLoading, setChatLoading] = useState(false);
 
@@ -113,7 +113,7 @@ export default function App() {
         Alert.alert('Error', 'Gagal menyusun akad dari server AI.');
       }
     } catch (e) {
-      Alert.alert('Error', 'Kendala jaringan ke Backend AKADIN Server.');
+      Alert.alert('Error', 'Kendala jaringan ke Backend AKADIFY Server.');
     } finally {
       setGenerating(false);
     }
@@ -164,7 +164,7 @@ export default function App() {
     if (!currentContractText) return;
     try {
       await Share.share({
-        message: `DOKUMEN AKAD SYARIAH - AKADIN\n\n${currentContractText}`
+        message: `DOKUMEN AKAD SYARIAH - AKADIFY\n\n${currentContractText}`
       });
     } catch (e) {
       console.log(e);
@@ -177,7 +177,7 @@ export default function App() {
       
       {/* Top Header Mobile */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>AKADIN MOBILE</Text>
+        <Text style={styles.headerTitle}>AKADIFY MOBILE</Text>
         <Text style={styles.headerSubtitle}>Smart Sharia Contract & Advisory</Text>
       </View>
 
@@ -255,7 +255,7 @@ export default function App() {
             </TouchableOpacity>
 
             <View style={styles.paper}>
-              <Text style={styles.paperHeader}>AKADIN - AKAD SYARIAH DIGITAL</Text>
+              <Text style={styles.paperHeader}>AKADIFY - AKAD SYARIAH DIGITAL</Text>
               <Text style={styles.paperBody}>{currentContractText || 'Belum ada dokumen yang dipilih.'}</Text>
             </View>
           </View>
