@@ -284,6 +284,21 @@ app.post('/api/contracts', (req, res) => {
   res.json({ success: true, contracts });
 });
 
+// API Endpoint untuk menghapus data akad
+app.delete('/api/contracts/:id', (req, res) => {
+  const { id } = req.params;
+  let contracts = loadContracts();
+  const initialLength = contracts.length;
+  contracts = contracts.filter(c => c.id !== id);
+
+  if (contracts.length === initialLength) {
+    return res.status(404).json({ error: 'Dokumen akad tidak ditemukan.' });
+  }
+
+  saveContracts(contracts);
+  res.json({ success: true, message: `Akad ${id} berhasil dihapus.`, contracts });
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

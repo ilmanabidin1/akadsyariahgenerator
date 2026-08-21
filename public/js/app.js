@@ -876,7 +876,10 @@ function renderVerificationTable(contractsList) {
         <td>${c.date}</td>
         <td><span class="badge badge-success">${c.score}% Valid</span></td>
         <td>
-          <button class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="viewContractById('${c.id}')">Review & Approve</button>
+          <div style="display: flex; gap: 0.4rem; align-items: center;">
+            <button class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="viewContractById('${c.id}')">📄 Review</button>
+            <button class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-color: var(--danger); color: var(--danger);" onclick="deleteContractById('${c.id}')" title="Hapus Dokumen Akad">🗑️ Hapus</button>
+          </div>
         </td>
       </tr>
     `).join('');
@@ -888,6 +891,34 @@ function viewContractById(id) {
   if (contract) {
     currentDraftText = contract.content;
     viewGeneratedDocument();
+  }
+}
+
+// Delete Contract Handler
+async function deleteContractById(id) {
+  const confirmDelete = confirm(`Apakah Anda yakin ingin menghapus dokumen akad ${id}? Data yang dihapus tidak dapat dikembalikan.`);
+  if (!confirmDelete) return;
+
+  try {
+    const response = await fetch(`/api/contracts/${encodeURIComponent(id)}`, {
+      method: 'DELETE'
+    });
+
+    if (response.ok) {
+      createdContracts = createdContracts.filter(c => c.id !== id);
+      updateDashboardStats();
+      addAuditLog(`Contract Deleted: ${id} oleh Operator Koperasi`);
+      alert(`✅ Dokumen akad ${id} berhasil dihapus.`);
+    } else {
+      alert("⚠️ Gagal menghapus dokumen akad dari server.");
+    }
+  } catch (err) {
+    console.error("Gagal menghapus akad:", err);
+    // Fallback local deletion if offline
+    createdContracts = createdContracts.filter(c => c.id !== id);
+    updateDashboardStats();
+    addAuditLog(`Contract Deleted locally: ${id}`);
+    alert(`✅ Dokumen akad ${id} dihapus dari daftar lokal.`);
   }
 }
 
