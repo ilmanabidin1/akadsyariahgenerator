@@ -98,9 +98,13 @@
           <img src="logo_transparent.png" alt="AKADIN Logo" class="sidebar-logo-full">
           <span class="sidebar-logo-mini" title="AKADIN">🏛️</span>
         </div>
-        <!-- Tombol Lipat Langsung di Sidebar -->
-        <button class="sidebar-collapse-btn" onclick="toggleSidebarFold()" title="Lipat / Perluas Sidebar">
-          <span class="collapse-icon">◀</span>
+        <!-- Tombol Lipat Standar Platform Modern (SVG Sidebar Collapse) -->
+        <button class="sidebar-collapse-btn" onclick="toggleSidebarFold()" title="Lipat / Perluas Sidebar (Ctrl + B)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+            <line x1="9" x2="9" y1="3" y2="21"/>
+            <path d="m14 9-3 3 3 3"/>
+          </svg>
         </button>
       </div>
 
@@ -131,10 +135,14 @@
         </li>
       </ul>
 
-      <!-- Tombol Lipat Bawah Sidebar -->
-      <div class="sidebar-footer-fold" onclick="toggleSidebarFold()">
-        <span class="fold-footer-icon">◀</span>
-        <span class="fold-footer-text">Lipat Menu Sidebar</span>
+      <!-- Tombol Lipat Bawah Sidebar dengan Icon Layout Sidebar Standard -->
+      <div class="sidebar-footer-fold" onclick="toggleSidebarFold()" title="Lipat / Perluas Sidebar">
+        <svg class="fold-footer-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+          <line x1="9" x2="9" y1="3" y2="21"/>
+          <path class="fold-arrow" d="m14 9-3 3 3 3"/>
+        </svg>
+        <span class="fold-footer-text">Lipat Sidebar</span>
       </div>
     </aside>
 
@@ -144,7 +152,10 @@
       <header class="top-bar">
         <div style="display: flex; align-items: center;">
           <button class="btn-sidebar-toggle" id="sidebar-toggle-btn" onclick="toggleSidebarFold()" title="Lipat / Buka Sidebar (Ctrl + B)">
-            <span id="sidebar-toggle-icon">☰</span>
+            <svg id="sidebar-toggle-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+              <line x1="9" x2="9" y1="3" y2="21"/>
+            </svg>
           </button>
           <h1 id="page-title">Dashboard Utama</h1>
         </div>

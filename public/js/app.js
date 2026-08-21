@@ -34,12 +34,8 @@ function toggleSidebarFold() {
   // Save user preference
   localStorage.setItem('akadin_sidebar_collapsed', isCollapsed ? 'true' : 'false');
   
-  // Update toggle button icon/title
-  const icon = document.getElementById('sidebar-toggle-icon');
+  // Update toggle button title
   const btn = document.getElementById('sidebar-toggle-btn');
-  if (icon) {
-    icon.innerText = isCollapsed ? '⏩' : '☰';
-  }
   if (btn) {
     btn.title = isCollapsed ? 'Buka Sidebar (Ctrl + B)' : 'Lipat Sidebar (Ctrl + B)';
   }
@@ -49,12 +45,10 @@ function toggleSidebarFold() {
 function initSidebarFoldState() {
   const isCollapsed = localStorage.getItem('akadin_sidebar_collapsed') === 'true';
   const sidebar = document.getElementById('app-sidebar');
-  const icon = document.getElementById('sidebar-toggle-icon');
   const btn = document.getElementById('sidebar-toggle-btn');
   
   if (sidebar && isCollapsed) {
     sidebar.classList.add('collapsed');
-    if (icon) icon.innerText = '⏩';
     if (btn) btn.title = 'Buka Sidebar (Ctrl + B)';
   }
 }
