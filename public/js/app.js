@@ -1386,32 +1386,39 @@ function filterContractsTable() {
 
 // Dashboard & Verification Table Update
 function updateDashboardStats() {
-  document.getElementById('stat-total-akad').innerText = createdContracts.length;
+  const totalEl = document.getElementById('stat-total-akad');
+  const scoreEl = document.getElementById('stat-syariah-score');
   
-  if (createdContracts.length > 0) {
-    const avgScore = (createdContracts.reduce((acc, curr) => acc + curr.score, 0) / createdContracts.length).toFixed(1);
-    document.getElementById('stat-syariah-score').innerText = `${avgScore}%`;
-  } else {
-    document.getElementById('stat-syariah-score').innerText = `-`;
+  if (totalEl) totalEl.innerText = createdContracts.length;
+  
+  if (scoreEl) {
+    if (createdContracts.length > 0) {
+      const avgScore = (createdContracts.reduce((acc, curr) => acc + curr.score, 0) / createdContracts.length).toFixed(1);
+      scoreEl.innerText = `${avgScore}%`;
+    } else {
+      scoreEl.innerText = `-`;
+    }
   }
 
   // Render Dashboard Table
   const tbody = document.getElementById('dashboard-table-body');
-  if (createdContracts.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 2rem;">
-          Belum ada akad yang dibuat. Klik tombol di samping untuk membuat akad baru.
-        </td>
-      </tr>`;
-  } else {
-    tbody.innerHTML = createdContracts.map(c => `
-      <tr>
-        <td><strong>${c.type} (${c.id})</strong></td>
-        <td>${c.pihakKedua}</td>
-        <td><span class="badge badge-success">${c.score}% Patuh (${c.status})</span></td>
-      </tr>
-    `).join('');
+  if (tbody) {
+    if (createdContracts.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+            Belum ada akad yang dibuat. Klik tombol di samping untuk membuat akad baru.
+          </td>
+        </tr>`;
+    } else {
+      tbody.innerHTML = createdContracts.map(c => `
+        <tr>
+          <td><strong>${c.type} (${c.id})</strong></td>
+          <td>${c.pihakKedua}</td>
+          <td><span class="badge badge-success">${c.score}% Patuh (${c.status})</span></td>
+        </tr>
+      `).join('');
+    }
   }
 
   filterContractsTable();
