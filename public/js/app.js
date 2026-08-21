@@ -1027,11 +1027,48 @@ function viewGeneratedDocument(targetContract = null) {
     } else if (trimmed.startsWith('"Hai orang-orang') || trimmed.startsWith('Dari Abu Sa\'id') || trimmed.startsWith('(Qs.') || trimmed.startsWith('(HR.')) {
       formattedHtml += `<p style="text-align:center; font-style: italic; font-size: 0.95rem; margin-bottom: 1rem; color: #334155; padding: 0 1rem;">${trimmed}</p>`;
     } else {
+      // Deteksi baris pasangan Label: Nilai untuk Identitas Pihak (Nama, Umur, NIK, Jabatan, Pekerjaan, Alamat, dll.)
+      const fieldMatch = trimmed.match(/^(Nama|Umur|NIK|Jabatan|Pekerjaan|Alamat|Lembaga|Bertindak untuk dan atas nama|Dalam hal ini bertindak)\s*:\s*(.*)$/i);
+      if (fieldMatch) {
+        const label = fieldMatch[1].trim();
+        const value = formatArabicAndShariaTermsItalic(fieldMatch[2].trim());
+        formattedHtml += `
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 0.25rem; font-size: inherit;">
+            <tr>
+              <td style="width: 110px; vertical-align: top; padding: 1px 0; color: inherit;">${label}</td>
+              <td style="width: 15px; vertical-align: top; text-align: center; padding: 1px 0; color: inherit;">:</td>
+              <td style="vertical-align: top; padding: 1px 0; text-align: justify; text-justify: inter-word; color: inherit;">${value}</td>
+            </tr>
+          </table>
+        `;
+        return;
+      }
+
       // Deteksi penomoran butir / pointer berjenjang (Multilevel Numbering)
       const listMatch = trimmed.match(/^(\d+\.|\([0-9]+\)|[a-z]\.|\([a-z]\)|[A-Z]\.|\d+\)|[ivxlcdm]+\.|\([ivxlcdm]+\)|-)\s+(.*)$/);
       if (listMatch) {
         const numLabel = listMatch[1];
-        const textBody = formatArabicAndShariaTermsItalic(listMatch[2]);
+        let textBody = listMatch[2];
+        
+        // Cek jika butir nomor juga berisi pasangan 'Nama: Nilai' (misal: 1. Nama: Budi)
+        const nestedFieldMatch = textBody.match(/^(Nama|Umur|NIK|Jabatan|Pekerjaan|Alamat)\s*:\s*(.*)$/i);
+        if (nestedFieldMatch) {
+          const nestedLabel = nestedFieldMatch[1].trim();
+          const nestedVal = formatArabicAndShariaTermsItalic(nestedFieldMatch[2].trim());
+          formattedHtml += `
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 0.25rem; font-size: inherit;">
+              <tr>
+                <td style="width: 25px; vertical-align: top; padding: 1px 0;">${numLabel}</td>
+                <td style="width: 90px; vertical-align: top; padding: 1px 0;">${nestedLabel}</td>
+                <td style="width: 15px; vertical-align: top; text-align: center; padding: 1px 0;">:</td>
+                <td style="vertical-align: top; padding: 1px 0; text-align: justify; text-justify: inter-word;">${nestedVal}</td>
+              </tr>
+            </table>
+          `;
+          return;
+        }
+
+        textBody = formatArabicAndShariaTermsItalic(textBody);
         
         // Tentukan level indentasi hierarki
         let levelClass = 'doc-level-1';
