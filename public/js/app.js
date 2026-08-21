@@ -625,6 +625,7 @@ function startAkad(type) {
 function onAkadTypeChange(type) {
   currentAkadType = type;
   const container = document.getElementById('dynamic-fields');
+  if (!container) return;
 
   if (type === 'Murabahah') {
     container.innerHTML = `
@@ -850,6 +851,7 @@ function getFormData() {
 function renderValidationPanel(result) {
   const badgeContainer = document.getElementById('score-badge-container');
   const checklistContainer = document.getElementById('validation-checklist');
+  if (!badgeContainer || !checklistContainer) return;
 
   let badgeClass = 'score-high';
   if (result.score < 60) badgeClass = 'score-low';
