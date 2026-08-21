@@ -90,7 +90,141 @@
 </head>
 <body>
 
-  <div class="app-container">
+  <!-- ==========================================
+       LANDING PAGE PUBLIK MODERN (AKADIFY)
+       ========================================== -->
+  <div id="landing-page-container">
+    <!-- Navbar Landing -->
+    <header class="landing-nav">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div style="background: #0f172a; padding: 6px 12px; border-radius: 8px; display: flex; align-items: center;">
+          <img src="logo_transparent.png" alt="AKADIFY Logo" style="height: 36px; width: auto;">
+        </div>
+      </div>
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <a href="#fitur-section" style="text-decoration: none; color: var(--text-muted); font-size: 0.9rem; font-weight: 600;">Fitur Unggulan</a>
+        <a href="#riset-section" style="text-decoration: none; color: var(--text-muted); font-size: 0.9rem; font-weight: 600;">Riset & Legalitas</a>
+        <button class="btn btn-primary" onclick="openLoginModal()" style="padding: 0.6rem 1.5rem; font-size: 0.9rem; border-radius: 30px; box-shadow: 0 4px 14px rgba(4, 120, 87, 0.3);">
+          🔐 Masuk / Login
+        </button>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="landing-hero">
+      <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--primary-subtle); color: var(--primary-dark); padding: 0.4rem 1rem; border-radius: 30px; font-size: 0.825rem; font-weight: 700; margin-bottom: 1.5rem; border: 1px solid rgba(16, 185, 129, 0.3);">
+        🏛️ Riset Terapan PDUPT Fakultas Hukum UNISBA 2026
+      </div>
+      <h1>Platform AI Pengembangan & Legalitas <span>Akad Syariah Otomatis</span></h1>
+      <p>Solusi cerdas bagi Koperasi Syariah (BMT/KSPPS) untuk menyusun dokumen akad yang sah secara hukum perdata, patuh 100% pada Fatwa DSN-MUI, dan bebas dari unsur Riba, Gharar, serta Maisir.</p>
+      
+      <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+        <button class="btn btn-primary" onclick="openLoginModal()" style="padding: 0.85rem 2rem; font-size: 1rem; border-radius: 30px; font-weight: 700;">
+          🚀 Masuk ke Dashboard AKADIFY
+        </button>
+      </div>
+
+      <div style="margin-top: 3.5rem; display: flex; justify-content: center; gap: 2rem; color: var(--text-muted); font-size: 0.85rem; flex-wrap: wrap;">
+        <div>✅ <strong>100% Kepatuhan Fatwa DSN-MUI</strong></div>
+        <div>✅ <strong>Kalkulator Finansial & Margin Otomatis</strong></div>
+        <div>✅ <strong>Verifikasi QR Code & Export Word (.doc)</strong></div>
+      </div>
+    </section>
+
+    <!-- Feature Grid Section -->
+    <section id="fitur-section" style="padding: 4rem 1.5rem; background: #f8fafc; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+      <div style="text-align: center; max-width: 700px; margin: 0 auto 3rem auto;">
+        <h2 style="font-size: 2rem; color: #0f172a; font-weight: 800;">Ekosistem Terintegrasi Koperasi Syariah</h2>
+        <p style="color: var(--text-muted); margin-top: 0.5rem;">Didesain khusus untuk efisiensi, akurasi hukum, dan transparansi tata kelola pembiayaan syariah.</p>
+      </div>
+
+      <div class="landing-features-grid">
+        <div class="feature-box">
+          <div class="feature-icon">✍️</div>
+          <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: #0f172a;">AI Akad Generator Dinamis</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Menyusun klausula hukum secara presisi untuk Murabahah, Mudharabah, Ijarah, Qardh, dan Syirkah dalam hitungan detik.</p>
+        </div>
+
+        <div class="feature-box">
+          <div class="feature-icon">🧮</div>
+          <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: #0f172a;">Kalkulator & Amortisasi</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Simulasi margin tetap, bagi hasil nisbah, dan tabel jadwal angsuran bulanan yang dapat langsung diterapkan ke form akad.</p>
+        </div>
+
+        <div class="feature-box">
+          <div class="feature-icon">🛡️</div>
+          <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: #0f172a;">DSN-MUI Compliance Engine</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Pemeriksaan otomatis rukun dan syarat akad secara real-time guna memastikan dokumen bebas dari riba dan cacat hukum.</p>
+        </div>
+
+        <div class="feature-box">
+          <div class="feature-icon">💬</div>
+          <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: #0f172a;">Konsultan Syariah AI</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Asisten interaktif cerdas untuk konsultasi fiqih muamalah, mitigasi risiko sengketa, dan telaah regulasi perbankan syariah.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Riset Attribution Section -->
+    <section id="riset-section" style="padding: 4rem 1.5rem; text-align: center; max-width: 900px; margin: 0 auto;">
+      <h3 style="font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem;">Landasan Riset & Pengembang</h3>
+      <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.7; margin-bottom: 1.5rem;">
+        Aplikasi ini dikembangkan berdasarkan Riset Terapan Hibah PDUPT (Penelitian Terapan Unggulan Perguruan Tinggi) Kemendikbudristek 2026 dengan judul:
+        <br>
+        <strong>"Model Pengembangan Akad Perjanjian Berbasis Artificial Intelligence untuk Penguatan Tata Kelola Koperasi Syariah"</strong>
+      </p>
+      <div style="display: inline-flex; gap: 2rem; justify-content: center; flex-wrap: wrap; background: #f1f5f9; padding: 1rem 2rem; border-radius: 12px; font-size: 0.9rem;">
+        <div>👤 <strong>Prof. Dr. Neni Sri Imaniyati, S.H., M.Hum.</strong> (Guru Besar Hukum Bisnis Syariah)</div>
+        <div>👤 <strong>Dr. M. Ilman Abidin, S.H., M.H.</strong> (Peneliti Hukum & Teknologi)</div>
+      </div>
+    </section>
+
+    <!-- Footer Landing -->
+    <footer style="background: #0f172a; color: #94a3b8; text-align: center; padding: 2rem; font-size: 0.85rem; border-top: 1px solid #1e293b;">
+      <p>© 2026 AKADIFY. Hak Cipta Dilindungi Undang-Undang. Fakultas Hukum Universitas Islam Bandung (UNISBA).</p>
+    </footer>
+  </div>
+
+  <!-- ==========================================
+       MODAL LOGIN AKADIFY
+       ========================================== -->
+  <div id="auth-modal" class="auth-modal-overlay" style="display: none;">
+    <div class="auth-card">
+      <div style="background: #0f172a; padding: 2rem; text-align: center; color: #ffffff; position: relative;">
+        <button onclick="closeLoginModal()" style="position: absolute; top: 1rem; right: 1rem; background: transparent; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer;">&times;</button>
+        <img src="logo_transparent.png" alt="AKADIFY" style="height: 48px; margin-bottom: 0.75rem;">
+        <h3 style="margin: 0; font-size: 1.25rem;">Masuk ke AKADIFY</h3>
+        <p style="margin: 4px 0 0 0; font-size: 0.8rem; color: #94a3b8;">Portal Manajemen & Legalitas Akad Koperasi Syariah</p>
+      </div>
+      
+      <form onsubmit="handleLoginSubmit(event)" style="padding: 2rem;">
+        <div id="login-error-msg" style="display: none; background: #fee2e2; color: #b91c1c; padding: 0.65rem; border-radius: 8px; font-size: 0.825rem; margin-bottom: 1rem; border: 1px solid #fca5a5;">
+          ⚠️ Username atau password salah! (Gunakan akun demo: <strong>demo</strong> / <strong>demo</strong>)
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Username / ID Pengurus</label>
+          <input type="text" id="login-username" class="form-control" placeholder="Masukkan username (contoh: demo)" required style="width: 100%; padding: 0.65rem 0.85rem;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Kata Sandi / Password</label>
+          <input type="password" id="login-password" class="form-control" placeholder="Masukkan password (contoh: demo)" required style="width: 100%; padding: 0.65rem 0.85rem;">
+        </div>
+
+        <div style="background: #f8fafc; border: 1px dashed #cbd5e1; padding: 0.75rem; border-radius: 8px; font-size: 0.8rem; color: #64748b; margin-bottom: 1.5rem;">
+          💡 <strong>Akun Demo Tersedia:</strong><br>
+          Username: <code style="color: var(--primary); font-weight: bold;">demo</code> &nbsp;|&nbsp; Password: <code style="color: var(--primary); font-weight: bold;">demo</code>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 0.95rem; font-weight: 700; border-radius: 8px;">
+          Masuk ke Aplikasi →
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="app-container" id="main-app-wrapper" style="display: none;">
     <!-- Sidebar Navigation -->
     <aside class="sidebar" id="app-sidebar">
       <div class="sidebar-header">
@@ -128,15 +262,27 @@
           </button>
         </li>
         <li class="nav-item">
+          <button id="nav-document" onclick="switchTab('document')" data-tooltip="Pratinjau Dokumen">
+            <span class="nav-icon">📄</span>
+            <span class="nav-text">Pratinjau Dokumen</span>
+          </button>
+        </li>
+        <li class="nav-item">
           <button id="nav-verification" onclick="switchTab('verification')" data-tooltip="Daftar Akad Terbit">
-            <span class="nav-icon">📋</span>
+            <span class="nav-icon">🛡️</span>
             <span class="nav-text">Daftar Akad Terbit</span>
           </button>
         </li>
         <li class="nav-item">
-          <button id="nav-audit" onclick="switchTab('audit')" data-tooltip="Audit Log System">
-            <span class="nav-icon">🔗</span>
-            <span class="nav-text">Audit Log System</span>
+          <button id="nav-consultant" onclick="switchTab('consultant')" data-tooltip="Konsultan AI">
+            <span class="nav-icon">💬</span>
+            <span class="nav-text">Konsultan AI</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button id="nav-audit" onclick="switchTab('audit')" data-tooltip="Audit Log">
+            <span class="nav-icon">🔍</span>
+            <span class="nav-text">Audit Log</span>
           </button>
         </li>
       </ul>
@@ -158,11 +304,15 @@
         <div class="user-info">
           <div class="status-indicator">
             <span class="dot-online"></span>
-            <span>Rules Engine Syariah Active</span>
+            <span>Akun: <strong id="logged-user-display">Petugas Demo</strong></span>
           </div>
+          <!-- Tombol Logout -->
+          <button class="btn btn-outline" onclick="handleLogout()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-color: #cbd5e1; color: var(--danger);" title="Keluar dari Aplikasi">
+            🚪 Keluar
+          </button>
           <!-- Logo Transparan Proporsional di Topbar Kanan Atas -->
           <div style="display: flex; align-items: center; justify-content: center; background: #0f172a; padding: 4px 10px; border-radius: 8px; border: 1px solid #1e293b;">
-            <img src="logo_transparent.png" alt="AKADIFY Logo Topbar" style="height: 32px; width: auto; display: block;">
+            <img src="logo_transparent.png" alt="AKADIFY Logo Topbar" style="height: 30px; width: auto; display: block;">
           </div>
         </div>
       </header>

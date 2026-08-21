@@ -38,8 +38,82 @@ function formatRupiahInput(inputEl) {
   inputEl.value = parseInt(raw, 10).toLocaleString('id-ID');
 }
 
+// ==========================================
+// AUTHENTICATION & LANDING PAGE LOGIC
+// ==========================================
+
+function checkAuthSession() {
+  const user = localStorage.getItem('akadify_logged_user');
+  const landingEl = document.getElementById('landing-page-container');
+  const appEl = document.getElementById('main-app-wrapper');
+
+  if (user) {
+    if (landingEl) landingEl.style.display = 'none';
+    if (appEl) appEl.style.display = 'flex';
+    const displayEl = document.getElementById('logged-user-display');
+    if (displayEl) displayEl.innerText = user;
+  } else {
+    if (landingEl) landingEl.style.display = 'block';
+    if (appEl) appEl.style.display = 'none';
+  }
+}
+
+function openLoginModal() {
+  const modal = document.getElementById('auth-modal');
+  if (modal) {
+    modal.style.display = 'flex';
+    const err = document.getElementById('login-error-msg');
+    if (err) err.style.display = 'none';
+    const userIn = document.getElementById('login-username');
+    if (userIn) {
+      userIn.value = 'demo';
+      userIn.focus();
+    }
+    const passIn = document.getElementById('login-password');
+    if (passIn) passIn.value = 'demo';
+  }
+}
+
+function closeLoginModal() {
+  const modal = document.getElementById('auth-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function handleLoginSubmit(e) {
+  e.preventDefault();
+  const username = document.getElementById('login-username')?.value.trim() || '';
+  const password = document.getElementById('login-password')?.value.trim() || '';
+  const errMsg = document.getElementById('login-error-msg');
+
+  // Akun Demo resmi
+  if (username.toLowerCase() === 'demo' && password.toLowerCase() === 'demo') {
+    localStorage.setItem('akadify_logged_user', 'Pengurus Demo (Koperasi)');
+    closeLoginModal();
+    checkAuthSession();
+    addAuditLog("User Logged In: Pengurus Demo (Koperasi)");
+  } else if (username && password) {
+    // Memberikan fleksibilitas login akun pengurus lain
+    localStorage.setItem('akadify_logged_user', username);
+    closeLoginModal();
+    checkAuthSession();
+    addAuditLog(`User Logged In: ${username}`);
+  } else {
+    if (errMsg) errMsg.style.display = 'block';
+  }
+}
+
+function handleLogout() {
+  const confirmLogout = confirm("Apakah Anda yakin ingin keluar dari aplikasi AKADIFY?");
+  if (!confirmLogout) return;
+
+  localStorage.removeItem('akadify_logged_user');
+  checkAuthSession();
+  addAuditLog("User Logged Out");
+}
+
 // Initialize App
 document.addEventListener("DOMContentLoaded", () => {
+  checkAuthSession();
   initSidebarFoldState();
   onAkadTypeChange("Murabahah");
   fetchContractsFromBackend();
