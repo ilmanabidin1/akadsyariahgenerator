@@ -178,14 +178,47 @@ body {
 .nav-item button .nav-icon {
   font-size: 1.15rem;
   min-width: 24px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.nav-item button .nav-text {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+.nav-item button .nav-icon img,
+.nav-item button .nav-icon svg {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: brightness(0) invert(0.85);
+  transition: all 0.2s ease;
+}
+
+.nav-item button:hover .nav-icon img,
+.nav-item button:hover .nav-icon svg,
+.nav-item button.active .nav-icon img,
+.nav-item button.active .nav-icon svg {
+  filter: brightness(0) invert(1);
+}
+
+.dropdown-item-btn .dropdown-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  filter: brightness(0) invert(0.85);
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.dropdown-item-btn:hover .dropdown-icon {
+  filter: brightness(0) invert(1);
+}
+
+.feature-icon img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
 .sidebar.collapsed .nav-item button {
