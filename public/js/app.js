@@ -565,7 +565,7 @@ function toggleFooterModal(type) {
         <h4 style="color: var(--primary-dark); margin-top: 0.75rem; margin-bottom: 0.25rem;">5. Hak Pemilik / Subjek Data Pribadi</h4>
         <p style="margin-bottom: 0.35rem;">Sesuai Pasal 5 s/d Pasal 13 UU PDP No. 27/2022, Anda memiliki hak penuh untuk:</p>
         <ul style="margin-left: 1.25rem; margin-bottom: 0.75rem;">
-          <li><strong>Hak Akses & Portabilitas:</strong> Memeriksa seluruh draf akad terbit dan mengunduhnya dalam format Word (`.doc`) atau PDF.</li>
+          <li><strong>Hak Akses & Portabilitas:</strong> Memeriksa seluruh draf akad terbit dan mengunduhnya dalam format Word (.doc) atau PDF.</li>
           <li><strong>Hak Pembaruan (Rectification):</strong> Memperbarui informasi profil pengurus dan kop surat lembaga kapan saja melalui menu Pengaturan.</li>
           <li><strong>Hak Penghapusan (Right to Erasure / Delete Account):</strong> Menghapus akun dan seluruh rekaman data akad secara permanen melalui fitur <em>Keamanan & Hapus Akun</em> di menu Pengaturan.</li>
         </ul>
