@@ -94,29 +94,38 @@ function checkAuthSession() {
 
 // Toggle Sidebar User Profile Dropdown
 function toggleSidebarUserDropdown(e) {
-  if (e) e.stopPropagation();
+  if (e) {
+    if (typeof e.stopPropagation === 'function') e.stopPropagation();
+  }
   const dropdown = document.getElementById('sidebar-user-dropdown');
   if (!dropdown) return;
 
-  if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+  const isHidden = dropdown.style.display === 'none' || dropdown.style.display === '' || !dropdown.classList.contains('show');
+  if (isHidden) {
     dropdown.style.display = 'flex';
+    dropdown.classList.add('show');
   } else {
     dropdown.style.display = 'none';
+    dropdown.classList.remove('show');
   }
 }
 
 function closeSidebarUserDropdown() {
   const dropdown = document.getElementById('sidebar-user-dropdown');
-  if (dropdown) dropdown.style.display = 'none';
+  if (dropdown) {
+    dropdown.style.display = 'none';
+    dropdown.classList.remove('show');
+  }
 }
 
 // Auto close user dropdown when clicking outside
 document.addEventListener('click', (e) => {
   const dropdown = document.getElementById('sidebar-user-dropdown');
   const btn = document.getElementById('sidebar-user-menu-btn');
-  if (dropdown && dropdown.style.display === 'flex') {
+  if (dropdown && (dropdown.style.display === 'flex' || dropdown.classList.contains('show'))) {
     if (!dropdown.contains(e.target) && (!btn || !btn.contains(e.target))) {
       dropdown.style.display = 'none';
+      dropdown.classList.remove('show');
     }
   }
 });
@@ -522,9 +531,8 @@ function toggleFooterModal(type) {
   } else if (type === 'privacy') {
     body.innerHTML = `
       <div style="border-bottom: 2px solid var(--primary-light); padding-bottom: 0.75rem; margin-bottom: 1rem;">
-        <span class="badge badge-success" style="margin-bottom: 0.35rem;">🛡️ UU No. 27 Tahun 2022 Compliant</span>
-        <h3 style="color: var(--primary-dark); font-size: 1.25rem; margin: 0.25rem 0;">Kebijakan Privasi & Perlindungan Data Pribadi (PDP)</h3>
-        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Komitmen Kepatuhan Terhadap Regulasi Pelindungan Data Pribadi Republik Indonesia</p>
+        <h3 style="color: var(--primary-dark); font-size: 1.25rem; margin: 0.25rem 0;">Kebijakan Privasi</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Informasi tata kelola, pengumpulan data, dan standar keamanan platform AKADIFY</p>
       </div>
 
       <div style="font-size: 0.85rem; line-height: 1.65; color: var(--text-main); max-height: 55vh; overflow-y: auto; padding-right: 0.5rem;">
@@ -2055,7 +2063,7 @@ let currentUserProfile = null;
 
 // Switch Sub-Tabs in Settings View
 function switchSettingsSubTab(subTabId) {
-  const subTabs = ['profile', 'whitelabel', 'security', 'privacy'];
+  const subTabs = ['profile', 'whitelabel', 'security'];
   subTabs.forEach(tab => {
     const viewEl = document.getElementById(`settings-sub-${tab}`);
     const btnEl = document.getElementById(`set-tab-${tab}-btn`);

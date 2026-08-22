@@ -230,6 +230,10 @@ body {
   display: none !important;
 }
 
+#sidebar-user-dropdown.show {
+  display: flex !important;
+}
+
 .sidebar.collapsed #sidebar-user-dropdown {
   left: 100% !important;
   bottom: 0 !important;
