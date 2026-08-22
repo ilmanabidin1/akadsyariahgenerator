@@ -470,7 +470,7 @@ function switchTab(tabId) {
     'calculator': 'Simulasi Finansial & Kalkulator Syariah',
     'ai-syariah': 'AI Syariah - Konsultasi & Asisten Fatwa DSN-MUI',
     'verification': 'Daftar Dokumen Akad Terbit',
-    'settings': 'Pengaturan Kop Surat & Identitas Koperasi (White-Label)',
+    'settings': 'Pengaturan',
     'audit': 'Audit Trail & Log Status System'
   };
   document.getElementById('page-title').innerText = titles[tabId] || 'Akad Syariah System';
