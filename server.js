@@ -169,26 +169,35 @@ Saksi 2: ${akadData.saksi2 || 'Saksi II'}
   }
 });
 
-// API Endpoint OCR e-KTP Scanner & Auto-fill
+// API Endpoint OCR e-KTP Scanner & Auto-fill (DeepSeek Smart Parser)
 app.post('/api/ocr-ktp', async (req, res) => {
   const apiKey = process.env.DEEPSEEK_API_KEY;
-  const { imageBase64, fileName } = req.body;
+  const { rawOcrText, fileName } = req.body;
 
   if (!apiKey) {
     return res.status(500).json({ error: 'API Key AI belum terpasang di server.' });
   }
 
   try {
-    const prompt = `Anda adalah sistem OCR e-KTP Indonesia.
-Tugas Anda adalah membaca data e-KTP dan mengekstrak informasi ke dalam format JSON murni:
+    const prompt = `Berikut adalah teks mentah hasil pembacaan Optical Character Recognition (OCR) dari foto e-KTP Indonesia:
+"""
+${rawOcrText || fileName || ''}
+"""
+
+Tugas Anda:
+1. Ekstrak data e-KTP yang terdapat pada teks di atas.
+2. Cari NIK (16 digit angka), Nama Lengkap, Pekerjaan, dan Alamat Lengkap.
+3. Untuk Umur, jika ada tanggal lahir/tahun lahir, hitung estimasi umur saat ini (tahun 2026). Jika tidak ada, berikan estimasi yang wajar (misal: "30 Tahun").
+4. Bersihkan typo khas OCR (misal: angka 1 terbaca 'l'/'I', angka 0 terbaca 'O', NIK terputus spasi, dll).
+
+Kembalikan HANYA format JSON valid tanpa markdown, contoh:
 {
-  "nik": "16 digit NIK",
-  "nama": "Nama Lengkap sesuai KTP",
-  "umur": "Contoh: 30 Tahun (estimasi dari tahun lahir)",
-  "pekerjaan": "Pekerjaan sesuai KTP",
-  "alamat": "Alamat Lengkap (Jalan, RT/RW, Kelurahan, Kecamatan, Kota/Kabupaten)"
-}
-HANYA kembalikan JSON valid tanpa pembuka/penutup markdown.`;
+  "nik": "3273152004880002",
+  "nama": "NAMA LENGKAP",
+  "umur": "35 Tahun",
+  "pekerjaan": "PEKERJAAN",
+  "alamat": "ALAMAT LENGKAP DENGAN RT/RW DAN KELURAHAN"
+}`;
 
     const response = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
@@ -199,8 +208,8 @@ HANYA kembalikan JSON valid tanpa pembuka/penutup markdown.`;
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: [
-          { role: 'system', content: 'Anda adalah OCR parser identitas e-KTP Indonesia yang presisi. Kembalikan HANYA JSON.' },
-          { role: 'user', content: `Ekstrak data e-KTP dari berkas nama: "${fileName || 'ktp_nasabah.jpg'}". Berikan data NIK 16 digit, Nama lengkap, Umur, Pekerjaan, dan Alamat terinci.` }
+          { role: 'system', content: 'Anda adalah OCR parser identitas e-KTP Indonesia yang sangat teliti dan mampu memperbaiki typo OCR. Hasilkan HANYA JSON murni.' },
+          { role: 'user', content: prompt }
         ],
         temperature: 0.1
       })

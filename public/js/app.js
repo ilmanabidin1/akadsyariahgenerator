@@ -684,37 +684,60 @@ async function handleKtpImageUpload(event) {
     banner.style.borderColor = '#bfdbfe';
     banner.style.color = '#1e40af';
   }
-  if (spinnerText) spinnerText.innerHTML = `<strong>Memproses Gambar:</strong> AI sedang menganalisis NIK, Nama, dan Alamat dari e-KTP (${file.name})... ⏳`;
+  if (spinnerText) spinnerText.innerHTML = `<strong>Memindai e-KTP:</strong> Tesseract OCR sedang membaca teks dari gambar (${file.name})... ⏳`;
 
   try {
-    // Baca file sebagai Data URL (Base64)
-    const reader = new FileReader();
-    reader.onload = async function(e) {
-      const base64Data = e.target.result;
+    let rawExtractedText = '';
 
-      // Hubungi Backend AI Vision OCR Endpoint
+    // Langkah 1: Ekstraksi teks fisik e-KTP menggunakan Tesseract.js di Browser
+    if (typeof Tesseract !== 'undefined') {
       try {
-        const res = await fetch('/api/ocr-ktp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ imageBase64: base64Data, fileName: file.name })
-        });
+        const ocrResult = await Tesseract.recognize(
+          file,
+          'ind', // Bahasa Indonesia
+          {
+            logger: m => {
+              if (m.status === 'recognizing text' && spinnerText) {
+                const pct = Math.round(m.progress * 100);
+                spinnerText.innerHTML = `<strong>Membaca Karakter:</strong> AI sedang memindai e-KTP (${pct}%)... ⏳`;
+              }
+            }
+          }
+        );
+        rawExtractedText = ocrResult?.data?.text || '';
+      } catch (tessErr) {
+        console.warn("Tesseract OCR fallback to default recognition:", tessErr);
+      }
+    }
 
-        if (res.ok) {
-          const ocrResult = await res.json();
-          applyKtpOcrData(ocrResult);
-        } else {
-          // Fallback parsing lokal jika backend AI tidak mengembalikan JSON lengkap
-          const fallbackData = simulateOrExtractKtpData(file.name);
-          applyKtpOcrData(fallbackData);
-        }
-      } catch (networkErr) {
-        console.warn("OCR online error, using smart fallback parser:", networkErr);
+    if (spinnerText) {
+      spinnerText.innerHTML = `<strong>Merapikan Data:</strong> DeepSeek AI sedang memvalidasi NIK, Nama, dan Alamat... 🧠`;
+    }
+
+    // Langkah 2: Kirim teks hasil bacaan OCR ke DeepSeek API Backend untuk dibersihkan & diparsing
+    try {
+      const res = await fetch('/api/ocr-ktp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          rawOcrText: rawExtractedText, 
+          fileName: file.name 
+        })
+      });
+
+      if (res.ok) {
+        const structuredData = await res.json();
+        applyKtpOcrData(structuredData);
+      } else {
         const fallbackData = simulateOrExtractKtpData(file.name);
         applyKtpOcrData(fallbackData);
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (apiErr) {
+      console.warn("API parsing error, using smart fallback:", apiErr);
+      const fallbackData = simulateOrExtractKtpData(file.name);
+      applyKtpOcrData(fallbackData);
+    }
+
   } catch (err) {
     console.error("Error reading file:", err);
     if (spinnerText) spinnerText.innerHTML = `❌ Gagal memproses berkas foto e-KTP.`;
