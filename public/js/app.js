@@ -519,6 +519,45 @@ function toggleFooterModal(type) {
         <p style="margin-bottom: 0.75rem;">Metode validasi rukun-syarat otomatis ini dilindungi oleh Hak Cipta & Paten Sederhana terdaftar hasil riset PDUPT Fakultas Hukum UNISBA.</p>
       </div>
     `;
+  } else if (type === 'privacy') {
+    body.innerHTML = `
+      <div style="border-bottom: 2px solid var(--primary-light); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+        <span class="badge badge-success" style="margin-bottom: 0.35rem;">🛡️ UU No. 27 Tahun 2022 Compliant</span>
+        <h3 style="color: var(--primary-dark); font-size: 1.25rem; margin: 0.25rem 0;">Kebijakan Privasi & Perlindungan Data Pribadi (PDP)</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Komitmen Kepatuhan Terhadap Regulasi Pelindungan Data Pribadi Republik Indonesia</p>
+      </div>
+
+      <div style="font-size: 0.85rem; line-height: 1.65; color: var(--text-main); max-height: 55vh; overflow-y: auto; padding-right: 0.5rem;">
+        <h4 style="color: var(--primary-dark); margin-top: 0.5rem; margin-bottom: 0.25rem;">1. Landasan Hukum & Kepatuhan UU PDP</h4>
+        <p style="margin-bottom: 0.75rem;">Platform <strong>AKADIFY</strong> mengelola dan memproses data pribadi berdasarkan <strong>Undang-Undang Republik Indonesia Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP)</strong> serta prinsip kehati-hatian kerahasiaan perbankan & koperasi syariah.</p>
+
+        <h4 style="color: var(--primary-dark); margin-top: 0.75rem; margin-bottom: 0.25rem;">2. Jenis Data yang Dikumpulkan (How Data is Collected)</h4>
+        <p style="margin-bottom: 0.35rem;">Data yang kami kumpulkan semata-mata digunakan untuk kepentingan penyusunan legalitas akad syariah yang sah secara hukum, meliputi:</p>
+        <ul style="margin-left: 1.25rem; margin-bottom: 0.75rem;">
+          <li><strong>Data Akun Lembaga:</strong> Nama pengurus, jabatan, email resmi, nomor telepon, nama badan hukum koperasi, dan nomor SK Kemenkumham (AHU).</li>
+          <li><strong>Data Para Pihak Akad (Subjek Hukum):</strong> Nama lengkap, NIK/KTP, umur, pekerjaan, dan alamat domisili Pihak Pertama, Pihak Kedua (Anggota/Nasabah), serta Saksi-Saksi.</li>
+          <li><strong>Data Transaksi Finansial Akad:</strong> Nilai pembiayaan/harga beli, margin keuntungan, nisbah bagi hasil, tenor angsuran, dan spesifikasi objek jaminan.</li>
+          <li><strong>Log Audit Trail:</strong> Riwayat waktu pembuatan dokumen, pengesahan, dan skor kepatuhan syariah untuk audit regulator DSN-MUI & OJK.</li>
+        </ul>
+
+        <h4 style="color: var(--primary-dark); margin-top: 0.75rem; margin-bottom: 0.25rem;">3. Tujuan Pemrosesan Data (Purpose of Processing)</h4>
+        <p style="margin-bottom: 0.75rem;">Data yang diinputkan diproses murni untuk penyusunan klausula perjanjian syariah otomatis melalui AI & Rules Engine, verifikasi keabsahan dokumen via QR Code terenkripsi, serta pembuatan laporan pengawasan DPS. <strong>AKADIFY tidak pernah menjual, menyewakan, atau membagikan data pribadi kepada pihak ketiga untuk kepentingan komersial/iklan.</strong></p>
+
+        <h4 style="color: var(--primary-dark); margin-top: 0.75rem; margin-bottom: 0.25rem;">4. Keamanan & Penyimpanan Data (Security & Encryption)</h4>
+        <p style="margin-bottom: 0.75rem;">Seluruh lalu lintas data dienkripsi dengan protokol Transport Layer Security (TLS 1.3 / HTTPS). Database akad diisolasi secara multi-tenant per lembaga koperasi untuk mencegah kebocoran data antar pengguna (*data segregation*).</p>
+
+        <h4 style="color: var(--primary-dark); margin-top: 0.75rem; margin-bottom: 0.25rem;">5. Hak Pemilik / Subjek Data Pribadi</h4>
+        <p style="margin-bottom: 0.35rem;">Sesuai Pasal 5 s/d Pasal 13 UU PDP No. 27/2022, Anda memiliki hak penuh untuk:</p>
+        <ul style="margin-left: 1.25rem; margin-bottom: 0.75rem;">
+          <li><strong>Hak Akses & Portabilitas:</strong> Memeriksa seluruh draf akad terbit dan mengunduhnya dalam format Word (`.doc`) atau PDF.</li>
+          <li><strong>Hak Pembaruan (Rectification):</strong> Memperbarui informasi profil pengurus dan kop surat lembaga kapan saja melalui menu Pengaturan.</li>
+          <li><strong>Hak Penghapusan (Right to Erasure / Delete Account):</strong> Menghapus akun dan seluruh rekaman data akad secara permanen melalui fitur <em>Keamanan & Hapus Akun</em> di menu Pengaturan.</li>
+        </ul>
+
+        <h4 style="color: var(--primary-dark); margin-top: 0.75rem; margin-bottom: 0.25rem;">6. Kontak Petugas Pelindungan Data (DPO)</h4>
+        <p style="margin-bottom: 0.5rem;">Untuk pertanyaan mengenai perlindungan data pribadi dan tata kelola privasi sistem, hubungi Tim Peneliti & Legal Tech Fakultas Hukum UNISBA di: <strong>dpo@akadify.id</strong> / <strong>ilman.abidin@unisba.ac.id</strong>.</p>
+      </div>
+    `;
   }
 
   modal.style.display = 'flex';
@@ -2016,7 +2055,7 @@ let currentUserProfile = null;
 
 // Switch Sub-Tabs in Settings View
 function switchSettingsSubTab(subTabId) {
-  const subTabs = ['profile', 'whitelabel', 'security'];
+  const subTabs = ['profile', 'whitelabel', 'security', 'privacy'];
   subTabs.forEach(tab => {
     const viewEl = document.getElementById(`settings-sub-${tab}`);
     const btnEl = document.getElementById(`set-tab-${tab}-btn`);
@@ -2036,6 +2075,62 @@ function switchSettingsSubTab(subTabId) {
 
   if (subTabId === 'profile') loadUserProfileSettings();
   if (subTabId === 'whitelabel') loadWhiteLabelSettings();
+}
+
+// Handle Delete Account (Right to Erasure - UU PDP No. 27/2022)
+async function handleDeleteAccount(e) {
+  e.preventDefault();
+  
+  const password = document.getElementById('delete-account-pwd')?.value;
+  if (!password) {
+    alert("⚠️ Harap masukkan kata sandi akun Anda untuk konfirmasi penghapusan.");
+    return;
+  }
+
+  const confirmDelete = confirm("⚠️ PERINGATAN TERAKHIR:\n\nApakah Anda benar-benar yakin ingin MENGHAPUS PERMANEN akun lembaga ini beserta seluruh arsip akad yang telah diterbitkan?\n\nTindakan ini tunduk pada UU PDP No. 27/2022 dan TIDAK DAPAT DIBATALKAN!");
+  if (!confirmDelete) return;
+
+  const btn = document.getElementById('btn-delete-account');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = 'Menghapus Akun & Data...';
+  }
+
+  const userJson = localStorage.getItem('akadify_logged_user');
+  let userId = 'USR-SUPERADMIN-DEMO';
+  if (userJson) {
+    try {
+      const u = JSON.parse(userJson);
+      userId = u.id || u.username;
+    } catch (err) {
+      userId = userJson;
+    }
+  }
+
+  try {
+    const res = await fetch('/api/user/account', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, password })
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      alert(`✅ ${data.message}`);
+      localStorage.removeItem('akadify_logged_user');
+      window.location.reload();
+    } else {
+      alert(`⚠️ ${data.error || 'Gagal menghapus akun.'}`);
+    }
+  } catch (err) {
+    console.error("Gagal menghapus akun:", err);
+    alert("⚠️ Gagal menghubungi server.");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = '🗑️ Hapus Akun & Seluruh Data Secara Permanen';
+    }
+  }
 }
 
 // Fetch User Profile from Backend

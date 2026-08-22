@@ -558,6 +558,46 @@ app.post('/api/user/change-password', (req, res) => {
   });
 });
 
+// API Endpoint untuk Menghapus Akun Pengguna Secara Permanen (Right to Erasure - UU PDP No. 27/2022)
+app.delete('/api/user/account', (req, res) => {
+  const { userId, password } = req.body;
+
+  if (!userId || !password) {
+    return res.status(400).json({ error: 'User ID dan konfirmasi kata sandi diperlukan.' });
+  }
+
+  // Lindungi akun demo superadmin agar tidak terhapus permanen dari sistem
+  if (userId === 'USR-SUPERADMIN-DEMO' || userId === 'demo') {
+    return res.status(403).json({ error: 'Akun Superadmin Demo Utama sistem dilindungi dan tidak dapat dihapus.' });
+  }
+
+  const users = loadUsers();
+  const userIndex = users.findIndex(u => u.id === userId || u.username === userId);
+
+  if (userIndex === -1) {
+    return res.status(404).json({ error: 'Akun pengguna tidak ditemukan.' });
+  }
+
+  // Verifikasi kata sandi
+  if (users[userIndex].password && users[userIndex].password !== password) {
+    return res.status(400).json({ error: 'Kata sandi yang Anda masukkan salah.' });
+  }
+
+  // Hapus akun dari daftar pengguna
+  const deletedUser = users.splice(userIndex, 1)[0];
+  saveUsers(users);
+
+  // Bersihkan data akad yang dibuat oleh pengguna tersebut (opsional / compliance)
+  const contracts = loadContracts();
+  const filteredContracts = contracts.filter(c => c.createdByUserId !== userId && c.createdByUserId !== deletedUser.username);
+  saveContracts(filteredContracts);
+
+  res.json({
+    success: true,
+    message: 'Akun lembaga dan seluruh data terkait telah berhasil dihapus secara permanen sesuai UU PDP No. 27 Tahun 2022.'
+  });
+});
+
 // API Endpoint Login Nyata
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;
