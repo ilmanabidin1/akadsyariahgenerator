@@ -1301,8 +1301,14 @@ function viewGeneratedDocument(targetContract = null) {
   cleanText = cleanText.replace(/\*(.*?)\*/g, '$1');
   cleanText = cleanText.replace(/---/g, '');
 
-  const lines = cleanText.split('\n');
-  let formattedHtml = '';
+  // Selalu awali dokumen akad syariah dengan Kalimat Basmalah Bahasa Arab
+  let formattedHtml = `
+    <div style="text-align:center; margin-top: 0.5rem; margin-bottom: 1.5rem;">
+      <p style="font-family: 'Amiri', 'Traditional Arabic', 'Scheherazade New', 'Times New Roman', serif; font-size: 1.65rem; font-weight: bold; margin: 0; color: #0f172a; direction: rtl; line-height: 1.8; letter-spacing: 0.5px;">
+        بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+      </p>
+    </div>
+  `;
   let isNextLinePasalTitle = false;
 
   // Filter teks agar baris tanda tangan vertikal di badan teks AI tidak tertampil ganda
@@ -1312,6 +1318,11 @@ function viewGeneratedDocument(targetContract = null) {
   for (let i = 0; i < lines.length; i++) {
     const lineStr = lines[i].trim();
     if (!lineStr) continue;
+
+    // Abaikan jika teks mentah sudah memiliki baris basmalah agar tidak ganda
+    if (lineStr.includes('بِسْمِ اللَّهِ') || lineStr.includes('بسم الله') || lineStr.includes('بِسْمِ اللهِ') || lineStr.toUpperCase() === 'BISMILLAHIRRAHMANIRRAHIM' || lineStr.toUpperCase() === 'BISMILLAHIRRAHMAANIRRAHIIM') {
+      continue;
+    }
 
     // Deteksi jika AI mulai mencetak blok tanda tangan vertikal di ujung dokumen
     if (/^(PIHAK PERTAMA|Pihak Pertama|PIHAK KESATU|Pihak Kesatu)/i.test(lineStr) && i > lines.length - 12) {
@@ -1331,18 +1342,6 @@ function viewGeneratedDocument(targetContract = null) {
       isNextLinePasalTitle = false;
       const formattedTitle = formatArabicAndShariaTermsItalic(trimmed);
       formattedHtml += `<h5 style="text-align:center; font-size: 1.05rem; font-weight: bold; margin-top: 0.2rem; margin-bottom: 1.25rem; color: #0f172a; text-transform: uppercase;">${formattedTitle}</h5>`;
-      return;
-    }
-
-    // Deteksi Kalimat Basmalah Bahasa Arab (بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ)
-    if (trimmed.includes('بِسْمِ اللَّهِ') || trimmed.includes('بسم الله') || trimmed.includes('بِسْمِ اللهِ') || trimmed.toUpperCase() === 'BISMILLAHIRRAHMANIRRAHIM' || trimmed.toUpperCase() === 'BISMILLAHIRRAHMAANIRRAHIIM') {
-      formattedHtml += `
-        <div style="text-align:center; margin-top: 0.5rem; margin-bottom: 1.5rem;">
-          <p style="font-family: 'Amiri', 'Traditional Arabic', 'Scheherazade New', 'Times New Roman', serif; font-size: 1.6rem; font-weight: bold; margin: 0; color: #0f172a; direction: rtl; line-height: 1.8;">
-            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-          </p>
-        </div>
-      `;
       return;
     }
 
