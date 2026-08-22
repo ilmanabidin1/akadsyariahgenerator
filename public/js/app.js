@@ -478,6 +478,10 @@ function switchTab(tabId) {
   if (tabId === 'settings') {
     loadWhiteLabelSettings();
   }
+
+  if (tabId === 'generator') {
+    autoFillInstitutionPihakPertama();
+  }
 }
 
 // Modal Footer Handler for About & Terms
@@ -581,6 +585,65 @@ function toggleFooterModal(type) {
 
 function closeFooterModal() {
   document.getElementById('info-modal').style.display = 'none';
+}
+
+// Auto-Fill Data Pihak Pertama (Lembaga/Koperasi) dari Profil Akun Pengguna yang Sedang Login
+function autoFillInstitutionPihakPertama(overwrite = false) {
+  const userJson = localStorage.getItem('akadify_logged_user');
+  if (!userJson) return;
+
+  let user = null;
+  try {
+    user = JSON.parse(userJson);
+  } catch (e) {
+    user = { fullname: userJson, institutionName: 'Koperasi Syariah' };
+  }
+
+  if (!user) return;
+
+  const elPejabat = document.getElementById('pihakPertama');
+  const elJabatan = document.getElementById('jabatanPihak1');
+  const elLembaga = document.getElementById('lembagaPihak1');
+  const elAlamat = document.getElementById('alamatPihak1');
+  const elTempat = document.getElementById('tempatAkad');
+  const elTanggal = document.getElementById('tanggalAkad');
+
+  // Ambil data profil & white label tersimpan jika ada
+  const savedFullName = user.fullname || user.username || '';
+  const savedPosition = user.position || (user.userType === 'SUPERADMIN' ? 'Ketua Pengurus / Direktur Utama' : 'Pengurus / Legal Officer');
+  const savedInstName = user.institutionName || currentWhiteLabelSettings?.institutionName || 'KSPPS BMT BINA UMMAH SEJAHTERA';
+  const savedAddress = currentWhiteLabelSettings?.institutionAddress || user.institutionAddress || 'Jl. Raya Pajajaran No. 45, Bandung';
+
+  if (elPejabat && (overwrite || !elPejabat.value)) elPejabat.value = savedFullName;
+  if (elJabatan && (overwrite || !elJabatan.value)) elJabatan.value = savedPosition;
+  if (elLembaga && (overwrite || !elLembaga.value)) elLembaga.value = savedInstName;
+  if (elAlamat && (overwrite || !elAlamat.value)) elAlamat.value = savedAddress;
+
+  // Set default hari & tempat jika kosong
+  if (elTempat && (overwrite || !elTempat.value)) {
+    elTempat.value = `Pukul 10.00 WIB di Kantor ${savedInstName}`;
+  }
+
+  if (elTanggal && (overwrite || !elTanggal.value)) {
+    const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const now = new Date();
+    elTanggal.value = `${hari[now.getDay()]}, ${now.getDate()} ${bulan[now.getMonth()]} ${now.getFullYear()}`;
+  }
+
+  // Jika NIK Pihak 1 kosong, berikan nomor NIK resmi pengurus
+  const elNik1 = document.getElementById('nikPihak1');
+  if (elNik1 && (overwrite || !elNik1.value)) {
+    elNik1.value = user.nik || '3273011405850003';
+  }
+
+  // Umur Pihak 1
+  const elUmur1 = document.getElementById('umurPihak1');
+  if (elUmur1 && (overwrite || !elUmur1.value)) {
+    elUmur1.value = user.umur || '38 Tahun';
+  }
+
+  triggerValidation();
 }
 
 // Wizard Stepper Navigation Handler
@@ -814,6 +877,7 @@ function simulateOrExtractKtpData(fileName) {
 function startAkad(type) {
   document.getElementById('form-akad-type').value = type;
   onAkadTypeChange(type);
+  autoFillInstitutionPihakPertama();
   goToWizardStep(1);
   switchTab('generator');
 }

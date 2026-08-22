@@ -589,8 +589,13 @@
                   </div>
 
                   <!-- PIHAK PERTAMA (PENJUAL / PEMODAL / KOPERASI) -->
-                  <div class="pihak-box">
-                    <div class="pihak-title">🏢 PIHAK PERTAMA (Lembaga / Pemodal)</div>
+                  <div class="pihak-box" style="border: 2px solid #cbd5e1; background: #f8fafc;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                      <div class="pihak-title" style="margin-bottom: 0;">🏢 PIHAK PERTAMA (Lembaga / Pemodal)</div>
+                      <button type="button" class="btn btn-outline" onclick="autoFillInstitutionPihakPertama(true)" style="padding: 0.3rem 0.65rem; font-size: 0.75rem; border-color: #94a3b8; color: #475569; background: white;" title="Isi ulang data sesuai profil lembaga yang login">
+                        🔄 Muat Ulang Data Profil Lembaga
+                      </button>
+                    </div>
                     <div class="form-group">
                       <label>Nama Pejabat / Perwakilan</label>
                       <input type="text" id="pihakPertama" class="form-control" placeholder="Contoh: Iswahyudi, S.Sy" required oninput="triggerValidation()">
