@@ -1301,6 +1301,8 @@ function viewGeneratedDocument(targetContract = null) {
   cleanText = cleanText.replace(/\*(.*?)\*/g, '$1');
   cleanText = cleanText.replace(/---/g, '');
 
+  const lines = (cleanText || '').split('\n');
+
   // Selalu awali dokumen akad syariah dengan Kalimat Basmalah Bahasa Arab
   let formattedHtml = `
     <div style="text-align:center; margin-top: 0.5rem; margin-bottom: 1.5rem;">
