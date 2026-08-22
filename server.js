@@ -204,7 +204,8 @@ ${fullKnowledgeBasePrompt}
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: formattedMessages,
-        temperature: 0.3
+        temperature: 0.3,
+        stream: true
       })
     });
 
@@ -213,13 +214,55 @@ ${fullKnowledgeBasePrompt}
       return res.status(response.status).json({ error: `Backend API Error: ${errorText}` });
     }
 
-    const data = await response.json();
-    const resultText = data.choices[0].message.content;
-    res.json({ reply: resultText });
+    // Set header SSE (Server-Sent Events) untuk streaming real-time ke browser
+    res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders?.();
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || ''; // Simpan sisa chunk yang belum lengkap
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith('data: ')) continue;
+        const jsonStr = trimmed.replace(/^data:\s*/, '');
+        if (jsonStr === '[DONE]') {
+          res.write('data: [DONE]\n\n');
+          continue;
+        }
+
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const delta = parsed.choices?.[0]?.delta?.content || '';
+          if (delta) {
+            res.write(`data: ${JSON.stringify({ text: delta })}\n\n`);
+          }
+        } catch (parseErr) {
+          // Abaikan error parse parsial
+        }
+      }
+    }
+
+    res.write('data: [DONE]\n\n');
+    res.end();
 
   } catch (error) {
     console.error('Error in chat-syariah:', error);
-    res.status(500).json({ error: 'Gagal terhubung ke AI Service Backend.' });
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Gagal terhubung ke AI Service Backend.' });
+    } else {
+      res.end();
+    }
   }
 });
 

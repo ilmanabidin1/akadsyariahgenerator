@@ -1600,7 +1600,7 @@ async function handleFullChatSubmit(e) {
   const typingId = appendFullChatTyping();
   if (btnSubmit) {
     btnSubmit.disabled = true;
-    btnSubmit.innerText = 'Menganalisis...';
+    btnSubmit.innerText = 'Menelaah...';
   }
 
   try {
@@ -1612,11 +1612,47 @@ async function handleFullChatSubmit(e) {
 
     removeFullChatTyping(typingId);
 
-    if (response.ok) {
-      const data = await response.json();
-      const botReply = data.reply;
-      chatHistory.push({ role: 'assistant', content: botReply });
-      appendFullChatMessage('assistant', botReply);
+    if (response.ok && response.body) {
+      // Inisialisasi bubble pesan assistant baru yang akan diisi secara streaming
+      const messageElId = appendEmptyAssistantMessage();
+      const contentEl = document.getElementById(messageElId);
+      const container = document.getElementById('full-chat-messages-container');
+
+      let fullBotReply = '';
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || !trimmed.startsWith('data: ')) continue;
+          const jsonStr = trimmed.replace(/^data:\s*/, '');
+          if (jsonStr === '[DONE]') continue;
+
+          try {
+            const data = JSON.parse(jsonStr);
+            if (data.text) {
+              fullBotReply += data.text;
+              if (contentEl) {
+                contentEl.innerHTML = formatShariaChatMarkdown(fullBotReply);
+                if (container) container.scrollTop = container.scrollHeight;
+              }
+            }
+          } catch (e) {
+            // Partial parse safety
+          }
+        }
+      }
+
+      chatHistory.push({ role: 'assistant', content: fullBotReply });
     } else {
       const errData = await response.json().catch(() => ({ error: 'Error' }));
       appendFullChatMessage('assistant', `⚠️ Maaf, terjadi kendala: ${errData.error || 'Gagal terhubung ke AI Service'}`);
@@ -1633,18 +1669,8 @@ async function handleFullChatSubmit(e) {
   }
 }
 
-function appendFullChatMessage(role, text) {
-  const container = document.getElementById('full-chat-messages-container');
-  if (!container) return;
-
-  const isUser = role === 'user';
-  const avatar = isUser ? '👤' : '⚖️';
-  const bgStyle = isUser 
-    ? 'background: var(--primary-subtle); color: var(--primary-dark); border-radius: 16px 0 16px 16px; border: 1px solid rgba(4, 120, 87, 0.2);' 
-    : 'background: #ffffff; border: 1px solid #e2e8f0; color: #0f172a; border-radius: 0 16px 16px 16px; box-shadow: var(--shadow-sm);';
-  const alignSelf = isUser ? 'flex-direction: row-reverse;' : 'flex-direction: row;';
-
-  // Format text & Markdown
+// Format Markdown & Teks Respon AI Syariah
+function formatShariaChatMarkdown(text) {
   let cleanText = text;
   cleanText = cleanText.replace(/###\s*/g, '');
   cleanText = cleanText.replace(/##\s*/g, '');
@@ -1653,8 +1679,43 @@ function appendFullChatMessage(role, text) {
   cleanText = cleanText.replace(/\*(.*?)\*/g, '$1');
   cleanText = cleanText.replace(/---/g, '');
   cleanText = cleanText.replace(/--/g, '-');
+  return cleanText.replace(/\n/g, '<br>');
+}
 
-  let formattedText = cleanText.replace(/\n/g, '<br>');
+// Buat Bubble Pesan Assistant Kosong untuk Diisi Real-time Stream
+function appendEmptyAssistantMessage() {
+  const container = document.getElementById('full-chat-messages-container');
+  if (!container) return null;
+
+  const msgId = 'bot-msg-' + Date.now();
+  const html = `
+    <div style="display: flex; gap: 0.75rem; align-items: flex-start; flex-direction: row;">
+      <div style="width: 36px; height: 36px; border-radius: 50%; background: #0f172a; color: white; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;">
+        <img src="icons/judge.svg" alt="AI" style="width: 20px; height: 20px; filter: brightness(0) invert(1);">
+      </div>
+      <div id="${msgId}" style="background: #ffffff; border: 1px solid #e2e8f0; color: #0f172a; border-radius: 0 16px 16px 16px; box-shadow: var(--shadow-sm); padding: 1rem 1.25rem; max-width: 82%; font-size: 0.9rem; line-height: 1.6;">
+        <span style="color: var(--text-muted); font-style: italic;">Mengetik...</span>
+      </div>
+    </div>
+  `;
+
+  container.insertAdjacentHTML('beforeend', html);
+  container.scrollTop = container.scrollHeight;
+  return msgId;
+}
+
+function appendFullChatMessage(role, text) {
+  const container = document.getElementById('full-chat-messages-container');
+  if (!container) return;
+
+  const isUser = role === 'user';
+  const avatar = isUser ? '👤' : '<img src="icons/judge.svg" alt="AI" style="width: 20px; height: 20px; filter: brightness(0) invert(1);">';
+  const bgStyle = isUser 
+    ? 'background: var(--primary-subtle); color: var(--primary-dark); border-radius: 16px 0 16px 16px; border: 1px solid rgba(4, 120, 87, 0.2);' 
+    : 'background: #ffffff; border: 1px solid #e2e8f0; color: #0f172a; border-radius: 0 16px 16px 16px; box-shadow: var(--shadow-sm);';
+  const alignSelf = isUser ? 'flex-direction: row-reverse;' : 'flex-direction: row;';
+
+  const formattedText = formatShariaChatMarkdown(text);
 
   const html = `
     <div style="display: flex; gap: 0.75rem; align-items: flex-start; ${alignSelf}">
@@ -1674,7 +1735,9 @@ function appendFullChatTyping() {
   const typingId = 'typing-' + Date.now();
   const html = `
     <div id="${typingId}" style="display: flex; gap: 0.75rem; align-items: flex-start;">
-      <div style="width: 36px; height: 36px; border-radius: 50%; background: #0f172a; color: white; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;">⚖️</div>
+      <div style="width: 36px; height: 36px; border-radius: 50%; background: #0f172a; color: white; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;">
+        <img src="icons/judge.svg" alt="AI" style="width: 20px; height: 20px; filter: brightness(0) invert(1);">
+      </div>
       <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.85rem 1.15rem; border-radius: 0 16px 16px 16px; max-width: 82%; font-size: 0.85rem; color: var(--text-muted);">
         <em>Asisten AI sedang menelaah Fatwa DSN-MUI... ⏳</em>
       </div>
