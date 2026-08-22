@@ -1128,8 +1128,20 @@ function viewGeneratedDocument(targetContract = null) {
       return;
     }
 
+    // Deteksi Kalimat Basmalah Bahasa Arab (بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ)
+    if (trimmed.includes('بِسْمِ اللَّهِ') || trimmed.includes('بسم الله') || trimmed.includes('بِسْمِ اللهِ') || trimmed.toUpperCase() === 'BISMILLAHIRRAHMANIRRAHIM' || trimmed.toUpperCase() === 'BISMILLAHIRRAHMAANIRRAHIIM') {
+      formattedHtml += `
+        <div style="text-align:center; margin-top: 0.5rem; margin-bottom: 1.5rem;">
+          <p style="font-family: 'Amiri', 'Traditional Arabic', 'Scheherazade New', 'Times New Roman', serif; font-size: 1.6rem; font-weight: bold; margin: 0; color: #0f172a; direction: rtl; line-height: 1.8;">
+            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+          </p>
+        </div>
+      `;
+      return;
+    }
+
     // Judul Utama & Sub-Judul
-    if (trimmed.startsWith('AKAD ') || trimmed.startsWith('PERJANJIAN ') || trimmed.startsWith('BISMILLAH') || trimmed.includes('بسم الله')) {
+    if (trimmed.startsWith('AKAD ') || trimmed.startsWith('PERJANJIAN ')) {
       const formattedHeader = formatArabicAndShariaTermsItalic(trimmed);
       formattedHtml += `<h3 style="text-align:center; font-size: 1.2rem; font-weight: bold; margin: 1rem 0 0.5rem 0; text-transform: uppercase;">${formattedHeader}</h3>`;
     } else if (trimmed.startsWith('No.') || trimmed.startsWith('NO.')) {

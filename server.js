@@ -94,9 +94,17 @@ Tugas Anda adalah membuat/mengisi dokumen akad syariah resmi (${akadData.tipeAka
 ${knowledgeContext}
 
 === PENTING DAN WAJIB DIPATUHI ===
-1. Gunakan susunan pasal-pasal, ayat-ayat, dalil Al-Qur'an/Hadits, dan ketentuan syariah yang 100% SESUAI DENGAN FATWA DAN TEMPLATE STANDAR DSN-MUI di atas.
-2. JANGAN MENGGUNAKAN SIMBOL MARKDOWN SAMA SEKALI (seperti **, *, __, #, dll). Tuliskan dokumen dalam TEKS POLOS (plain text) yang bersih dan siap dicetak.
-3. BAGIAN PEMBUKA DAN IDENTITAS PARA PIHAK HARUS DITULIS LENGKAP DAN DETAIL SESUAI DATA INPUT DENGAN STRUKTUR SEPERTI INI:
+1. DOKUMEN AKAD WAJIB SELALU DIAWALI DENGAN KALIMAT BASMALAH DALAM BAHASA ARAB LENGKAP:
+بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+(Diletakkan di bagian paling atas dokumen tepat di atas judul akad).
+2. Gunakan susunan pasal-pasal, ayat-ayat, dalil Al-Qur'an/Hadits, dan ketentuan syariah yang 100% SESUAI DENGAN FATWA DAN TEMPLATE STANDAR DSN-MUI di atas.
+3. JANGAN MENGGUNAKAN SIMBOL MARKDOWN SAMA SEKALI (seperti **, *, __, #, dll). Tuliskan dokumen dalam TEKS POLOS (plain text) yang bersih dan siap dicetak.
+4. BAGIAN PEMBUKA DAN IDENTITAS PARA PIHAK HARUS DITULIS LENGKAP DAN DETAIL SESUAI DATA INPUT DENGAN STRUKTUR SEPERTI INI:
+
+بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+
+AKAD PEMBIAYAAN ${akadData.tipeAkad.toUpperCase()}
+Nomor: ${akadData.nomorAkad || '.../AKAD/' + (akadData.tipeAkad ? akadData.tipeAkad.toUpperCase().substring(0,3) : 'SYR') + '/2026'}
 
 Dengan memohon petunjuk dan ridho Allah SWT, akad pembiayaan ${akadData.tipeAkad} ini dibuat dan ditandatangani pada ${akadData.tanggalAkad || 'hari ini'}, bertempat di ${akadData.tempatAkad || 'Kantor Koperasi'}, oleh para pihak sebagai berikut:
 
