@@ -118,6 +118,12 @@ function closeSidebarUserDropdown() {
   }
 }
 
+// Open Info Modal From Dropdown Safely
+function openInfoModal(type) {
+  closeSidebarUserDropdown();
+  toggleFooterModal(type);
+}
+
 // Auto close user dropdown when clicking outside
 document.addEventListener('click', (e) => {
   const dropdown = document.getElementById('sidebar-user-dropdown');
@@ -478,6 +484,8 @@ function switchTab(tabId) {
 function toggleFooterModal(type) {
   const modal = document.getElementById('info-modal');
   const body = document.getElementById('modal-body-content');
+
+  if (!modal || !body) return;
 
   if (type === 'about') {
     body.innerHTML = `
