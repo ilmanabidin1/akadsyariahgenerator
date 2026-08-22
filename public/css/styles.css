@@ -124,10 +124,10 @@ body {
 
 .sidebar-logo-full {
   width: 100%;
-  max-width: 125px;
+  max-width: 155px;
   height: auto;
   display: block;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.35));
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
